@@ -23,14 +23,6 @@ const suburbanIcon = L.divIcon({
     popupAnchor: [0, -10]
 });
 
-const tramIcon = L.divIcon({
-    className: "station-marker tram-marker",
-    html: "●",
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
-    popupAnchor: [0, -8]
-});
-
 const busIcon = L.divIcon({
     className: "station-marker bus-marker",
     html: "●",
@@ -54,15 +46,6 @@ function getStationIcon(station) {
 
     if (name.startsWith("u ")) {
         return subwayIcon;
-    }
-
-    if (
-        name.includes("platz") ||
-        name.includes("allee") ||
-        name.includes("tor") ||
-        name.includes("markt")
-    ) {
-        return tramIcon;
     }
 
     return busIcon;

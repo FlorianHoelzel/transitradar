@@ -195,12 +195,6 @@ body {
     text-shadow: 0 0 8px rgba(0, 132, 61, 0.9);
 }
 
-.tram-marker {
-    color: #e4007c;
-    font-size: 22px;
-    text-shadow: 0 0 8px rgba(228, 0, 124, 0.9);
-}
-
 .bus-marker {
     color: #ffd200;
     font-size: 16px;
