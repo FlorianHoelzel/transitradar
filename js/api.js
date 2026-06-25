@@ -1,5 +1,4 @@
 const API_BASE = "https://v6.bvg.transport.rest";
-const stationTypeCache = {};
 
 export async function loadStationsFromApi() {
     const response = await fetch(`${API_BASE}/stops?results=1000`);
@@ -19,6 +18,17 @@ function getCleanStopId(stopId) {
     }
 
     return stopId;
+}
+
+function removeDuplicateDepartures(departures) {
+    return departures.filter((departure, index, array) => {
+        const key = `${departure.line?.name}-${departure.direction}-${departure.when}`;
+
+        return index === array.findIndex(item => {
+            const itemKey = `${item.line?.name}-${item.direction}-${item.when}`;
+            return itemKey === key;
+        });
+    });
 }
 
 async function fetchDeparturesForStation(station, results = 8, duration = 30) {
@@ -46,7 +56,9 @@ async function fetchDeparturesForStation(station, results = 8, duration = 30) {
         }
     }
 
-    return allDepartures
+    const uniqueDepartures = removeDuplicateDepartures(allDepartures);
+
+    return uniqueDepartures
         .filter(departure => departure.when)
         .sort((a, b) => new Date(a.when) - new Date(b.when));
 }
@@ -54,71 +66,4 @@ async function fetchDeparturesForStation(station, results = 8, duration = 30) {
 export async function getDepartures(station) {
     const departures = await fetchDeparturesForStation(station, 5, 20);
     return departures.slice(0, 8);
-}
-
-function countLines(departures) {
-    const counts = {
-        subway: 0,
-        suburban: 0,
-        tram: 0,
-        bus: 0
-    };
-
-    departures.forEach(departure => {
-        const line = departure.line;
-        const name = line?.name || "";
-        const product = line?.product || "";
-
-        if (product === "subway" || name.startsWith("U")) {
-            counts.subway++;
-            return;
-        }
-
-        if (product === "suburban" || name.startsWith("S")) {
-            counts.suburban++;
-            return;
-        }
-
-        if (product === "tram") {
-            counts.tram++;
-            return;
-        }
-
-        if (product === "bus") {
-            counts.bus++;
-            return;
-        }
-    });
-
-    return counts;
-}
-
-export async function getStationType(station) {
-    if (stationTypeCache[station.name]) {
-        return stationTypeCache[station.name];
-    }
-
-    const departures = await fetchDeparturesForStation(station, 12, 90);
-    const counts = countLines(departures);
-
-    let type = "bus";
-    let highestCount = counts.bus;
-
-    if (counts.tram > highestCount) {
-        type = "tram";
-        highestCount = counts.tram;
-    }
-
-    if (counts.subway > highestCount) {
-        type = "subway";
-        highestCount = counts.subway;
-    }
-
-    if (counts.suburban > highestCount) {
-        type = "suburban";
-        highestCount = counts.suburban;
-    }
-
-    stationTypeCache[station.name] = type;
-    return type;
 }
