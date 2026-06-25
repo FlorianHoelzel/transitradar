@@ -1,3 +1,5 @@
+import { createLineBadge } from "./badges.js";
+
 export function createPopupContent(station, content = "Lade Abfahrten...") {
     return `
         <div class="station-popup">
@@ -15,7 +17,7 @@ export function createDeparturesHtml(departures) {
     }
 
     return departures.map(departure => {
-        const line = departure.line?.name || "?";
+        const line = createLineBadge(departure.line?.name);
         const direction = departure.direction || "Unbekannt";
         const time = departure.when
             ? new Date(departure.when).toLocaleTimeString("de-DE", {

@@ -68,3 +68,62 @@ body {
 .leaflet-popup-tip {
     background: #111827;
 }
+
+.line-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 24px;
+    padding: 0 7px;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 14px;
+    margin-right: 6px;
+}
+
+.s-badge {
+    background: #00843d;
+    color: white;
+    border-radius: 999px;
+}
+
+.u-badge {
+    background: #005aaa;
+    color: white;
+    border-radius: 999px;
+}
+
+.metro-bus-badge {
+    background: white;
+    color: #111;
+    border: 2px solid #b0006d;
+}
+
+.express-bus-badge {
+    background: white;
+    color: #111;
+    border: 2px solid #f18700;
+}
+
+.night-bus-badge {
+    background: #111;
+    color: white;
+    border: 2px solid white;
+}
+
+.bus-badge {
+    background: white;
+    color: #111;
+    border: 1px solid #aaa;
+}
+
+.regional-badge {
+    background: #d0001b;
+    color: white;
+}
+
+.unknown-badge {
+    background: #666;
+    color: white;
+}
