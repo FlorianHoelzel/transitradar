@@ -31,15 +31,60 @@ function createMiddleStopsHtml(stops, lineColor) {
         .join("");
 }
 
+function removeDuplicateStops(stopovers) {
+    const seenStops = new Set();
+
+    return stopovers.filter(stopover => {
+        const name = getStopName(stopover);
+
+        if (!name || seenStops.has(name)) {
+            return false;
+        }
+
+        seenStops.add(name);
+        return true;
+    });
+}
+
+function getDestinationStop(stopovers) {
+    return stopovers[stopovers.length - 1];
+}
+
+function getNextStops(stopovers, destinationStop) {
+    const cleanStopovers = removeDuplicateStops(stopovers);
+
+    const destinationName = getStopName(destinationStop);
+
+    const stopsWithoutCurrent = cleanStopovers.slice(1);
+
+    const stopsBeforeDestination = stopsWithoutCurrent.filter(stopover => {
+        return getStopName(stopover) !== destinationName;
+    });
+
+    if (stopsBeforeDestination.length >= 3) {
+        return stopsBeforeDestination.slice(1, 3);
+    }
+
+    return stopsWithoutCurrent.slice(0, 3);
+}
+
 export function createVehicleStopsHtml(stopovers, lineColor) {
     if (!stopovers || stopovers.length === 0) {
         return "";
     }
 
-    const nextStops = stopovers.slice(1, 4);
-    const destinationStop = stopovers[stopovers.length - 1];
+    const destinationStop = getDestinationStop(stopovers);
+
+    if (!destinationStop) {
+        return "";
+    }
 
     const destinationName = getStopName(destinationStop);
+    const nextStops = getNextStops(stopovers, destinationStop);
+
+    if (nextStops.length === 0) {
+        return "";
+    }
 
     return `
         <div class="vehicle-timeline">
