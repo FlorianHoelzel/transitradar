@@ -70,6 +70,7 @@ export async function getDepartures(station) {
 
     return departures.slice(0, 12);
 }
+
 export async function getVehicleMovements(bounds) {
     const url =
         `${API_BASE}/radar` +

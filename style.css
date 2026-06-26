@@ -255,8 +255,6 @@ body {
 
 /* Vehicle popup */
 
-/* Vehicle popup */
-
 .vehicle-popup {
     min-width: 250px;
 }
@@ -310,15 +308,12 @@ body {
 
 .vehicle-stop {
     position: relative;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 16px 1fr;
+    column-gap: 10px;
+    align-items: start;
     min-height: 28px;
     padding-bottom: 8px;
-}
-
-.vehicle-stop:last-child {
-    padding-bottom: 0;
 }
 
 .vehicle-stop-icon {
@@ -326,7 +321,8 @@ body {
     height: 10px;
     border-radius: 50%;
     background: var(--line-color);
-    flex-shrink: 0;
+    justify-self: center;
+    margin-top: 4px;
     position: relative;
 }
 
@@ -337,16 +333,17 @@ body {
     top: 10px;
     transform: translateX(-50%);
     width: 2px;
-    height: 22px;
+    height: 26px;
     background: var(--line-color);
     opacity: 0.85;
 }
 
 .vehicle-stop.last .vehicle-stop-icon {
-    width: 15px;
-    height: 15px;
-    background: var(--line-color);
-    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08);
+    width: 14px;
+    height: 14px;
+    margin-top: 2px;
+    box-shadow: 0 0 0 4px rgba(192, 0, 122, 0.12);
+}
 }
 
 .vehicle-stop.last .vehicle-stop-name {

@@ -114,7 +114,20 @@ function createVehicleIcon(movement) {
 function createVehiclePopup(movement) {
     const lineName = movement.line?.name || "?";
     const style = getBadgeStyle(lineName);
-    const lineColor = style.background === "#fff" ? style.border.replace("3px solid ", "") : style.background;
+
+    let lineColor;
+
+    if (lineName.startsWith("M")) {
+        lineColor = "#C0007A";
+    } else if (lineName.startsWith("X")) {
+        lineColor = "#F39200";
+    } else if (/^\d+$/.test(lineName)) {
+        lineColor = "#6B7280";
+    } else if (style.background !== "#fff") {
+        lineColor = style.background;
+    } else {
+        lineColor = "#6B7280";
+    }
 
     const nextStops = createVehicleStopsHtml(
         movement.nextStopovers,
@@ -196,9 +209,4 @@ export async function updateVehicles() {
     } catch (error) {
         console.error(error);
     }
-}
-
-export async function getDepartures(station) {
-    const departures = await fetchDeparturesForStation(station, 20, 60);
-    return departures.slice(0, 12);
 }
