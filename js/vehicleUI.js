@@ -12,7 +12,7 @@ function getStopName(stopover) {
 
 function createMiddleStopsHtml(stops, lineColor) {
     return stops
-        .map(stopover => {
+        .map((stopover, index) => {
             const name = getStopName(stopover);
 
             return `
@@ -22,7 +22,7 @@ function createMiddleStopsHtml(stops, lineColor) {
                         style="--line-color: ${lineColor};"
                     ></div>
 
-                    <div class="vehicle-stop-name">
+                    <div class="vehicle-stop-name ${index === 0 ? "vehicle-next-stop" : ""}">
                         ${name}
                     </div>
                 </div>
@@ -36,39 +36,20 @@ export function createVehicleStopsHtml(stopovers, lineColor) {
         return "";
     }
 
-    const visibleStopovers = stopovers.slice(0, 5);
+    const nextStops = stopovers.slice(1, 4);
+    const destinationStop = stopovers[stopovers.length - 1];
 
-    const currentStop = visibleStopovers[0];
-    const destinationStop = visibleStopovers[visibleStopovers.length - 1];
-    const middleStops = visibleStopovers.slice(1, -1);
-
-    const currentName = getStopName(currentStop);
     const destinationName = getStopName(destinationStop);
 
     return `
         <div class="vehicle-timeline">
-            <div class="vehicle-current-stop">
-                <div
-                    class="vehicle-current-dot"
-                    style="--line-color: ${lineColor};"
-                ></div>
-
-                <div>
-                    <div class="vehicle-current-name">${currentName}</div>
-                </div>
-            </div>
-
-            <div class="vehicle-stop-connector"></div>
-
-            ${createMiddleStopsHtml(middleStops, lineColor)}
+            ${createMiddleStopsHtml(nextStops, lineColor)}
 
             <div class="vehicle-destination-stop">
                 <div
                     class="vehicle-destination-dot"
                     style="--line-color: ${lineColor};"
-                >
-                    
-                </div>
+                ></div>
 
                 <div>
                     <div class="vehicle-destination-label">Destination</div>
