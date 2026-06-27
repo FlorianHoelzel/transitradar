@@ -32,12 +32,8 @@ export function clearSelectedLine() {
 
     updateSelectedLineControl(() => {
         clearSelectedLine();
-        updateVehicles();
+        updateVehicles(true);
     });
-
-    if (map.getZoom() < 14) {
-        clearVehicleMarkers();
-    }
 }
 
 function selectLineFromMovement(movement) {
@@ -62,10 +58,10 @@ function selectLineFromMovement(movement) {
 
     updateSelectedLineControl(() => {
         clearSelectedLine();
-        updateVehicles();
+        updateVehicles(true);
     });
 
-    updateVehicles();
+    updateVehicles(true);
 }
 
 function removeOutdatedVehicleMarkers(visibleVehicleIds) {
@@ -73,16 +69,6 @@ function removeOutdatedVehicleMarkers(visibleVehicleIds) {
         const marker = vehicleMarkers[id];
 
         if (!marker) {
-            return;
-        }
-
-        const markerLine = marker.transitMovement?.line?.name;
-
-        if (
-            vehicleState.selectedLineName &&
-            markerLine === vehicleState.selectedLineName
-        ) {
-            visibleVehicleIds.add(id);
             return;
         }
 

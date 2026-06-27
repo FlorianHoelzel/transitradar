@@ -1,7 +1,6 @@
 import { map } from "./map.js";
 import { getBadgeStyle } from "./lineColors.js";
 import { activeFilters } from "./filters.js";
-import { vehicleState } from "./vehicleState.js";
 
 export function getRadarBounds() {
     return map.getBounds();
@@ -38,27 +37,10 @@ export function getVehicleType(movement) {
         return "subway";
     }
 
-    if (
-        product === "bus" ||
-        product === "tram" ||
-        lineName.startsWith("M") ||
-        lineName.startsWith("X") ||
-        lineName.startsWith("N") ||
-        /^\d+$/.test(lineName)
-    ) {
-        return "surface";
-    }
-
     return "surface";
 }
 
 export function shouldShowVehicle(movement) {
-    const lineName = movement.line?.name || "";
-
-    if (vehicleState.selectedLineName) {
-        return lineName === vehicleState.selectedLineName;
-    }
-
     const zoom = map.getZoom();
     const vehicleType = getVehicleType(movement);
 
