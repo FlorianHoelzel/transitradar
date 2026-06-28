@@ -1,6 +1,5 @@
-import { loadStationsFromApi } from "../api/transportRestApi.js";
 import { loadStationsFromLocalData } from "./localStationRepository.js";
-import { BERLIN_BOUNDS, DEV_CONFIG } from "../config.js";
+import { BERLIN_BOUNDS } from "../config.js";
 
 function isBerlinAreaStation(station) {
     const [lat, lng] = station.coordinates;
@@ -77,35 +76,14 @@ function prepareStations(rawStops) {
     return groupStationsByName(rawStations);
 }
 
-async function loadStationsFromRemoteApi() {
-    const data = await loadStationsFromApi();
-
-    return prepareStations(data);
-}
-
-async function loadStationsFromFallbackData() {
-    const data = await loadStationsFromLocalData();
-
-    return prepareStations(data);
-}
-
 export async function loadStations() {
-    if (DEV_CONFIG.useMockData) {
-        console.log("Developer Mode: loading stations from local data.");
-        return await loadStationsFromFallbackData();
-    }
-
     try {
-        console.log("Loading stations from API.");
-        return await loadStationsFromRemoteApi();
-    } catch (apiError) {
-        console.warn("Failed to load stations from API. Trying local fallback:", apiError);
+        console.log("Loading stations from local cache.");
+        const data = await loadStationsFromLocalData();
 
-        try {
-            return await loadStationsFromFallbackData();
-        } catch (fallbackError) {
-            console.error("Failed to load stations from local fallback:", fallbackError);
-            return [];
-        }
+        return prepareStations(data);
+    } catch (error) {
+        console.error("Failed to load stations from local cache:", error);
+        return [];
     }
 }
