@@ -1,4 +1,4 @@
-import { STATION_ZOOM_THRESHOLD } from "../config.js";
+import { STATION_CONFIG } from "../config.js";
 import { activeFilters } from "../ui/filters.js";
 
 export function isTrainStation(station) {
@@ -12,7 +12,7 @@ export function isTrainStation(station) {
 }
 
 export function shouldShowStation(station, zoom) {
-    if (zoom < STATION_ZOOM_THRESHOLD) {
+    if (zoom < STATION_CONFIG.zoomThreshold) {
         return isTrainStation(station);
     }
 

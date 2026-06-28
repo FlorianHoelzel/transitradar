@@ -1,10 +1,8 @@
 import {
     API_BASE_URLS,
-    RADAR_RESULT_LIMITS,
-    RADAR_RESULT_ZOOM_LEVELS,
-    STATION_RESULTS_LIMIT,
-    DEPARTURE_REQUEST,
-    DEPARTURE_FALLBACK_REQUEST
+    STATION_CONFIG,
+    DEPARTURE_CONFIG,
+    VEHICLE_CONFIG
 } from "../config.js";
 import { fetchJson } from "./httpClient.js";
 
@@ -22,15 +20,15 @@ function getCleanStopId(stopId) {
 }
 
 function getRadarResultLimit(zoom) {
-    if (zoom >= RADAR_RESULT_ZOOM_LEVELS.high) {
-        return RADAR_RESULT_LIMITS.highZoom;
+    if (zoom >= VEHICLE_CONFIG.radarZoomLevels.high) {
+        return VEHICLE_CONFIG.radarResultLimits.highZoom;
     }
 
-    if (zoom >= RADAR_RESULT_ZOOM_LEVELS.medium) {
-        return RADAR_RESULT_LIMITS.mediumZoom;
+    if (zoom >= VEHICLE_CONFIG.radarZoomLevels.medium) {
+        return VEHICLE_CONFIG.radarResultLimits.mediumZoom;
     }
 
-    return RADAR_RESULT_LIMITS.default;
+    return VEHICLE_CONFIG.radarResultLimits.default;
 }
 
 function removeDuplicateDepartures(departures) {
@@ -71,8 +69,8 @@ async function fetchDeparturesForStop(stopId, results, duration) {
 
 async function fetchDeparturesForStation(
     station,
-    results = DEPARTURE_FALLBACK_REQUEST.results,
-    duration = DEPARTURE_FALLBACK_REQUEST.duration
+    results = DEPARTURE_CONFIG.fallbackResults,
+    duration = DEPARTURE_CONFIG.fallbackDuration
 ) {
     const allDepartures = [];
 
@@ -94,7 +92,7 @@ async function fetchDeparturesForStation(
 
 export async function loadStationsFromApi() {
     return await fetchJson(
-        `${BVG_API_BASE}/stops?results=${STATION_RESULTS_LIMIT}`,
+        `${BVG_API_BASE}/stops?results=${STATION_CONFIG.apiResultsLimit}`,
         "Failed to load stations."
     );
 }
@@ -102,11 +100,11 @@ export async function loadStationsFromApi() {
 export async function getDepartures(station) {
     const departures = await fetchDeparturesForStation(
         station,
-        DEPARTURE_REQUEST.results,
-        DEPARTURE_REQUEST.duration
+        DEPARTURE_CONFIG.requestResults,
+        DEPARTURE_CONFIG.requestDuration
     );
 
-    return departures.slice(0, DEPARTURE_REQUEST.displayLimit);
+    return departures.slice(0, DEPARTURE_CONFIG.displayLimit);
 }
 
 export async function getVehicleMovements(bounds, zoom) {

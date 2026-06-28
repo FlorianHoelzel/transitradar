@@ -1,7 +1,4 @@
-import {
-    VEHICLE_REFRESH_INTERVAL,
-    VEHICLE_MINIMUM_UPDATE_INTERVAL
-} from "../config.js";
+import { VEHICLE_CONFIG } from "../config.js";
 
 export const vehicleState = {
     updateRunning: false,
@@ -10,6 +7,6 @@ export const vehicleState = {
     selectedLineName: null,
     selectedLineControl: null,
 
-    refreshInterval: VEHICLE_REFRESH_INTERVAL,
-    minimumUpdateInterval: VEHICLE_MINIMUM_UPDATE_INTERVAL
+    refreshInterval: VEHICLE_CONFIG.refreshInterval,
+    minimumUpdateInterval: VEHICLE_CONFIG.minimumUpdateInterval
 };

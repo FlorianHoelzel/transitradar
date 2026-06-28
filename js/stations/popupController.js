@@ -1,5 +1,5 @@
 import { showRouteForTrip } from "../map/routeLayer.js";
-import { POPUP_REFRESH_INTERVAL } from "../config.js";
+import { DEPARTURE_CONFIG } from "../config.js";
 import { createDeparturesHtml } from "./stationPopup.js";
 import { loadDeparturesForStation } from "./departureService.js";
 
@@ -82,7 +82,7 @@ function startPopupRefresh(marker, station) {
 
     popupRefreshInterval = setInterval(() => {
         refreshPopupDepartures(marker, station);
-    }, POPUP_REFRESH_INTERVAL);
+    }, DEPARTURE_CONFIG.popupRefreshInterval);
 }
 
 export async function handleStationPopupOpen(marker, station) {

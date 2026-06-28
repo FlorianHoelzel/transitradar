@@ -1,8 +1,4 @@
-import {
-    API_STATUS_TEST_URLS,
-    API_STATUS_TIMEOUT,
-    API_STATUS_REFRESH_INTERVAL
-} from "../config.js";
+import { API_STATUS_CONFIG } from "../config.js";
 
 let apiStatus = "checking";
 let lastCheckedAt = null;
@@ -15,7 +11,7 @@ export function getLastCheckedAt() {
     return lastCheckedAt;
 }
 
-async function fetchWithTimeout(url, timeout = API_STATUS_TIMEOUT) {
+async function fetchWithTimeout(url, timeout = API_STATUS_CONFIG.timeout) {
     const controller = new AbortController();
 
     const timeoutId = setTimeout(() => {
@@ -43,7 +39,7 @@ export async function checkApiStatus(onStatusChange) {
     }
 
     const results = await Promise.all(
-        API_STATUS_TEST_URLS.map(url => fetchWithTimeout(url))
+        API_STATUS_CONFIG.testUrls.map(url => fetchWithTimeout(url))
     );
 
     const hasWorkingApi = results.some(result => result === true);
@@ -65,5 +61,5 @@ export function startApiStatusWatcher(onStatusChange) {
 
     setInterval(() => {
         checkApiStatus(onStatusChange);
-    }, API_STATUS_REFRESH_INTERVAL);
+    }, API_STATUS_CONFIG.refreshInterval);
 }

@@ -1,6 +1,6 @@
-import { HTTP_TIMEOUT } from "../config.js";
+import { HTTP_CONFIG } from "../config.js";
 
-export async function fetchJson(url, errorMessage, timeout = HTTP_TIMEOUT) {
+export async function fetchJson(url, errorMessage, timeout = HTTP_CONFIG.timeout) {
     const controller = new AbortController();
 
     const timeoutId = setTimeout(() => {
