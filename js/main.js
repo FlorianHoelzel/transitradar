@@ -8,8 +8,8 @@ import {
 } from "./stations/stationMarkers.js";
 import { setupSearch } from "./stations/stationSearch.js";
 import { updateVehicles } from "./vehicles/vehicleController.js";
-import { setupFilters } from "./filters.js";
-import { setupSidebar } from "./sidebar.js";
+import { setupFilters } from "./ui/filters.js";
+import { setupSidebar } from "./ui/sidebar.js";
 import { vehicleState } from "./vehicles/vehicleState.js";
 
 async function setupStations() {

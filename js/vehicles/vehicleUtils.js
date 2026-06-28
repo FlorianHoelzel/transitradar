@@ -1,5 +1,5 @@
 import { getBadgeStyle } from "../lineColors.js";
-import { activeFilters } from "../filters.js";
+import { activeFilters } from "../ui/filters.js";
 
 export function getVehicleType(movement) {
     const lineName = movement.line?.name || "";
