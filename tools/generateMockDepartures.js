@@ -16,8 +16,8 @@ const lines = [
     { name: "S3", product: "suburban", directions: ["Erkner", "Spandau"] },
     { name: "S5", product: "suburban", directions: ["Strausberg Nord", "Westkreuz"] },
     { name: "S7", product: "suburban", directions: ["Ahrensfelde", "Potsdam Hbf"] },
-    { name: "S41", product: "suburban", directions: ["Ring clockwise"] },
-    { name: "S42", product: "suburban", directions: ["Ring counterclockwise"] },
+    { name: "S41", product: "suburban", directions: ["Ring ↻"] },
+    { name: "S42", product: "suburban", directions: ["Ring ↺"] },
 
     { name: "M4", product: "tram", directions: ["Hackescher Markt", "Falkenberg"] },
     { name: "M10", product: "tram", directions: ["Warschauer Straße", "Turmstraße"] },
