@@ -1,3 +1,4 @@
+import { VEHICLE_ZOOM_THRESHOLD } from "../config.js";
 import { getBadgeStyle } from "../lines/lineColors.js";
 import { activeFilters } from "../ui/filters.js";
 
@@ -42,7 +43,7 @@ export function shouldShowVehicle(movement, zoom) {
         return false;
     }
 
-    if (zoom < 14) {
+    if (zoom < VEHICLE_ZOOM_THRESHOLD) {
         return false;
     }
 

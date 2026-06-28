@@ -1,4 +1,5 @@
 import { showRouteForTrip } from "../map/routeLayer.js";
+import { POPUP_REFRESH_INTERVAL } from "../config.js";
 import { createDeparturesHtml } from "./stationPopup.js";
 import { loadDeparturesForStation } from "./departureService.js";
 
@@ -70,8 +71,8 @@ async function refreshPopupDepartures(marker, station) {
         setupDepartureRouteClicks(popupElement);
         setupFade(popupElement);
     } catch (error) {
-        console.error("Fehler beim Aktualisieren der Abfahrten:", error);
-        departuresContainer.innerHTML = "Abfahrten konnten nicht geladen werden.";
+        console.error("Failed to update departures:", error);
+        departuresContainer.innerHTML = "Departures could not be loaded.";
         setupFade(popupElement);
     }
 }
@@ -81,7 +82,7 @@ function startPopupRefresh(marker, station) {
 
     popupRefreshInterval = setInterval(() => {
         refreshPopupDepartures(marker, station);
-    }, 15000);
+    }, POPUP_REFRESH_INTERVAL);
 }
 
 export async function handleStationPopupOpen(marker, station) {

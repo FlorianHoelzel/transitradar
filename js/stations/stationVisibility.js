@@ -1,9 +1,10 @@
+import { STATION_MARKER_LIMIT } from "../config.js";
 import {
     shouldShowStation,
     matchesActiveStationFilter
 } from "./stationUtils.js";
 
-export function getVisibleStations(stations, bounds, zoom, limit = 200) {
+export function getVisibleStations(stations, bounds, zoom, limit = STATION_MARKER_LIMIT) {
     return stations
         .filter(station => {
             return (

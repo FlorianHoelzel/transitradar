@@ -1,10 +1,15 @@
 import { loadStationsFromApi } from "../api/transportRestApi.js";
+import { BERLIN_BOUNDS } from "../config.js";
 
 function isBerlinAreaStation(station) {
     const [lat, lng] = station.coordinates;
 
-    return lat >= 52.33 && lat <= 52.70 &&
-           lng >= 13.05 && lng <= 13.80;
+    return (
+        lat >= BERLIN_BOUNDS.minLat &&
+        lat <= BERLIN_BOUNDS.maxLat &&
+        lng >= BERLIN_BOUNDS.minLng &&
+        lng <= BERLIN_BOUNDS.maxLng
+    );
 }
 
 function normalizeStop(stop) {
@@ -63,12 +68,25 @@ function groupStationsByName(rawStations) {
     return Object.values(groupedStations);
 }
 
-export async function loadStations() {
-    const data = await loadStationsFromApi();
-
-    const rawStations = data
+function prepareStations(rawStops) {
+    const rawStations = rawStops
         .map(normalizeStop)
         .filter(isBerlinAreaStation);
 
     return groupStationsByName(rawStations);
+}
+
+async function loadStationsFromRemoteApi() {
+    const data = await loadStationsFromApi();
+
+    return prepareStations(data);
+}
+
+export async function loadStations() {
+    try {
+        return await loadStationsFromRemoteApi();
+    } catch (error) {
+        console.error("Failed to load stations from API:", error);
+        return [];
+    }
 }

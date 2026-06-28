@@ -1,5 +1,15 @@
-const BVG_API_BASE = "https://v6.bvg.transport.rest";
-const VBB_API_BASE = "https://v6.vbb.transport.rest";
+import {
+    API_BASE_URLS,
+    RADAR_RESULT_LIMITS,
+    RADAR_RESULT_ZOOM_LEVELS,
+    STATION_RESULTS_LIMIT,
+    DEPARTURE_REQUEST,
+    DEPARTURE_FALLBACK_REQUEST
+} from "../config.js";
+import { fetchJson } from "./httpClient.js";
+
+const BVG_API_BASE = API_BASE_URLS.bvg;
+const VBB_API_BASE = API_BASE_URLS.vbb;
 
 function getCleanStopId(stopId) {
     const parts = String(stopId).split(":");
@@ -12,25 +22,15 @@ function getCleanStopId(stopId) {
 }
 
 function getRadarResultLimit(zoom) {
-    if (zoom >= 16) {
-        return 1000;
+    if (zoom >= RADAR_RESULT_ZOOM_LEVELS.high) {
+        return RADAR_RESULT_LIMITS.highZoom;
     }
 
-    if (zoom >= 15) {
-        return 600;
+    if (zoom >= RADAR_RESULT_ZOOM_LEVELS.medium) {
+        return RADAR_RESULT_LIMITS.mediumZoom;
     }
 
-    return 300;
-}
-
-async function fetchJson(url, errorMessage) {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-        throw new Error(errorMessage);
-    }
-
-    return await response.json();
+    return RADAR_RESULT_LIMITS.default;
 }
 
 function removeDuplicateDepartures(departures) {
@@ -55,7 +55,7 @@ async function fetchDeparturesForStop(stopId, results, duration) {
     try {
         const data = await fetchJson(
             url,
-            "Departures konnten nicht geladen werden."
+            "Failed to load departures."
         );
 
         if (Array.isArray(data)) {
@@ -64,12 +64,16 @@ async function fetchDeparturesForStop(stopId, results, duration) {
 
         return data.departures ?? [];
     } catch (error) {
-        console.warn(`Departures für Stop ${cleanStopId} konnten nicht geladen werden:`, error);
+        console.warn(`Failed to load departures for stop ${cleanStopId}:`, error);
         return [];
     }
 }
 
-async function fetchDeparturesForStation(station, results = 8, duration = 30) {
+async function fetchDeparturesForStation(
+    station,
+    results = DEPARTURE_FALLBACK_REQUEST.results,
+    duration = DEPARTURE_FALLBACK_REQUEST.duration
+) {
     const allDepartures = [];
 
     const uniqueStopIds = [
@@ -90,15 +94,19 @@ async function fetchDeparturesForStation(station, results = 8, duration = 30) {
 
 export async function loadStationsFromApi() {
     return await fetchJson(
-        `${BVG_API_BASE}/stops?results=1000`,
-        "Stations konnten nicht geladen werden."
+        `${BVG_API_BASE}/stops?results=${STATION_RESULTS_LIMIT}`,
+        "Failed to load stations."
     );
 }
 
 export async function getDepartures(station) {
-    const departures = await fetchDeparturesForStation(station, 20, 60);
+    const departures = await fetchDeparturesForStation(
+        station,
+        DEPARTURE_REQUEST.results,
+        DEPARTURE_REQUEST.duration
+    );
 
-    return departures.slice(0, 12);
+    return departures.slice(0, DEPARTURE_REQUEST.displayLimit);
 }
 
 export async function getVehicleMovements(bounds, zoom) {
@@ -116,7 +124,7 @@ export async function getVehicleMovements(bounds, zoom) {
 
     const data = await fetchJson(
         url,
-        "Live-Fahrzeuge konnten nicht geladen werden."
+        "Failed to load live vehicles."
     );
 
     return data.movements ?? [];
@@ -132,6 +140,6 @@ export async function getTripDetails(tripId, lineName) {
 
     return await fetchJson(
         url,
-        "Trip route could not be loaded."
+        "Failed to load trip route."
     );
 }

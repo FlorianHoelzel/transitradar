@@ -1,7 +1,8 @@
-const API_TEST_URLS = [
-    "https://v6.bvg.transport.rest/stops?results=1",
-    "https://v6.vbb.transport.rest/radar?north=52.55&south=52.50&east=13.45&west=13.35&results=1&frames=1"
-];
+import {
+    API_STATUS_TEST_URLS,
+    API_STATUS_TIMEOUT,
+    API_STATUS_REFRESH_INTERVAL
+} from "../config.js";
 
 let apiStatus = "checking";
 let lastCheckedAt = null;
@@ -14,7 +15,7 @@ export function getLastCheckedAt() {
     return lastCheckedAt;
 }
 
-async function fetchWithTimeout(url, timeout = 6000) {
+async function fetchWithTimeout(url, timeout = API_STATUS_TIMEOUT) {
     const controller = new AbortController();
 
     const timeoutId = setTimeout(() => {
@@ -42,14 +43,14 @@ export async function checkApiStatus(onStatusChange) {
     }
 
     const results = await Promise.all(
-        API_TEST_URLS.map(url => fetchWithTimeout(url))
+        API_STATUS_TEST_URLS.map(url => fetchWithTimeout(url))
     );
 
     const hasWorkingApi = results.some(result => result === true);
 
     apiStatus = hasWorkingApi ? "online" : "offline";
 
-    lastCheckedAt = new Date().toLocaleTimeString("de-DE", {
+    lastCheckedAt = new Date().toLocaleTimeString("en-GB", {
         hour: "2-digit",
         minute: "2-digit"
     });
@@ -64,5 +65,5 @@ export function startApiStatusWatcher(onStatusChange) {
 
     setInterval(() => {
         checkApiStatus(onStatusChange);
-    }, 60000);
+    }, API_STATUS_REFRESH_INTERVAL);
 }
