@@ -187,6 +187,7 @@
     display: grid;
     gap: 8px;
     min-width: 0;
+    padding-right: 4px;
 }
 
 .sidebar-item {
