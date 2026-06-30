@@ -266,6 +266,8 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding-bottom: 16px;
+    scroll-padding-bottom: 16px;
 
     scrollbar-width: none;
     -ms-overflow-style: none;
