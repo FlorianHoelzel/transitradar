@@ -169,7 +169,7 @@
     overflow-x: hidden;
     overflow-y: auto;
 
-    padding-bottom: 24px;
+    padding-bottom: 0;
 
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -267,7 +267,7 @@
     display: grid;
     gap: 8px;
 
-    margin-top: 18px;
+    margin-top: 0;
     padding-top: 20px;
 }
 
@@ -395,10 +395,9 @@
     flex-direction: column;
     gap: 12px;
 
-    max-height: calc(100vh - 330px);
     padding-right: 0;
 
-    overflow-y: auto;
+    overflow: visible;
 
     scrollbar-width: none;
     -ms-overflow-style: none;

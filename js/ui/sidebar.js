@@ -196,6 +196,7 @@ export function setupSidebar() {
         favoritesChevron.classList.toggle("open", isOpen);
 
         if (!isOpen) {
+            favoritesList.classList.remove("has-fade");
             stopFavoritesRefresh();
             return;
         }
