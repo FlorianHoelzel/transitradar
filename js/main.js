@@ -10,6 +10,7 @@ import { setupSearch } from "./stations/stationSearch.js";
 import { updateVehicles } from "./vehicles/vehicleController.js";
 import { setupFilters } from "./ui/filters.js";
 import { setupSidebar } from "./ui/sidebar.js";
+import { createLocationButton } from "./ui/locationButton.js";
 import { vehicleState } from "./vehicles/vehicleState.js";
 import { initializeDeveloperMode } from "./dev/developerMode.js";
 
@@ -27,6 +28,7 @@ async function setupStations() {
 
 function setupUi() {
     setupSidebar();
+    createLocationButton();
 
     setupFilters(() => {
         stopPopupRefresh();

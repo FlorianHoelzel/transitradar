@@ -1,0 +1,127 @@
+.location-button {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 22000;
+
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.18),
+            rgba(255, 255, 255, 0.04)
+        ),
+        var(--glass-bg);
+
+    color: var(--text-main);
+
+    backdrop-filter: var(--glass-blur-soft);
+    -webkit-backdrop-filter: var(--glass-blur-soft);
+
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1;
+
+    cursor: pointer;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.location-button:hover {
+    background: rgba(30, 41, 59, 0.96);
+    transform: translateY(-1px);
+}
+
+.location-button-icon {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.location-button.loading .location-button-icon {
+    animation: location-spin 0.9s linear infinite;
+}
+
+.location-button.active {
+    color: #38bdf8;
+}
+
+.location-button.error {
+    color: #fb7185;
+}
+
+.user-location-marker {
+    position: relative;
+}
+
+.user-location-dot {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+
+    width: 16px;
+    height: 16px;
+
+    border: 3px solid white;
+    border-radius: 999px;
+
+    background: #38bdf8;
+
+    box-shadow:
+        0 0 0 4px rgba(56, 189, 248, 0.18),
+        0 0 22px rgba(56, 189, 248, 0.9);
+
+    transform: translate(-50%, -50%);
+}
+
+.user-location-pulse {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.28);
+
+    transform: translate(-50%, -50%);
+    animation: location-pulse 1.8s ease-out infinite;
+}
+
+@keyframes location-pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.7);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1.9);
+        opacity: 0;
+    }
+}
+
+@keyframes location-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 700px) {
+    .location-button {
+        top: 12px;
+        right: 12px;
+
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+    }
+}
