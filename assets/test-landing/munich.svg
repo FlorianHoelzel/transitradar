@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" role="img" aria-label="Munich city portrait">
+  <defs>
+    <linearGradient id="sky" x1="62" y1="22" x2="308" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4c6f92"/>
+      <stop offset="0.48" stop-color="#f3b36f"/>
+      <stop offset="1" stop-color="#1a243d"/>
+    </linearGradient>
+    <clipPath id="clip">
+      <circle cx="180" cy="180" r="174"/>
+    </clipPath>
+  </defs>
+  <circle cx="180" cy="180" r="176" fill="#1a243d"/>
+  <g clip-path="url(#clip)">
+    <rect width="360" height="360" fill="url(#sky)"/>
+    <path d="M-8 224 29 196l28 24 42-49 39 55 45-72 56 76 38-47 91 75v102H-8Z" fill="#eef4fb" opacity=".88"/>
+    <path d="M-8 243 30 205l32 33 39-50 41 56 43-62 48 67 39-43 96 78v76H-8Z" fill="#1a2432" opacity=".86"/>
+    <path d="M93 280v-52h38v52Zm68 0v-65h38v65Zm69 0v-52h38v52Z" fill="#121a2b"/>
+    <path d="M142 280v-82h78v82Z" fill="#141c2e"/>
+    <path d="M150 199V116c0-9 14-9 14 0v83Zm48 0V116c0-9 14-9 14 0v83Z" fill="#111827"/>
+    <path d="M150 116c5-16 14-16 14 0Zm48 0c5-16 14-16 14 0Z" fill="#111827"/>
+    <path d="M165 280v-35c0-21 32-21 32 0v35Z" fill="#0b111d"/>
+    <path d="M55 301 318 201" stroke="#39c7ff" stroke-width="7" stroke-linecap="round"/>
+    <path d="M27 318 212 248" stroke="#ff675a" stroke-width="7" stroke-linecap="round"/>
+    <path d="M41 89c72 30 166 31 280-13" stroke="#fff" stroke-opacity=".12" stroke-width="38" stroke-linecap="round"/>
+  </g>
+</svg>

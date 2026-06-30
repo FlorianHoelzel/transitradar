@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" role="img" aria-label="Berlin city portrait">
+  <defs>
+    <linearGradient id="sky" x1="70" y1="24" x2="286" y2="321" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#596aa0"/>
+      <stop offset="0.48" stop-color="#f0a06a"/>
+      <stop offset="1" stop-color="#1b2540"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="82" y1="261" x2="300" y2="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.52" stop-color="#fff" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="clip">
+      <circle cx="180" cy="180" r="174"/>
+    </clipPath>
+  </defs>
+  <circle cx="180" cy="180" r="176" fill="#1b2540"/>
+  <g clip-path="url(#clip)">
+    <rect width="360" height="360" fill="url(#sky)"/>
+    <path d="M0 250h28v-23h27v53h30v-77h31v77h24v-36h35v-24h34v24h28v-31h31v31h35v36h57v80H0Z" fill="#171e30" opacity=".92"/>
+    <path d="M156 285h-19v-112h5v-41h6v41h5v112Z" fill="#101827"/>
+    <circle cx="146" cy="206" r="22" fill="#101827"/>
+    <path d="M143 132h6l-3-58Z" fill="#101827"/>
+    <path d="M190 282v-54h92v54h-13v-31h-12v31h-14v-31h-12v31h-14v-31h-12v31Z" fill="#141c2e" opacity=".96"/>
+    <path d="M47 288 304 193" stroke="#39c7ff" stroke-width="7" stroke-linecap="round"/>
+    <path d="M34 304 201 242" stroke="#ff675a" stroke-width="7" stroke-linecap="round"/>
+    <path d="M-12 309c56-29 120-47 197-52 74-5 132 4 187 18v89H-12Z" fill="#070b14" opacity=".28"/>
+    <rect x="-30" y="0" width="430" height="360" fill="url(#shine)"/>
+  </g>
+</svg>
