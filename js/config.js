@@ -1,12 +1,8 @@
 export const API_BASE_URLS = {
-    bvg: "https://v6.bvg.transport.rest",
     vbb: "https://v6.vbb.transport.rest"
 };
 
 export const FALLBACK_API_BASE_URLS = {
-    bvg: [
-        "https://vbb-api.florian.gallery/"
-    ],
     vbb: [
         "https://vbb-api.florian.gallery/"
     ]
@@ -24,11 +20,11 @@ export const API_STATUS_CONFIG = {
     timeout: 2500,
     refreshInterval: 60000,
     primaryTestUrls: [
-        `${API_BASE_URLS.bvg}/stops?results=1`,
+        `${API_BASE_URLS.vbb}/stations?limit=1`,
         `${API_BASE_URLS.vbb}/radar?north=52.55&south=52.50&east=13.45&west=13.35&results=1&frames=1`
     ],
     fallbackTestUrls: [
-        ...FALLBACK_API_BASE_URLS.bvg.map(baseUrl => `${baseUrl}/stops?results=1`)
+        ...FALLBACK_API_BASE_URLS.vbb.map(baseUrl => `${baseUrl}/stops?results=1`)
     ]
 };
 

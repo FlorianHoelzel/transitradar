@@ -8,9 +8,8 @@ import {
 import { getApiStatus, setApiStatus } from "./apiStatus.js";
 import { fetchJson } from "./httpClient.js";
 
-const BVG_API_BASE = API_BASE_URLS.bvg;
 const VBB_API_BASE = API_BASE_URLS.vbb;
-const BVG_FALLBACK_API_BASES = FALLBACK_API_BASE_URLS.bvg;
+const VBB_FALLBACK_API_BASES = FALLBACK_API_BASE_URLS.vbb;
 
 function createUrl(baseUrl, pathAndQuery) {
     const resolvedBaseUrl = baseUrl.startsWith("//") && window.location.protocol === "file:"
@@ -205,8 +204,8 @@ async function fetchDeparturesForStop(stopId, results, duration) {
         `?results=${results}` +
         `&duration=${duration}`;
 
-    const primaryUrl = createUrl(BVG_API_BASE, pathAndQuery);
-    const fallbackUrls = BVG_FALLBACK_API_BASES.map(baseUrl => {
+    const primaryUrl = createUrl(VBB_API_BASE, pathAndQuery);
+    const fallbackUrls = VBB_FALLBACK_API_BASES.map(baseUrl => {
         return createUrl(baseUrl, pathAndQuery);
     });
 
@@ -266,11 +265,11 @@ async function fetchDeparturesForStation(
 }
 
 export async function loadStationsFromApi() {
-    const pathAndQuery = `/stops?results=${STATION_CONFIG.apiResultsLimit}`;
+    const pathAndQuery = `/stations?limit=${STATION_CONFIG.apiResultsLimit}`;
 
     return await fetchJsonWithFallback(
-        createUrl(BVG_API_BASE, pathAndQuery),
-        BVG_FALLBACK_API_BASES.map(baseUrl => createUrl(baseUrl, pathAndQuery)),
+        createUrl(VBB_API_BASE, pathAndQuery),
+        VBB_FALLBACK_API_BASES.map(baseUrl => createUrl(baseUrl, pathAndQuery)),
         "Failed to load stations."
     );
 }
@@ -316,8 +315,8 @@ export async function getTripDetails(tripId, lineName) {
         `&remarks=false`;
 
     return await fetchJsonWithFallback(
-        createUrl(BVG_API_BASE, pathAndQuery),
-        BVG_FALLBACK_API_BASES.map(baseUrl => createUrl(baseUrl, pathAndQuery)),
+        createUrl(VBB_API_BASE, pathAndQuery),
+        VBB_FALLBACK_API_BASES.map(baseUrl => createUrl(baseUrl, pathAndQuery)),
         "Failed to load trip route."
     );
 }
