@@ -39,6 +39,15 @@ function getRadarResultLimit(zoom) {
     return VEHICLE_CONFIG.radarResultLimits.default;
 }
 
+function getBoundsQuery(bounds) {
+    return {
+        north: bounds.getNorth(),
+        south: bounds.getSouth(),
+        east: bounds.getEast(),
+        west: bounds.getWest()
+    };
+}
+
 function removeDuplicateDepartures(departures) {
     const departuresByKey = new Map();
 
@@ -104,6 +113,79 @@ function createDepartureCollector(stopIds, results, duration) {
         isComplete: () => completedCount === requests.length,
         waitForAll: () => Promise.allSettled(requests)
     };
+}
+
+function createBerlinBoundsGrid() {
+    const cells = [];
+    const gridSize = VEHICLE_CONFIG.selectedLineGridSize;
+    const latStep = (BERLIN_BOUNDS.maxLat - BERLIN_BOUNDS.minLat) / gridSize;
+    const lngStep = (BERLIN_BOUNDS.maxLng - BERLIN_BOUNDS.minLng) / gridSize;
+
+    for (let row = 0; row < gridSize; row += 1) {
+        for (let column = 0; column < gridSize; column += 1) {
+            cells.push({
+                north: BERLIN_BOUNDS.minLat + latStep * (row + 1),
+                south: BERLIN_BOUNDS.minLat + latStep * row,
+                east: BERLIN_BOUNDS.minLng + lngStep * (column + 1),
+                west: BERLIN_BOUNDS.minLng + lngStep * column
+            });
+        }
+    }
+
+    return cells;
+}
+
+function getMovementKey(movement) {
+    return movement.tripId ||
+        [
+            movement.line?.name,
+            movement.direction,
+            movement.location?.latitude,
+            movement.location?.longitude
+        ].join(":");
+}
+
+function dedupeMovements(movements) {
+    const movementsByKey = new Map();
+
+    movements.forEach(movement => {
+        const key = getMovementKey(movement);
+
+        if (key) {
+            movementsByKey.set(key, movement);
+        }
+    });
+
+    return [...movementsByKey.values()];
+}
+
+async function fetchVehicleMovementsGrid(boundsGrid, zoom) {
+    const movements = [];
+    const concurrency = VEHICLE_CONFIG.selectedLineGridConcurrency;
+
+    for (let index = 0; index < boundsGrid.length; index += concurrency) {
+        const batch = boundsGrid.slice(index, index + concurrency);
+        const results = await Promise.allSettled(
+            batch.map(boundsQuery => {
+                return fetchVehicleMovements(boundsQuery, zoom);
+            })
+        );
+        const failures = results.filter(result => {
+            return result.status === "rejected";
+        });
+
+        if (failures.length > 0) {
+            throw new Error("Failed to load the complete citywide vehicle grid.");
+        }
+
+        movements.push(
+            ...results
+                .filter(result => result.status === "fulfilled")
+                .flatMap(result => result.value)
+        );
+    }
+
+    return dedupeMovements(movements);
 }
 
 function prepareDepartureResults(departures) {
@@ -335,15 +417,15 @@ export async function getDepartures(station) {
     return departures.slice(0, DEPARTURE_CONFIG.displayLimit);
 }
 
-export async function getVehicleMovements(bounds, zoom) {
+async function fetchVehicleMovements(boundsQuery, zoom) {
     const results = getRadarResultLimit(zoom);
 
     const pathAndQuery =
         `/radar` +
-        `?north=${bounds.getNorth()}` +
-        `&south=${bounds.getSouth()}` +
-        `&east=${bounds.getEast()}` +
-        `&west=${bounds.getWest()}` +
+        `?north=${boundsQuery.north}` +
+        `&south=${boundsQuery.south}` +
+        `&east=${boundsQuery.east}` +
+        `&west=${boundsQuery.west}` +
         `&results=${results}` +
         `&polylines=false` +
         `&frames=1`;
@@ -355,6 +437,14 @@ export async function getVehicleMovements(bounds, zoom) {
     );
 
     return data.movements ?? [];
+}
+
+export async function getVehicleMovements(bounds, zoom) {
+    return await fetchVehicleMovements(getBoundsQuery(bounds), zoom);
+}
+
+export async function getBerlinVehicleMovementsGrid(zoom) {
+    return await fetchVehicleMovementsGrid(createBerlinBoundsGrid(), zoom);
 }
 
 export async function getTripDetails(tripId, lineName) {

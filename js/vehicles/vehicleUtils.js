@@ -36,7 +36,7 @@ export function getVehicleType(movement) {
     return "surface";
 }
 
-export function shouldShowVehicle(movement, zoom) {
+export function shouldShowVehicle(movement, zoom, selectedLineName = null) {
     const vehicleType = getVehicleType(movement);
 
     if (!activeFilters.vehicles[vehicleType]) {
@@ -44,10 +44,24 @@ export function shouldShowVehicle(movement, zoom) {
     }
 
     if (zoom < VEHICLE_CONFIG.zoomThreshold) {
-        return false;
+        return movement.line?.name === selectedLineName;
     }
 
     return true;
+}
+
+export function getVehicleId(movement) {
+    if (movement.tripId) {
+        return movement.tripId;
+    }
+
+    const lineName = movement.line?.name;
+
+    if (!lineName || !movement.direction) {
+        return null;
+    }
+
+    return `${lineName}-${movement.direction}`;
 }
 
 export function cleanStopName(name) {

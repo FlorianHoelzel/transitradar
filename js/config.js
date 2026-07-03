@@ -71,7 +71,7 @@ export const VEHICLE_CONFIG = {
     refreshInterval: 30000,
     minimumUpdateInterval: 15000,
     requestTimeout: 2500,
-    zoomThreshold: 16,
+    zoomThreshold: 14,
     animationDuration: 16000,
     radarResultLimits: {
         highZoom: 1000,
@@ -79,9 +79,11 @@ export const VEHICLE_CONFIG = {
         default: 300
     },
     radarZoomLevels: {
-        high: 16,
-        medium: 15
-    }
+        high: 14,
+        medium: 13
+    },
+    selectedLineGridSize: 4,
+    selectedLineGridConcurrency: 4
 };
 
 export const ROUTE_STYLE = {

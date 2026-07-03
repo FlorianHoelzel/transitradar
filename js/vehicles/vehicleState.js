@@ -2,6 +2,7 @@ import { VEHICLE_CONFIG } from "../config.js";
 
 export const vehicleState = {
     updateRunning: false,
+    pendingUpdate: false,
     lastUpdate: 0,
     updateRequestId: 0,
 

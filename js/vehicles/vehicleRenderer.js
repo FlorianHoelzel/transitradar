@@ -1,6 +1,10 @@
 import { map } from "../map/map.js";
 import { vehicleMarkers } from "./vehicleStore.js";
-import { shouldShowVehicle, animateMarker } from "./vehicleUtils.js";
+import {
+    shouldShowVehicle,
+    animateMarker,
+    getVehicleId
+} from "./vehicleUtils.js";
 import {
     createVehicleIcon,
     createVehiclePopup
@@ -19,6 +23,12 @@ export function clearVehicleMarkers() {
     Object.keys(vehicleMarkers).forEach(key => {
         delete vehicleMarkers[key];
     });
+}
+
+export function getRenderedVehicleMovementsForLine(lineName) {
+    return Object.values(vehicleMarkers)
+        .map(marker => marker.transitMovement)
+        .filter(movement => movement?.line?.name === lineName);
 }
 
 function removeOutdatedVehicleMarkers(visibleVehicleIds) {
@@ -69,16 +79,22 @@ function createNewVehicleMarker(id, movement, coordinates, onVehicleClick) {
     vehicleMarkers[id] = marker;
 }
 
-function renderVehicleMovement(movement, visibleVehicleIds, onVehicleClick, zoom) {
+function renderVehicleMovement(
+    movement,
+    visibleVehicleIds,
+    onVehicleClick,
+    zoom,
+    selectedLineName
+) {
     if (!movement.location) {
         return;
     }
 
-    if (!shouldShowVehicle(movement, zoom)) {
+    if (!shouldShowVehicle(movement, zoom, selectedLineName)) {
         return;
     }
 
-    const id = movement.tripId || `${movement.line?.name}-${movement.direction}`;
+    const id = getVehicleId(movement);
 
     if (!id) {
         return;
@@ -99,11 +115,22 @@ function renderVehicleMovement(movement, visibleVehicleIds, onVehicleClick, zoom
     createNewVehicleMarker(id, movement, coordinates, onVehicleClick);
 }
 
-export function renderVehicleMovements(movements, onVehicleClick, zoom) {
+export function renderVehicleMovements(
+    movements,
+    onVehicleClick,
+    zoom,
+    selectedLineName = null
+) {
     const visibleVehicleIds = new Set();
 
     movements.forEach(movement => {
-        renderVehicleMovement(movement, visibleVehicleIds, onVehicleClick, zoom);
+        renderVehicleMovement(
+            movement,
+            visibleVehicleIds,
+            onVehicleClick,
+            zoom,
+            selectedLineName
+        );
     });
 
     removeOutdatedVehicleMarkers(visibleVehicleIds);
