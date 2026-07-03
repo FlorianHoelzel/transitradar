@@ -22,18 +22,38 @@ const busIcon = L.divIcon({
     popupAnchor: [0, -6]
 });
 
+function getStationLines(station) {
+    const stopLines = station.stops?.flatMap(stop => stop.lines || []) || [];
+
+    return [
+        ...(station.lines || []),
+        ...stopLines
+    ].filter(Boolean);
+}
+
+function hasLinePrefix(station, prefixes) {
+    return getStationLines(station).some(line => {
+        return prefixes.some(prefix => String(line).startsWith(prefix));
+    });
+}
+
 export function getStationIcon(station) {
     const name = station.name.toLowerCase();
 
     if (
         name.startsWith("s+u ") ||
         name.startsWith("s ") ||
-        station.products?.suburban
+        station.products?.suburban ||
+        hasLinePrefix(station, ["S"])
     ) {
         return suburbanIcon;
     }
 
-    if (name.startsWith("u ") || station.products?.subway) {
+    if (
+        name.startsWith("u ") ||
+        station.products?.subway ||
+        hasLinePrefix(station, ["U"])
+    ) {
         return subwayIcon;
     }
 

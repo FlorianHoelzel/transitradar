@@ -1,5 +1,6 @@
 import { createLineBadge } from "../lines/badges.js";
 import { isFavoriteStation } from "../favorites/favoriteService.js";
+import { getDisplayStationName } from "./stationNames.js";
 
 const MAX_VISIBLE_LINES = 8;
 
@@ -166,7 +167,7 @@ export function createPopupContent(station, content = createSkeletonHtml()) {
         <div class="station-popup station-popup-v2">
             <div class="station-popup-header">
                 <div class="station-popup-title-group">
-                    <div class="station-title">${station.name}</div>
+                    <div class="station-title">${getDisplayStationName(station)}</div>
                     <div class="station-lines">
                         ${getStationLinesHtml(station)}
                     </div>

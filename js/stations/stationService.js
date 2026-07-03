@@ -61,13 +61,72 @@ function mergeProducts(targetProducts, sourceProducts) {
     });
 }
 
+function removeStopDetails(name) {
+    return name
+        .replace(/\s*\[[^\]]+\]\s*$/u, "")
+        .replace(/\/[^()[\]]+(?=\s*(?:\(|$))/u, " ")
+        .replace(/\s+/gu, " ")
+        .trim();
+}
+
+function normalizeMainStationName(name) {
+    return name.replace(/^([^,]+),\s*Hauptbahnhof$/iu, "$1 Hauptbahnhof");
+}
+
+function normalizeStationGroupKey(name) {
+    return normalizeMainStationName(removeStopDetails(name))
+        .replace(/\s*\([^)]*\)\s*/gu, " ")
+        .replace(/^(?:S\+U|S|U)\s+/iu, "")
+        .replace(/\bBerlin\s+Hauptbahnhof\b/iu, "Hauptbahnhof")
+        .replace(/\b(?:Bf|Bhf)\b\.?/giu, "")
+        .replace(/\s+/gu, " ")
+        .trim()
+        .toLocaleLowerCase("de-DE");
+}
+
+function getStationDisplayName(name) {
+    const cleanName = removeStopDetails(name);
+
+    if (/^S\+U Hauptbahnhof(?:\s|\(|$)/u.test(cleanName)) {
+        return cleanName.replace(/^S\+U Hauptbahnhof/u, "S+U Berlin Hauptbahnhof");
+    }
+
+    return cleanName;
+}
+
+function getDisplayNameScore(name) {
+    const hasDetails = /\/|\[/.test(name);
+    const hasStationSuffix = /\b(?:Bf|Bhf)\b\.?/u.test(name);
+    const hasBerlinQualifier = /\(Berlin\)|\bBerlin\s+Hauptbahnhof\b/u.test(name);
+
+    return (
+        (hasDetails ? 20 : 0) +
+        (hasStationSuffix ? 0 : 4) +
+        (hasBerlinQualifier ? 0 : 2) +
+        name.length / 1000
+    );
+}
+
+function chooseStationDisplayName(currentName, candidateName) {
+    if (!currentName) {
+        return candidateName;
+    }
+
+    return getDisplayNameScore(candidateName) < getDisplayNameScore(currentName)
+        ? candidateName
+        : currentName;
+}
+
 function groupStationsByName(rawStations) {
     const groupedStations = {};
 
     rawStations.forEach(station => {
-        if (!groupedStations[station.name]) {
-            groupedStations[station.name] = {
-                name: station.name,
+        const stationGroupKey = normalizeStationGroupKey(station.name);
+        const displayName = getStationDisplayName(station.name);
+
+        if (!groupedStations[stationGroupKey]) {
+            groupedStations[stationGroupKey] = {
+                name: displayName,
                 coordinates: station.coordinates,
                 products: createEmptyProducts(),
                 lines: [],
@@ -75,16 +134,22 @@ function groupStationsByName(rawStations) {
             };
         }
 
-        groupedStations[station.name].stops.push({
+        groupedStations[stationGroupKey].name = chooseStationDisplayName(
+            groupedStations[stationGroupKey].name,
+            displayName
+        );
+
+        groupedStations[stationGroupKey].stops.push({
             id: station.id,
+            name: station.name,
             coordinates: station.coordinates,
             products: station.products,
             lines: station.lines
         });
 
-        groupedStations[station.name].lines.push(...station.lines);
+        groupedStations[stationGroupKey].lines.push(...station.lines);
 
-        mergeProducts(groupedStations[station.name].products, station.products);
+        mergeProducts(groupedStations[stationGroupKey].products, station.products);
     });
 
     return Object.values(groupedStations)
