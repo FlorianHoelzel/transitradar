@@ -71,7 +71,7 @@ export const VEHICLE_CONFIG = {
     refreshInterval: 30000,
     minimumUpdateInterval: 15000,
     requestTimeout: 2500,
-    zoomThreshold: 14,
+    zoomThreshold: 16,
     animationDuration: 16000,
     radarResultLimits: {
         highZoom: 1000,
