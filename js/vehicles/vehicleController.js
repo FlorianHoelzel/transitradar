@@ -1,5 +1,6 @@
 import { showRouteForTrip, clearRouteLayer } from "../map/routeLayer.js";
 import { map } from "../map/map.js";
+import { VEHICLE_CONFIG } from "../config.js";
 
 import { vehicleState } from "./vehicleState.js";
 import { loadVehicleMovements } from "./vehicleService.js";
@@ -57,7 +58,8 @@ function selectLineFromMovement(movement) {
 export async function updateVehicles(force = false) {
     const zoom = map.getZoom();
 
-    if (zoom < 14 && !vehicleState.selectedLineName) {
+    if (zoom < VEHICLE_CONFIG.zoomThreshold) {
+        vehicleState.updateRequestId += 1;
         clearVehicleMarkers();
         return;
     }
@@ -74,12 +76,23 @@ export async function updateVehicles(force = false) {
 
     vehicleState.updateRunning = true;
     vehicleState.lastUpdate = now;
+    const requestId = vehicleState.updateRequestId + 1;
+    vehicleState.updateRequestId = requestId;
 
     try {
         const bounds = map.getBounds();
         const movements = await loadVehicleMovements(bounds, zoom);
+        const currentZoom = map.getZoom();
 
-        renderVehicleMovements(movements, selectLineFromMovement, zoom);
+        if (
+            requestId !== vehicleState.updateRequestId ||
+            currentZoom < VEHICLE_CONFIG.zoomThreshold
+        ) {
+            clearVehicleMarkers();
+            return;
+        }
+
+        renderVehicleMovements(movements, selectLineFromMovement, currentZoom);
     } catch (error) {
         console.error("Fehler beim Laden der Fahrzeuge:", error);
     } finally {

@@ -8,6 +8,11 @@ import {
 
 export function clearVehicleMarkers() {
     Object.values(vehicleMarkers).forEach(marker => {
+        if (marker.animationFrameId) {
+            cancelAnimationFrame(marker.animationFrameId);
+            marker.animationFrameId = null;
+        }
+
         map.removeLayer(marker);
     });
 
@@ -25,6 +30,11 @@ function removeOutdatedVehicleMarkers(visibleVehicleIds) {
         }
 
         if (!visibleVehicleIds.has(id)) {
+            if (marker.animationFrameId) {
+                cancelAnimationFrame(marker.animationFrameId);
+                marker.animationFrameId = null;
+            }
+
             map.removeLayer(marker);
             delete vehicleMarkers[id];
         }

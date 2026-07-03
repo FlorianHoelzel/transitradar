@@ -25,11 +25,15 @@ const busIcon = L.divIcon({
 export function getStationIcon(station) {
     const name = station.name.toLowerCase();
 
-    if (name.startsWith("s+u ") || name.startsWith("s ")) {
+    if (
+        name.startsWith("s+u ") ||
+        name.startsWith("s ") ||
+        station.products?.suburban
+    ) {
         return suburbanIcon;
     }
 
-    if (name.startsWith("u ")) {
+    if (name.startsWith("u ") || station.products?.subway) {
         return subwayIcon;
     }
 

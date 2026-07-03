@@ -33,8 +33,19 @@ export const STATION_CONFIG = {
     nearbyGridSize: 8,
     nearbyDistance: 4500,
     searchQueries: ["Berlin", "S", "U", "Tram", "Bus", "Bhf"],
-    markerLimit: 200,
-    zoomThreshold: 14
+    markerLimit: 1000,
+    zoomLevels: {
+        importantRapidTransit: 12,
+        rapidTransit: 13,
+        surfaceTransit: 15,
+        allStations: 16
+    },
+    markerLimits: {
+        importantRapidTransit: 180,
+        rapidTransit: 220,
+        surfaceTransit: 380,
+        allStations: 1000
+    }
 };
 
 export const SEARCH_CONFIG = {
@@ -60,7 +71,7 @@ export const VEHICLE_CONFIG = {
     refreshInterval: 30000,
     minimumUpdateInterval: 15000,
     requestTimeout: 2500,
-    zoomThreshold: 14,
+    zoomThreshold: 16,
     animationDuration: 16000,
     radarResultLimits: {
         highZoom: 1000,
