@@ -95,7 +95,7 @@
 /* Station popup */
 
 .station-popup {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: inherit;
 }
 
 .station-popup-v2 {
@@ -200,7 +200,7 @@
     color: rgba(255, 255, 255, 0.96);
     background: rgba(255, 255, 255, 0.16);
 
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: inherit;
     font-size: 12px;
     font-weight: 850;
     line-height: 1;
@@ -244,7 +244,7 @@
     cursor: pointer;
     background: rgba(250, 204, 21, 0.08);
 
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: inherit;
     font-size: 21px;
     font-weight: 700;
     line-height: 1;
