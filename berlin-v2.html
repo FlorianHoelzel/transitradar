@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>TransitRadar Berlin v2</title>
+
+    <link rel="stylesheet" href="./styles/fonts.css">
+    <link rel="stylesheet" href="./styles/base.css">
+    <link rel="stylesheet" href="./styles/search.css">
+    <link rel="stylesheet" href="./styles/filters.css">
+    <link rel="stylesheet" href="./styles/stations.css">
+    <link rel="stylesheet" href="./styles/vehicles.css">
+    <link rel="stylesheet" href="./styles/routes.css">
+    <link rel="stylesheet" href="./styles/sidebar.css">
+    <link rel="stylesheet" href="./styles/about.css">
+    <link rel="stylesheet" href="./styles/api-status.css">
+    <link rel="stylesheet" href="./styles/responsive.css">
+    <link rel="stylesheet" href="./styles/location.css">
+    <link rel="stylesheet" href="./styles/berlin-v2.css">
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+</head>
+
+<body class="berlin-v2">
+    <div class="route-field" aria-hidden="true"></div>
+
+    <header class="berlin-v2-topbar" aria-label="TransitRadar Berlin">
+        <a class="brand" href="./test-landing-2.html">
+            TransitRadar
+        </a>
+
+        <nav class="berlin-v2-links" aria-label="Site links">
+            <a class="nav-link" href="./status.html">API status</a>
+            <a class="nav-link" href="./index.html">Classic</a>
+        </nav>
+    </header>
+
+    <div class="search-box">
+        <input
+            id="searchInput"
+            type="text"
+            placeholder="Search station..."
+            autocomplete="new-password"
+            name="transitradar-search"
+            spellcheck="false"
+        >
+
+        <div id="searchResults"></div>
+    </div>
+
+    <div class="filter-control">
+        <button
+            id="filterToggle"
+            class="filter-toggle"
+        >
+            Filters
+        </button>
+
+        <div
+            id="filterPanel"
+            class="filter-panel"
+        >
+            <div class="filter-section">
+                <div class="filter-panel-title">Stations</div>
+
+                <button
+                    class="filter-option active"
+                    data-filter-group="stations"
+                    data-filter="suburban"
+                >
+                    S-Bahn
+                </button>
+
+                <button
+                    class="filter-option active"
+                    data-filter-group="stations"
+                    data-filter="subway"
+                >
+                    U-Bahn
+                </button>
+
+                <button
+                    class="filter-option active"
+                    data-filter-group="stations"
+                    data-filter="surface"
+                >
+                    Bus / Tram
+                </button>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-panel-title">Live Vehicles</div>
+
+                <button
+                    class="filter-option active"
+                    data-filter-group="vehicles"
+                    data-filter="suburban"
+                >
+                    S-Bahn
+                </button>
+
+                <button
+                    class="filter-option active"
+                    data-filter-group="vehicles"
+                    data-filter="subway"
+                >
+                    U-Bahn
+                </button>
+
+                <button
+                    class="filter-option active"
+                    data-filter-group="vehicles"
+                    data-filter="surface"
+                >
+                    Bus / Tram
+                </button>
+
+                <button
+                    class="filter-option active"
+                    data-filter-group="vehicles"
+                    data-filter="regional"
+                >
+                    RE / RB / RJ / FEX
+                </button>
+
+                <button
+                    class="filter-option active"
+                    data-filter-group="vehicles"
+                    data-filter="longDistance"
+                >
+                    ICE / IC / EC
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <main class="berlin-v2-map-shell" aria-label="Berlin transit radar">
+        <div id="map"></div>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module" src="./js/main.js?v=berlin-v2-1"></script>
+    <script type="module" src="./js/berlin-v2.js?v=lucide-icons-1"></script>
+</body>
+</html>

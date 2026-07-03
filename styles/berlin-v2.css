@@ -1,0 +1,629 @@
+.berlin-v2 {
+    --page: #08090d;
+    --ink: #f5f7fb;
+    --muted: #a7afbf;
+    --soft: #6f7889;
+    --line: rgba(255, 255, 255, 0.13);
+    --panel: rgba(255, 255, 255, 0.075);
+    --panel-strong: rgba(18, 21, 28, 0.9);
+    --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+    --blue: #5dd3ff;
+    --yellow: #f7c948;
+    --red: #f05252;
+    --green: #4ade80;
+    --text-main: var(--ink);
+    --text-soft: rgba(245, 247, 251, 0.86);
+    --text-muted: var(--muted);
+    --text-faded: var(--soft);
+    --accent: var(--blue);
+    --glass-border: var(--line);
+    --glass-bg: rgba(18, 21, 28, 0.88);
+    --glass-bg-soft: rgba(18, 21, 28, 0.72);
+    --glass-bg-strong: rgba(18, 21, 28, 0.94);
+    --glass-blur: blur(22px) saturate(1.25);
+    --glass-blur-soft: blur(16px) saturate(1.16);
+
+    min-height: 100vh;
+    overflow: hidden;
+    background:
+        linear-gradient(120deg, rgba(92, 211, 255, 0.18), transparent 30rem),
+        linear-gradient(240deg, rgba(247, 201, 72, 0.15), transparent 28rem),
+        linear-gradient(180deg, #151820 0%, #090a0f 54%, #0f1218 100%);
+    color: var(--ink);
+    font-family: "TransitLanding", Arial, sans-serif;
+    line-height: 1.35;
+    letter-spacing: 0;
+}
+
+.berlin-v2 a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.berlin-v2 button,
+.berlin-v2 input {
+    font-family: inherit;
+}
+
+.berlin-v2 .route-field {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    opacity: 0.84;
+    pointer-events: none;
+}
+
+.berlin-v2 .route-field::before {
+    content: "";
+    position: absolute;
+    inset: 9vh -8vw auto;
+    height: 64vh;
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 7.5rem),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 5.8rem);
+    mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 70%, transparent);
+    animation: berlinV2RouteSweep 11s ease-in-out infinite alternate;
+}
+
+.berlin-v2-topbar {
+    position: fixed;
+    top: clamp(0.75rem, 2vw, 1.45rem);
+    left: clamp(1rem, 2.8vw, 2.5rem);
+    right: clamp(1rem, 2.8vw, 2.5rem);
+    z-index: 18000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 2.85rem;
+    pointer-events: none;
+}
+
+.berlin-v2 .brand,
+.berlin-v2-links {
+    pointer-events: auto;
+}
+
+.berlin-v2 .brand {
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.berlin-v2 .brand::before {
+    content: "";
+    display: inline-block;
+    width: 0.64rem;
+    height: 0.64rem;
+    margin-right: 0.56rem;
+    border-radius: 50%;
+    background: var(--blue);
+    box-shadow: 0 0 0 0.32rem rgba(93, 211, 255, 0.13);
+    vertical-align: 0.04rem;
+}
+
+.berlin-v2-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.berlin-v2 .nav-link,
+.berlin-v2 .filter-toggle,
+.berlin-v2 .location-button,
+.berlin-v2 .sidebar-toggle,
+.berlin-v2 .selected-line-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.35rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.045);
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 650;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.berlin-v2 .lucide-icon {
+    display: block;
+    width: 1.12rem;
+    height: 1.12rem;
+    flex: 0 0 auto;
+    color: currentColor;
+}
+
+.berlin-v2 .filter-toggle {
+    gap: 0.52rem;
+}
+
+.berlin-v2 .sidebar-toggle .lucide-icon,
+.berlin-v2 .location-button .lucide-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.berlin-v2 .nav-link {
+    padding: 0 0.9rem;
+}
+
+.berlin-v2 .nav-link:hover,
+.berlin-v2 .filter-toggle:hover,
+.berlin-v2 .location-button:hover,
+.berlin-v2 .sidebar-toggle:hover,
+.berlin-v2 .selected-line-clear:hover {
+    background: var(--panel);
+    border-color: rgba(255, 255, 255, 0.24);
+    color: var(--ink);
+    transform: translateY(-1px);
+}
+
+.berlin-v2-map-shell {
+    position: fixed;
+    inset: clamp(4.45rem, 9vh, 5.85rem) clamp(1rem, 2.8vw, 2.5rem) clamp(1rem, 2.8vw, 2.5rem);
+    z-index: 1;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #12151c;
+    box-shadow: var(--shadow);
+}
+
+.berlin-v2-map-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 500;
+    background:
+        linear-gradient(to bottom, rgba(5, 7, 11, 0.02), rgba(5, 7, 11, 0.12) 62%, rgba(5, 7, 11, 0.28)),
+        linear-gradient(35deg, rgba(93, 211, 255, 0.08), transparent 34%);
+    pointer-events: none;
+}
+
+.berlin-v2 #map {
+    width: 100%;
+    height: 100%;
+    background: #12151c;
+}
+
+.berlin-v2 .leaflet-tile-pane {
+    filter: saturate(0.8) contrast(1.06) brightness(0.82);
+}
+
+.berlin-v2 .search-box {
+    top: clamp(0.75rem, 2vw, 1.45rem);
+    z-index: 19000;
+    width: min(29rem, calc(100vw - 31rem));
+}
+
+.berlin-v2 #searchInput {
+    height: 2.85rem;
+    padding: 0 1rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.045);
+    color: var(--ink);
+    font-size: 0.92rem;
+    font-weight: 650;
+    box-shadow: none;
+    backdrop-filter: var(--glass-blur-soft);
+    -webkit-backdrop-filter: var(--glass-blur-soft);
+}
+
+.berlin-v2 #searchInput:focus {
+    border-color: rgba(93, 211, 255, 0.56);
+    background: rgba(18, 21, 28, 0.9);
+}
+
+.berlin-v2 #searchInput::placeholder {
+    color: var(--muted);
+}
+
+.berlin-v2 #searchResults,
+.berlin-v2 .filter-panel,
+.berlin-v2 .sidebar,
+.berlin-v2 .api-status-tooltip,
+.berlin-v2 .selected-line-control {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel-strong);
+    color: var(--ink);
+    box-shadow: var(--shadow);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.berlin-v2 #searchResults {
+    top: 3.25rem;
+}
+
+.berlin-v2 #searchResults div {
+    color: var(--text-soft);
+    font-size: 0.86rem;
+    font-weight: 650;
+}
+
+.berlin-v2 #searchResults div:hover {
+    background: var(--panel);
+}
+
+.berlin-v2 .metric-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.46rem;
+    text-align: right;
+}
+
+.berlin-v2 .summary-dot {
+    flex: 0 0 auto;
+    width: 0.54rem;
+    height: 0.54rem;
+    border-radius: 50%;
+    background: #facc15;
+    box-shadow:
+        0 0 0 0.18rem rgba(250, 204, 21, 0.14),
+        0 0 1rem rgba(250, 204, 21, 0.36);
+}
+
+.berlin-v2 .summary-dot.online {
+    background: var(--green);
+    box-shadow:
+        0 0 0 0.18rem rgba(74, 222, 128, 0.14),
+        0 0 1rem rgba(74, 222, 128, 0.62);
+}
+
+.berlin-v2 .filter-control {
+    right: clamp(1.75rem, 3.7vw, 3.25rem);
+    bottom: clamp(1.75rem, 3.7vw, 3.25rem);
+    z-index: 19000;
+}
+
+.berlin-v2 .filter-toggle {
+    height: 2.75rem;
+    padding: 0 0.95rem;
+    color: var(--ink);
+    text-transform: none;
+}
+
+.berlin-v2 .filter-panel {
+    bottom: 3.35rem;
+    width: 17rem;
+    padding: 0.75rem;
+}
+
+.berlin-v2 .filter-panel-title {
+    color: var(--soft);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+.berlin-v2 .filter-option {
+    min-height: 2.6rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 0.88rem;
+    font-weight: 650;
+}
+
+.berlin-v2 .filter-option:hover {
+    background: var(--panel);
+    color: var(--ink);
+}
+
+.berlin-v2 .filter-option.active {
+    border-color: color-mix(in srgb, var(--blue) 58%, white 9%);
+    background: rgba(93, 211, 255, 0.11);
+    color: var(--ink);
+}
+
+.berlin-v2 .sidebar-toggle {
+    top: calc(clamp(4.45rem, 9vh, 5.85rem) + 0.85rem);
+    left: calc(clamp(1rem, 2.8vw, 2.5rem) + 0.85rem);
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.4rem;
+}
+
+.berlin-v2 .location-button {
+    top: calc(clamp(4.45rem, 9vh, 5.85rem) + 0.85rem);
+    right: calc(clamp(1rem, 2.8vw, 2.5rem) + 0.85rem);
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.35rem;
+}
+
+.berlin-v2 .sidebar-overlay {
+    background: rgba(8, 9, 13, 0.52);
+}
+
+.berlin-v2 .sidebar {
+    width: 20rem;
+    padding: 1rem;
+    border-radius: 0 8px 8px 0;
+    border-right: 1px solid var(--line);
+}
+
+.berlin-v2 .sidebar-header h2 {
+    font-family: "TransitLanding", Arial, sans-serif;
+    letter-spacing: 0;
+}
+
+.berlin-v2 .sidebar-item,
+.berlin-v2 .favorite-card,
+.berlin-v2 .nearby-empty,
+.berlin-v2 .favorites-empty,
+.berlin-v2 .favorites-loading,
+.berlin-v2 .favorite-empty,
+.berlin-v2 .favorite-departure,
+.berlin-v2 .vehicle-destination-stop > div:last-child {
+    border-radius: 8px;
+}
+
+.berlin-v2 .sidebar-item-emoji,
+.berlin-v2 .sidebar-chevron,
+.berlin-v2 .favorite-star,
+.berlin-v2 .favorite-remove,
+.berlin-v2 .station-favorite-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.berlin-v2 .sidebar-close,
+.berlin-v2 .about-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.berlin-v2 .sidebar-close .lucide-icon,
+.berlin-v2 .about-close .lucide-icon {
+    width: 1.05rem;
+    height: 1.05rem;
+}
+
+.berlin-v2 .sidebar-item-emoji {
+    color: var(--blue);
+}
+
+.berlin-v2 .sidebar-chevron .lucide-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.berlin-v2 .sidebar-chevron {
+    transform: rotate(180deg);
+    transition: transform 180ms ease, color 180ms ease;
+}
+
+.berlin-v2 .sidebar-chevron.open {
+    transform: rotate(0deg);
+}
+
+.berlin-v2 .station-favorite-button .lucide-icon,
+.berlin-v2 .favorite-star .lucide-icon {
+    fill: none;
+}
+
+.berlin-v2 .station-favorite-button.active .lucide-icon,
+.berlin-v2 .favorite-star .lucide-icon {
+    fill: currentColor;
+}
+
+.berlin-v2 .favorite-remove {
+    font-size: 1rem;
+}
+
+.berlin-v2 .favorite-remove .lucide-icon,
+.berlin-v2 .station-favorite-button .lucide-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.berlin-v2 .about-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.berlin-v2 .about-card h3 .lucide-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--blue);
+}
+
+.berlin-v2 .about-card.warning h3 .lucide-icon {
+    color: var(--yellow);
+}
+
+.berlin-v2 .api-status-indicator {
+    left: calc(clamp(1rem, 2.8vw, 2.5rem) + 0.85rem);
+    right: auto;
+    bottom: calc(clamp(1rem, 2.8vw, 2.5rem) + 0.85rem);
+    z-index: 19000;
+    width: 2.75rem;
+    height: 2.75rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.045);
+    color: var(--muted);
+    box-shadow: none;
+    backdrop-filter: var(--glass-blur-soft);
+    -webkit-backdrop-filter: var(--glass-blur-soft);
+    transition: background 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.berlin-v2 .api-status-indicator:hover {
+    background: var(--panel);
+    border-color: rgba(255, 255, 255, 0.24);
+    color: var(--ink);
+    transform: translateY(-1px);
+}
+
+.berlin-v2 .api-status-dot {
+    width: 0.54rem;
+    height: 0.54rem;
+}
+
+.berlin-v2 .api-status-tooltip {
+    left: 0;
+    right: auto;
+    bottom: 3.35rem;
+    width: 17rem;
+}
+
+.berlin-v2 .selected-line-control {
+    bottom: clamp(1.75rem, 3.7vw, 3.25rem);
+    padding: 0.55rem 0.65rem 0.55rem 0.85rem;
+}
+
+.berlin-v2 .leaflet-popup-content-wrapper,
+.berlin-v2 .leaflet-popup-tip {
+    border-radius: 8px !important;
+    background: #252b38 !important;
+    border-color: var(--line);
+}
+
+.berlin-v2 .leaflet-popup-content-wrapper {
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+.berlin-v2 .leaflet-popup-content {
+    margin: 0 !important;
+}
+
+.berlin-v2 .station-popup,
+.berlin-v2 .station-popup-v2 {
+    font-family: "TransitLanding", Arial, sans-serif;
+}
+
+.berlin-v2 .station-popup-v2 {
+    background: #252b38;
+}
+
+.berlin-v2 .station-popup-v2,
+.berlin-v2 .popup-departure-card,
+.berlin-v2 .station-lines-toggle,
+.berlin-v2 .station-favorite-button {
+    border-radius: 8px;
+}
+
+@keyframes berlinV2RouteSweep {
+    from {
+        transform: translateX(-2vw) translateY(0);
+    }
+
+    to {
+        transform: translateX(2vw) translateY(1.4rem);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .berlin-v2 *,
+    .berlin-v2 *::before,
+    .berlin-v2 *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+    }
+}
+
+@media (max-width: 980px) {
+    .berlin-v2 .search-box {
+        top: calc(clamp(0.75rem, 2vw, 1.45rem) + 3.45rem);
+        width: min(25rem, calc(100vw - 8rem));
+    }
+
+    .berlin-v2-map-shell {
+        top: 8.1rem;
+    }
+
+}
+
+@media (max-width: 700px) {
+    .berlin-v2 {
+        overflow: hidden;
+    }
+
+    .berlin-v2-topbar {
+        top: 0.7rem;
+        left: 0.85rem;
+        right: 0.85rem;
+        height: 2.55rem;
+    }
+
+    .berlin-v2 .brand {
+        font-size: 0.92rem;
+    }
+
+    .berlin-v2-links {
+        gap: 0.38rem;
+    }
+
+    .berlin-v2 .nav-link {
+        min-height: 2.2rem;
+        padding: 0 0.68rem;
+        font-size: 0.78rem;
+    }
+
+    .berlin-v2 .search-box {
+        top: 4rem;
+        width: calc(100vw - 1.7rem);
+    }
+
+    .berlin-v2 #searchInput {
+        height: 2.7rem;
+    }
+
+    .berlin-v2-map-shell {
+        inset: 7.25rem 0.85rem 0.85rem;
+    }
+
+    .berlin-v2 .sidebar-toggle,
+    .berlin-v2 .location-button {
+        top: auto;
+        bottom: 0.85rem;
+    }
+
+    .berlin-v2 .sidebar-toggle {
+        left: 0.85rem;
+    }
+
+    .berlin-v2 .location-button {
+        right: 0.85rem;
+    }
+
+    .berlin-v2 .filter-control {
+        right: 4.2rem;
+        bottom: 0.85rem;
+    }
+
+    .berlin-v2 .filter-panel {
+        right: -3.35rem;
+        width: min(17rem, calc(100vw - 1.7rem));
+    }
+
+    .berlin-v2 .api-status-indicator {
+        left: 4.2rem;
+        bottom: 0.85rem;
+    }
+
+    .berlin-v2 .selected-line-control {
+        bottom: 4.25rem;
+        max-width: calc(100vw - 1.7rem);
+    }
+}
