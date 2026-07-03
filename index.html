@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta
@@ -7,131 +7,23 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>TransitRadar Berlin</title>
+    <title>TransitRadar</title>
 
-    <link rel="stylesheet" href="./styles/base.css">
-    <link rel="stylesheet" href="./styles/search.css">
-    <link rel="stylesheet" href="./styles/filters.css">
-    <link rel="stylesheet" href="./styles/stations.css">
-    <link rel="stylesheet" href="./styles/vehicles.css">
-    <link rel="stylesheet" href="./styles/routes.css">
-    <link rel="stylesheet" href="./styles/sidebar.css">
-    <link rel="stylesheet" href="./styles/about.css">
-    <link rel="stylesheet" href="./styles/api-status.css">
-    <link rel="stylesheet" href="./styles/responsive.css">
-    <link rel="stylesheet" href="./styles/location.css">
-
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    >
+    <link rel="stylesheet" href="./styles/fonts.css">
+    <link rel="stylesheet" href="./styles/landing.css">
 </head>
 
 <body>
+    <div id="landing-root"></div>
 
-    <div class="search-box">
-        <input
-            id="searchInput"
-            type="text"
-            placeholder="Search station..."
-            autocomplete="new-password"
-            name="transitradar-search"
-            spellcheck="false"
-        >
-
-        <div id="searchResults"></div>
-    </div>
-
-    <div class="filter-control">
-        <button
-            id="filterToggle"
-            class="filter-toggle"
-        >
-            ⚙ Filters
-        </button>
-
-        <div
-            id="filterPanel"
-            class="filter-panel"
-        >
-            <div class="filter-section">
-                <div class="filter-panel-title">Stations</div>
-
-                <button
-                    class="filter-option active"
-                    data-filter-group="stations"
-                    data-filter="suburban"
-                >
-                    S-Bahn
-                </button>
-
-                <button
-                    class="filter-option active"
-                    data-filter-group="stations"
-                    data-filter="subway"
-                >
-                    U-Bahn
-                </button>
-
-                <button
-                    class="filter-option active"
-                    data-filter-group="stations"
-                    data-filter="surface"
-                >
-                    Bus / Tram
-                </button>
-            </div>
-
-            <div class="filter-section">
-                <div class="filter-panel-title">Live Vehicles</div>
-
-                <button
-                    class="filter-option active"
-                    data-filter-group="vehicles"
-                    data-filter="suburban"
-                >
-                    S-Bahn
-                </button>
-
-                <button
-                    class="filter-option active"
-                    data-filter-group="vehicles"
-                    data-filter="subway"
-                >
-                    U-Bahn
-                </button>
-
-                <button
-                    class="filter-option active"
-                    data-filter-group="vehicles"
-                    data-filter="surface"
-                >
-                    Bus / Tram
-                </button>
-
-                <button
-                    class="filter-option active"
-                    data-filter-group="vehicles"
-                    data-filter="regional"
-                >
-                    RE / RB / RJ / FEX
-                </button>
-
-                <button
-                    class="filter-option active"
-                    data-filter-group="vehicles"
-                    data-filter="longDistance"
-                >
-                    ICE / IC / EC
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="map"></div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script type="module" src="./js/main.js?v=search-prefix-ranking-1"></script>
-
+    <script
+        crossorigin
+        src="https://unpkg.com/react@18/umd/react.development.js"
+    ></script>
+    <script
+        crossorigin
+        src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+    ></script>
+    <script src="./js/landing/App.js"></script>
 </body>
 </html>

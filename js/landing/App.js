@@ -5,8 +5,8 @@ const cities = [
         state: "ready",
         status: "Live",
         apiStatus: "online",
-        image: "./assets/test-landing/berlin-neu.png",
-        href: "./index.html",
+        image: "./assets/landing/berlin-neu.png",
+        href: "https://berlin.transitradar.de/",
         accent: "#f7c948",
         details: "Echtzeitkarte, Stationen, Abfahrten und Fahrzeuge.",
     },
@@ -16,7 +16,7 @@ const cities = [
         state: "soon",
         status: "Coming soon",
         apiStatus: "pending",
-        image: "./assets/test-landing/hamburg-neu.png",
+        image: "./assets/landing/hamburg-neu.png",
         href: "#hamburg",
         accent: "#f05252",
         details: "Hafenstadt-Modus ist in Vorbereitung.",
@@ -27,7 +27,7 @@ const cities = [
         state: "soon",
         status: "Coming soon",
         apiStatus: "pending",
-        image: "./assets/test-landing/munich-neu.png",
+        image: "./assets/landing/munich-neu.png",
         href: "#muenchen",
         accent: "#c8dc00",
         details: "S-Bahn, U-Bahn und Tram kommen als Nächstes.",
@@ -82,11 +82,11 @@ function LandingPage() {
             React.createElement(
                 "nav",
                 { className: "topbar", "aria-label": "TransitRadar" },
-                React.createElement("a", { className: "brand", href: "./index.html" }, "TransitRadar"),
+                React.createElement("a", { className: "brand", href: "/" }, "TransitRadar"),
                 React.createElement(
                     "a",
-                    { className: "topbar-link", href: "./test-landing.html" },
-                    "Test 1"
+                    { className: "topbar-link", href: "https://berlin.transitradar.de/" },
+                    "Berlin map"
                 )
             ),
             React.createElement(
