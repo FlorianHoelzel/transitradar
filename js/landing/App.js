@@ -82,12 +82,7 @@ function LandingPage() {
             React.createElement(
                 "nav",
                 { className: "topbar", "aria-label": "TransitRadar" },
-                React.createElement("a", { className: "brand", href: "/" }, "TransitRadar"),
-                React.createElement(
-                    "a",
-                    { className: "topbar-link", href: "https://berlin.transitradar.de/" },
-                    "Berlin map"
-                )
+                React.createElement("a", { className: "brand", href: "/" }, "TransitRadar")
             ),
             React.createElement(
                 "div",
