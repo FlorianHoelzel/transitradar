@@ -6,18 +6,13 @@ services:
     ports:
       - "8081:80"
 
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-
   vbb-rest:
     image: ghcr.io/florianhoelzel/vbb-rest:v6_3644e5e_2026-07-01t20.26.23z
     restart: unless-stopped
     depends_on:
       - redis
-
     environment:
       REDIS_URL: redis://redis:6379/1
-
     ports:
       - "3000:3000"
 
