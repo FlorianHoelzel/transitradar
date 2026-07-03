@@ -316,7 +316,7 @@ h1 {
 }
 
 .provider-card.planned:nth-child(3) {
-    --accent: var(--lime);
+    --accent: #5EB130;
 }
 
 .provider-card > * {
