@@ -14,24 +14,28 @@
 /* Vehicle popup */
 
 .vehicle-popup {
-    min-width: 250px;
+    width: 280px;
+    max-width: calc(100vw - 48px);
+    padding: 18px 20px;
+    overflow: hidden;
 }
 
 .vehicle-popup-line {
-    margin-bottom: 14px;
+    display: flex;
+    margin-bottom: 16px;
 }
 
 .vehicle-popup-line .line-badge {
-    transform: scale(1.12);
-    transform-origin: left center;
+    transform: none;
 }
 
 .vehicle-popup-direction {
-    margin: 18px 0 18px;
-
+    margin: 0 0 18px;
     font-size: 20px;
     font-weight: 1000;
+    line-height: 1.2;
     color: var(--text-main);
+    overflow-wrap: anywhere;
 }
 
 .vehicle-popup-title {
@@ -46,7 +50,8 @@
 .vehicle-timeline {
     position: relative;
     display: grid;
-    row-gap: 0;
+    row-gap: 2px;
+    padding-left: 1px;
 }
 
 .vehicle-timeline::before {
@@ -54,7 +59,7 @@
     position: absolute;
     left: 10px;
     top: 18px;
-    height: 96px;
+    bottom: 36px;
     width: 2px;
     background: rgba(255,255,255,0.22);
     border-radius: 999px;
@@ -73,7 +78,7 @@
 
 .vehicle-current-stop,
 .vehicle-stop {
-    min-height: 31px;
+    min-height: 32px;
 }
 
 .vehicle-stop-connector,
@@ -104,24 +109,27 @@
 .vehicle-current-name {
     font-size: 16px;
     font-weight: 800;
-    color: #374151;
+    color: var(--text-main);
 }
 
 .vehicle-stop-name {
-    color: #4b5563;
+    min-width: 0;
+    color: var(--text-faded);
     font-size: 15px;
     font-weight: 500;
     line-height: 1.35;
+    overflow-wrap: anywhere;
 }
 
 .vehicle-destination-stop {
-    margin-top: 10px;
+    margin-top: 12px;
     align-items: center;
 }
 
 .vehicle-destination-stop > div:last-child {
-    padding: 10px 12px;
-    border-radius: 14px;
+    min-width: 0;
+    padding: 10px 14px;
+    border-radius: 12px;
     background: rgba(255,255,255,0.08);
 }
 
@@ -144,7 +152,9 @@
 .vehicle-destination-name {
     font-size: 19px;
     font-weight: 900;
+    line-height: 1.15;
     color: var(--text-main);
+    overflow-wrap: anywhere;
 }
 
 .vehicle-next-stop {
