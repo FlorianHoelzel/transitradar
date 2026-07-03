@@ -22,19 +22,19 @@ const cities = [
         details: "Hafenstadt-Modus ist in Vorbereitung.",
     },
     {
-        name: "München",
-        network: "MVV",
+        name: "Frankfurt am Main",
+        network: "RMV",
         state: "soon",
         status: "Coming soon",
         apiStatus: "pending",
-        image: "./assets/landing/munich-neu.png",
-        href: "#muenchen",
-        accent: "#c8dc00",
-        details: "S-Bahn, U-Bahn und Tram kommen als Nächstes.",
+        image: "./assets/landing/frankfurt-rmv.png",
+        href: "#frankfurt-rmv",
+        accent: "#009C95",
+        details: "S-Bahn, U-Bahn, Tram und Regionalverkehr kommen als Nächstes.",
     },
 ];
 
-const upcomingCities = ["Köln", "Frankfurt", "Leipzig", "Dresden", "Stuttgart"];
+const upcomingCities = ["Köln", "München", "Leipzig", "Dresden", "Stuttgart"];
 
 function CityCard({ city, index }) {
     const isReady = city.state === "ready";

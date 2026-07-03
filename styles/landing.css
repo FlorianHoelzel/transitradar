@@ -7,6 +7,7 @@
     --ink: #f5f7fb;
     --muted: #a7afbf;
     --soft: #6f7889;
+    --accent: #009C95;
     --line: rgba(255, 255, 255, 0.13);
     --panel: rgba(255, 255, 255, 0.075);
     --panel-strong: rgba(255, 255, 255, 0.13);
@@ -23,7 +24,7 @@ body {
     margin: 0;
     overflow-x: hidden;
     background:
-        linear-gradient(120deg, rgba(92, 211, 255, 0.18), transparent 30rem),
+        linear-gradient(120deg, rgba(0, 156, 149, 0.2), transparent 30rem),
         linear-gradient(240deg, rgba(247, 201, 72, 0.15), transparent 28rem),
         linear-gradient(180deg, #151820 0%, #090a0f 54%, #0f1218 100%);
     color: var(--ink);
@@ -62,7 +63,7 @@ img {
     inset: 9vh -8vw auto;
     height: 64vh;
     background:
-        linear-gradient(105deg, transparent 0 7%, rgba(93, 211, 255, 0.42) 7.15% 7.55%, transparent 7.75% 100%),
+        linear-gradient(105deg, transparent 0 7%, rgba(0, 156, 149, 0.5) 7.15% 7.55%, transparent 7.75% 100%),
         linear-gradient(148deg, transparent 0 31%, rgba(247, 201, 72, 0.46) 31.15% 31.55%, transparent 31.75% 100%),
         linear-gradient(38deg, transparent 0 54%, rgba(240, 82, 82, 0.42) 54.15% 54.5%, transparent 54.7% 100%),
         repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 7.5rem),
@@ -103,8 +104,8 @@ img {
     height: 0.64rem;
     margin-right: 0.56rem;
     border-radius: 50%;
-    background: #5dd3ff;
-    box-shadow: 0 0 0 0.32rem rgba(93, 211, 255, 0.13);
+    background: var(--accent);
+    box-shadow: 0 0 0 0.32rem rgba(0, 156, 149, 0.16);
     vertical-align: 0.04rem;
 }
 
@@ -142,7 +143,7 @@ img {
 
 .eyebrow {
     margin: 0 0 0.55rem;
-    color: #5dd3ff;
+    color: var(--accent);
     font-size: 0.78rem;
     font-weight: 800;
     letter-spacing: 0.14em;
