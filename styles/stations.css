@@ -304,12 +304,12 @@
 
 .popup-departure-card {
     display: grid;
-    grid-template-columns: 54px minmax(0, 1fr) 92px;
+    grid-template-columns: 64px minmax(0, 1fr) 70px;
     align-items: center;
     gap: 12px;
 
-    min-height: 76px;
-    padding: 0 16px;
+    min-height: 86px;
+    padding: 5px 16px;
     margin: 0 16px;
 
     border-radius: 18px;
@@ -381,9 +381,9 @@
 
 .popup-departure-times {
     display: flex;
-    align-items: baseline;
-    justify-content: flex-end;
-    gap: 6px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
 
     white-space: nowrap;
 }
@@ -450,6 +450,17 @@
     flex-shrink: 0;
 }
 
+.line-badge.long-distance-badge {
+    min-width: 0;
+    height: 29px;
+    padding: 0 4px;
+
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+}
+
 /* Skeleton */
 
 .popup-skeleton-card {
@@ -506,7 +517,7 @@
     }
 
     .popup-departure-card {
-        grid-template-columns: 50px minmax(0, 1fr) 88px;
+        grid-template-columns: 60px minmax(0, 1fr) 66px;
         gap: 10px;
     }
 
