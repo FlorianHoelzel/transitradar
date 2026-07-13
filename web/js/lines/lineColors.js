@@ -1,4 +1,6 @@
-export const LINE_COLORS = {
+import { CITY_CONFIG } from "../config.js";
+
+const BERLIN_LINE_COLORS = {
     // U-Bahn
     U1: "#62AD2D",
     U2: "#E30613",
@@ -38,6 +40,38 @@ export const LINE_COLORS = {
     S9: "#8DC63F"
 };
 
+const HAMBURG_LINE_COLORS = {
+    // U-Bahn
+    U1: "#0072BC",
+    U2: "#EE1D23",
+    U3: "#FFDC01",
+    U4: "#00AAAD",
+
+    // S-Bahn
+    S1: "#4DA553",
+    S2: "#95334A",
+    S3: "#512C75",
+    S5: "#3B87A9",
+    S7: "#C07B35",
+
+    // AKN
+    A1: "#F7931D",
+    A2: "#F7931D",
+    A3: "#F7931D"
+};
+
+const CITY_LINE_COLORS = {
+    berlin: BERLIN_LINE_COLORS,
+    hamburg: HAMBURG_LINE_COLORS
+};
+
+const DARK_TEXT_LINES = {
+    berlin: new Set(["U4"]),
+    hamburg: new Set(["U3"])
+};
+
+export const LINE_COLORS = CITY_LINE_COLORS[CITY_CONFIG.id] || BERLIN_LINE_COLORS;
+
 const METRO_TRAMS = [
     "M1", "M2", "M4", "M5", "M6", "M8", "M10", "M13", "M17"
 ];
@@ -58,11 +92,14 @@ export function getBadgeStyle(line) {
     }
 
     const name = line.toString().trim();
+    const colorKey = name
+        .replace(/^([USA])\s*(\d+)$/i, "$1$2")
+        .toUpperCase();
 
-    if (LINE_COLORS[name]) {
+    if (LINE_COLORS[colorKey]) {
         return {
-            background: LINE_COLORS[name],
-            color: name === "U4" ? "#111" : "#fff",
+            background: LINE_COLORS[colorKey],
+            color: DARK_TEXT_LINES[CITY_CONFIG.id]?.has(colorKey) ? "#111" : "#fff",
             border: "none"
         };
     }
