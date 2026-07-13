@@ -123,6 +123,7 @@ async function getRadar(url) {
     const south = Number(url.searchParams.get("south"));
     const east = Number(url.searchParams.get("east"));
     const west = Number(url.searchParams.get("west"));
+    const results = integerParameter(url, "results", 300, 1000);
     const now = Math.floor(Date.now() / 1000);
     const payload = {
         boundingBox: {
@@ -145,7 +146,16 @@ async function getRadar(url) {
         return geofoxRequest("getVehicleMap", payload);
     });
 
-    return { movements: normalizeMovements(data) };
+    const movements = normalizeMovements(data)
+        .filter(movement => {
+            return movement.location.latitude >= south
+                && movement.location.latitude <= north
+                && movement.location.longitude >= west
+                && movement.location.longitude <= east;
+        })
+        .slice(0, results);
+
+    return { movements };
 }
 
 async function routeRequest(request, response) {
