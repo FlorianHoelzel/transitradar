@@ -149,6 +149,98 @@ export function normalizeDepartures(data, context) {
     });
 }
 
+export function encodeTripContext(context) {
+    return Buffer.from(JSON.stringify(context)).toString("base64url");
+}
+
+export function decodeTripContext(token) {
+    return JSON.parse(Buffer.from(token, "base64url").toString("utf8"));
+}
+
+function withDelay(value, delaySeconds = 0) {
+    if (!value) {
+        return null;
+    }
+
+    const timestamp = new Date(value).getTime();
+
+    if (!Number.isFinite(timestamp)) {
+        return null;
+    }
+
+    return new Date(timestamp + Number(delaySeconds || 0) * 1000).toISOString();
+}
+
+function stopover(stop, times = {}) {
+    return {
+        stop: normalizeStop(stop),
+        arrival: withDelay(times.arrival, times.arrivalDelay),
+        plannedArrival: withDelay(times.arrival),
+        departure: withDelay(times.departure, times.departureDelay),
+        plannedDeparture: withDelay(times.departure),
+        arrivalPlatform: times.arrivalPlatform || null,
+        departurePlatform: times.departurePlatform || null,
+        cancelled: Boolean(times.cancelled)
+    };
+}
+
+export function normalizeCourse(data, context) {
+    const elements = data.courseElements || [];
+
+    if (elements.length === 0) {
+        return null;
+    }
+
+    const first = elements[0];
+    const stopovers = [
+        stopover(first.fromStation, {
+            departure: first.depTime,
+            departureDelay: first.depDelay,
+            departurePlatform: first.fromRealtimePlatform || first.fromPlatform,
+            cancelled: first.fromCancelled
+        }),
+        ...elements.map(element => stopover(element.toStation, {
+            arrival: element.arrTime,
+            arrivalDelay: element.arrDelay,
+            arrivalPlatform: element.toRealtimePlatform || element.toPlatform,
+            departure: element.depTime,
+            departureDelay: element.depDelay,
+            departurePlatform: element.fromRealtimePlatform || element.fromPlatform,
+            cancelled: element.toCancelled
+        }))
+    ];
+    const coordinates = stopovers
+        .map(entry => entry.stop.location)
+        .filter(location => {
+            return Number.isFinite(location?.latitude)
+                && Number.isFinite(location?.longitude);
+        })
+        .map(location => [location.longitude, location.latitude]);
+    const id = context.journeyId || encodeTripContext(context);
+
+    return {
+        trip: {
+            id,
+            direction: context.direction || stopovers.at(-1)?.stop?.name || "",
+            line: {
+                type: "line",
+                id: context.lineKey || context.lineId,
+                name: context.lineName || "",
+                product: context.product || "bus"
+            },
+            stopovers,
+            polyline: {
+                type: "Feature",
+                properties: {},
+                geometry: {
+                    type: "LineString",
+                    coordinates
+                }
+            }
+        }
+    };
+}
+
 function interpolateTrack(track, progress) {
     if (!Array.isArray(track) || track.length < 2) {
         return null;
@@ -192,8 +284,20 @@ export function normalizeMovements(data, nowSeconds = Date.now() / 1000) {
             return [];
         }
 
+        const routeContext = {
+            journeyId: journey.journeyID,
+            stationId: segment.startStationKey,
+            lineKey: journey.line?.id,
+            lineId: journey.line?.dlid,
+            lineName: journey.line?.name,
+            product: productFromVehicleType(journey.vehicleType),
+            direction: segment.destination || journey.line?.direction || "",
+            time: new Date(Number(segment.startDateTime) * 1000).toISOString()
+        };
+
         return [{
             tripId: journey.journeyID,
+            routeId: encodeTripContext(routeContext),
             direction: segment.destination || journey.line?.direction || "",
             location,
             line: {

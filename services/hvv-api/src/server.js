@@ -5,6 +5,8 @@ import { config } from "./config.js";
 import { geofoxRequest } from "./geofoxClient.js";
 import {
     normalizeDepartures,
+    decodeTripContext,
+    normalizeCourse,
     normalizeMovements,
     normalizeStop
 } from "./normalizers.js";
@@ -47,6 +49,27 @@ function currentGtiTime() {
         date: `${values.day}.${values.month}.${values.year}`,
         time: `${values.hour}:${values.minute}`
     };
+}
+
+function geofoxDateTime(value) {
+    const date = new Date(value);
+    const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Europe/Berlin",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hourCycle: "h23",
+        timeZoneName: "longOffset"
+    }).formatToParts(date);
+    const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    const offset = values.timeZoneName
+        .replace("GMT", "")
+        .replace(":", "");
+
+    return `${values.year}-${values.month}-${values.day}T${values.hour}:${values.minute}:${values.second}.000${offset}`;
 }
 
 async function getStations() {
@@ -158,6 +181,60 @@ async function getRadar(url) {
     return { movements };
 }
 
+async function getTrip(token, lineName) {
+    let context;
+
+    try {
+        context = decodeTripContext(token);
+    } catch {
+        const error = new Error("Invalid trip identifier.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (!context.stationId || (!context.lineId && !context.lineKey)) {
+        const error = new Error("Incomplete trip identifier.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const payload = {
+        station: { id: context.stationId, type: "STATION" },
+        segments: "ALL",
+        showPath: true,
+        coordinateType: "EPSG_4326"
+    };
+
+    if (context.lineId?.startsWith("de:")) {
+        payload.lineId = context.lineId;
+    } else {
+        payload.lineKey = context.lineKey || context.lineId;
+    }
+
+    if (Number.isFinite(Number(context.serviceId))) {
+        payload.serviceId = Number(context.serviceId);
+    } else {
+        payload.time = geofoxDateTime(context.time);
+        payload.direction = context.direction;
+    }
+
+    const data = await cached(`trip:${token}`, 30000, () => {
+        return geofoxRequest("departureCourse", payload);
+    });
+    const result = normalizeCourse(data, {
+        ...context,
+        lineName: context.lineName || lineName
+    });
+
+    if (!result) {
+        const error = new Error("Trip course not found.");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    return result;
+}
+
 async function routeRequest(request, response) {
     const url = new URL(request.url, "http://localhost");
 
@@ -208,6 +285,20 @@ async function routeRequest(request, response) {
         return;
     }
 
+    const tripMatch = url.pathname.match(/^\/trips\/(.+)$/);
+
+    if (tripMatch) {
+        sendJson(
+            response,
+            200,
+            await getTrip(
+                decodeURIComponent(tripMatch[1]),
+                url.searchParams.get("lineName") || ""
+            )
+        );
+        return;
+    }
+
     sendJson(response, 404, { error: "Not found." });
 }
 
@@ -218,7 +309,11 @@ const server = createServer(async (request, response) => {
         await routeRequest(request, response);
     } catch (error) {
         console.error(error.message);
-        sendJson(response, 502, { error: "The HVV data service is unavailable." });
+        sendJson(
+            response,
+            error.statusCode || 502,
+            { error: error.statusCode ? error.message : "The HVV data service is unavailable." }
+        );
     }
 });
 
