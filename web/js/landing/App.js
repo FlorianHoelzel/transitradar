@@ -13,13 +13,13 @@ const cities = [
     {
         name: "Hamburg",
         network: "HVV",
-        state: "soon",
-        status: "Coming soon",
-        apiStatus: "pending",
+        state: "ready",
+        status: "Live",
+        apiStatus: "online",
         image: "./assets/landing/hamburg-neu.png",
-        href: "#hamburg",
+        href: "https://hamburg.transitradar.de/",
         accent: "#f05252",
-        details: "Hafenstadt-Modus ist in Vorbereitung.",
+        details: "Echtzeitkarte, Stationen, Abfahrten und Fahrzeuge.",
     },
     {
         name: "Frankfurt am Main",
@@ -72,6 +72,9 @@ function CityCard({ city, index }) {
 }
 
 function LandingPage() {
+    const liveCityCount = cities.filter(city => city.state === "ready").length;
+    const upcomingCityCount = cities.filter(city => city.state !== "ready").length;
+
     return React.createElement(
         "main",
         { className: "landing-shell" },
@@ -99,13 +102,13 @@ function LandingPage() {
                     React.createElement(
                         "span",
                         null,
-                        React.createElement("strong", null, "1"),
+                        React.createElement("strong", null, String(liveCityCount)),
                         " live"
                     ),
                     React.createElement(
                         "span",
                         null,
-                        React.createElement("strong", null, "2"),
+                        React.createElement("strong", null, String(upcomingCityCount)),
                         " coming soon"
                     ),
                     React.createElement(
