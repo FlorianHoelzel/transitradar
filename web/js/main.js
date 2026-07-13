@@ -12,6 +12,21 @@ import { setupFilters } from "./ui/filters.js";
 import { setupSidebar } from "./ui/sidebar.js";
 import { createLocationButton } from "./ui/locationButton.js";
 import { vehicleState } from "./vehicles/vehicleState.js";
+import { CITY_CONFIG } from "./config.js";
+
+function applyCityMetadata() {
+    document.title = `TransitRadar ${CITY_CONFIG.name}`;
+    document.body.dataset.city = CITY_CONFIG.id;
+
+    document.querySelector("header")?.setAttribute(
+        "aria-label",
+        `TransitRadar ${CITY_CONFIG.name}`
+    );
+    document.querySelector("main")?.setAttribute(
+        "aria-label",
+        `${CITY_CONFIG.name} transit radar map`
+    );
+}
 
 async function setupStations() {
     try {
@@ -52,6 +67,7 @@ function setupVehicleRefresh() {
 }
 
 function initApp() {
+    applyCityMetadata();
     setupUi();
     createApiStatusIndicator();
     setupMapEvents();

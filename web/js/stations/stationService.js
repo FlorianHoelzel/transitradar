@@ -1,14 +1,14 @@
-import { loadStationsFromApi } from "../api/transportRestApi.js";
-import { BERLIN_BOUNDS } from "../config.js";
+import { loadStationsFromApi } from "../api/transitApi.js";
+import { CITY_BOUNDS, CITY_CONFIG } from "../config.js";
 
-function isBerlinAreaStation(station) {
+function isCityAreaStation(station) {
     const [lat, lng] = station.coordinates;
 
     return (
-        lat >= BERLIN_BOUNDS.minLat &&
-        lat <= BERLIN_BOUNDS.maxLat &&
-        lng >= BERLIN_BOUNDS.minLng &&
-        lng <= BERLIN_BOUNDS.maxLng
+        lat >= CITY_BOUNDS.minLat &&
+        lat <= CITY_BOUNDS.maxLat &&
+        lng >= CITY_BOUNDS.minLng &&
+        lng <= CITY_BOUNDS.maxLng
     );
 }
 
@@ -77,7 +77,7 @@ function normalizeStationGroupKey(name) {
     return normalizeMainStationName(removeStopDetails(name))
         .replace(/\s*\([^)]*\)\s*/gu, " ")
         .replace(/^(?:S\+U|S|U)\s+/iu, "")
-        .replace(/\bBerlin\s+Hauptbahnhof\b/iu, "Hauptbahnhof")
+        .replace(new RegExp(`\\b${CITY_CONFIG.name}\\s+Hauptbahnhof\\b`, "iu"), "Hauptbahnhof")
         .replace(/\b(?:Bf|Bhf)\b\.?/giu, "")
         .replace(/\s+/gu, " ")
         .trim()
@@ -88,7 +88,10 @@ function getStationDisplayName(name) {
     const cleanName = removeStopDetails(name);
 
     if (/^S\+U Hauptbahnhof(?:\s|\(|$)/u.test(cleanName)) {
-        return cleanName.replace(/^S\+U Hauptbahnhof/u, "S+U Berlin Hauptbahnhof");
+        return cleanName.replace(
+            /^S\+U Hauptbahnhof/u,
+            `S+U ${CITY_CONFIG.name} Hauptbahnhof`
+        );
     }
 
     return cleanName;
@@ -97,12 +100,16 @@ function getStationDisplayName(name) {
 function getDisplayNameScore(name) {
     const hasDetails = /\/|\[/.test(name);
     const hasStationSuffix = /\b(?:Bf|Bhf)\b\.?/u.test(name);
-    const hasBerlinQualifier = /\(Berlin\)|\bBerlin\s+Hauptbahnhof\b/u.test(name);
+    const cityQualifierPattern = new RegExp(
+        `\\(${CITY_CONFIG.name}\\)|\\b${CITY_CONFIG.name}\\s+Hauptbahnhof\\b`,
+        "u"
+    );
+    const hasCityQualifier = cityQualifierPattern.test(name);
 
     return (
         (hasDetails ? 20 : 0) +
         (hasStationSuffix ? 0 : 4) +
-        (hasBerlinQualifier ? 0 : 2) +
+        (hasCityQualifier ? 0 : 2) +
         name.length / 1000
     );
 }
@@ -166,19 +173,19 @@ function prepareStations(rawStops) {
     const rawStations = rawStops
         .filter(isValidStop)
         .map(normalizeStop)
-        .filter(isBerlinAreaStation);
+        .filter(isCityAreaStation);
 
     return groupStationsByName(rawStations);
 }
 
 export async function loadStations() {
     try {
-        console.log("Loading stations from VBB API.");
+        console.log(`Loading stations from ${CITY_CONFIG.network} API.`);
         const data = await loadStationsFromApi();
 
         return prepareStations(data);
     } catch (error) {
-        console.error("Failed to load stations from VBB API:", error);
+        console.error(`Failed to load stations from ${CITY_CONFIG.network} API:`, error);
         return [];
     }
 }

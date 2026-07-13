@@ -1,11 +1,4 @@
 services:
-  transitradar:
-    build: .
-    restart: unless-stopped
-
-    ports:
-      - "8081:80"
-
   vbb-rest:
     image: ghcr.io/florianhoelzel/vbb-rest:v6_3644e5e_2026-07-01t20.26.23z
     restart: unless-stopped
@@ -13,9 +6,11 @@ services:
       - redis
     environment:
       REDIS_URL: redis://redis:6379/1
-    ports:
-      - "3000:3000"
-
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    volumes:
+      - vbb-redis:/data
+
+volumes:
+  vbb-redis:

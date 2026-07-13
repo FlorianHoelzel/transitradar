@@ -1,13 +1,11 @@
 import {
-    API_BASE_URLS,
-    BERLIN_BOUNDS,
+    API_BASE_URL,
+    CITY_BOUNDS,
     STATION_CONFIG,
     DEPARTURE_CONFIG,
     VEHICLE_CONFIG
 } from "../config.js";
 import { fetchJson } from "./httpClient.js";
-
-const VBB_API_BASE = API_BASE_URLS.vbb;
 
 function createUrl(baseUrl, pathAndQuery) {
     const resolvedBaseUrl = baseUrl.startsWith("//") && window.location.protocol === "file:"
@@ -115,19 +113,19 @@ function createDepartureCollector(stopIds, results, duration) {
     };
 }
 
-function createBerlinBoundsGrid() {
+function createCityBoundsGrid() {
     const cells = [];
     const gridSize = VEHICLE_CONFIG.selectedLineGridSize;
-    const latStep = (BERLIN_BOUNDS.maxLat - BERLIN_BOUNDS.minLat) / gridSize;
-    const lngStep = (BERLIN_BOUNDS.maxLng - BERLIN_BOUNDS.minLng) / gridSize;
+    const latStep = (CITY_BOUNDS.maxLat - CITY_BOUNDS.minLat) / gridSize;
+    const lngStep = (CITY_BOUNDS.maxLng - CITY_BOUNDS.minLng) / gridSize;
 
     for (let row = 0; row < gridSize; row += 1) {
         for (let column = 0; column < gridSize; column += 1) {
             cells.push({
-                north: BERLIN_BOUNDS.minLat + latStep * (row + 1),
-                south: BERLIN_BOUNDS.minLat + latStep * row,
-                east: BERLIN_BOUNDS.minLng + lngStep * (column + 1),
-                west: BERLIN_BOUNDS.minLng + lngStep * column
+                north: CITY_BOUNDS.minLat + latStep * (row + 1),
+                south: CITY_BOUNDS.minLat + latStep * row,
+                east: CITY_BOUNDS.minLng + lngStep * (column + 1),
+                west: CITY_BOUNDS.minLng + lngStep * column
             });
         }
     }
@@ -227,7 +225,7 @@ async function fetchDeparturesForStop(stopId, results, duration) {
         `?results=${results}` +
         `&duration=${duration}`;
 
-    const primaryUrl = createUrl(VBB_API_BASE, pathAndQuery);
+    const primaryUrl = createUrl(API_BASE_URL, pathAndQuery);
 
     const data = await fetchJson(
         primaryUrl,
@@ -288,7 +286,7 @@ async function searchStops(query) {
         `&linesOfStops=true`;
 
     const data = await fetchJson(
-        createUrl(VBB_API_BASE, pathAndQuery),
+        createUrl(API_BASE_URL, pathAndQuery),
         "Failed to search stations.",
         STATION_CONFIG.requestTimeout
     );
@@ -308,7 +306,7 @@ async function fetchNearbyStops(point) {
         `&linesOfStops=true`;
 
     const data = await fetchJson(
-        createUrl(VBB_API_BASE, pathAndQuery),
+        createUrl(API_BASE_URL, pathAndQuery),
         "Failed to load nearby stations.",
         STATION_CONFIG.requestTimeout
     );
@@ -323,11 +321,11 @@ function createStationGridPoints() {
     for (let row = 0; row < gridSize; row += 1) {
         for (let column = 0; column < gridSize; column += 1) {
             points.push({
-                latitude: BERLIN_BOUNDS.minLat +
-                    (BERLIN_BOUNDS.maxLat - BERLIN_BOUNDS.minLat) *
+                latitude: CITY_BOUNDS.minLat +
+                    (CITY_BOUNDS.maxLat - CITY_BOUNDS.minLat) *
                     (row / (gridSize - 1)),
-                longitude: BERLIN_BOUNDS.minLng +
-                    (BERLIN_BOUNDS.maxLng - BERLIN_BOUNDS.minLng) *
+                longitude: CITY_BOUNDS.minLng +
+                    (CITY_BOUNDS.maxLng - CITY_BOUNDS.minLng) *
                     (column / (gridSize - 1))
             });
         }
@@ -374,7 +372,7 @@ export async function loadStationsFromApi() {
 
     try {
         data = await fetchJson(
-            createUrl(VBB_API_BASE, pathAndQuery),
+            createUrl(API_BASE_URL, pathAndQuery),
             "Failed to load stations.",
             STATION_CONFIG.requestTimeout
         );
@@ -431,7 +429,7 @@ async function fetchVehicleMovements(boundsQuery, zoom) {
         `&frames=1`;
 
     const data = await fetchJson(
-        createUrl(VBB_API_BASE, pathAndQuery),
+        createUrl(API_BASE_URL, pathAndQuery),
         "Failed to load live vehicles.",
         VEHICLE_CONFIG.requestTimeout
     );
@@ -443,8 +441,8 @@ export async function getVehicleMovements(bounds, zoom) {
     return await fetchVehicleMovements(getBoundsQuery(bounds), zoom);
 }
 
-export async function getBerlinVehicleMovementsGrid(zoom) {
-    return await fetchVehicleMovementsGrid(createBerlinBoundsGrid(), zoom);
+export async function getCityVehicleMovementsGrid(zoom) {
+    return await fetchVehicleMovementsGrid(createCityBoundsGrid(), zoom);
 }
 
 export async function getTripDetails(tripId, lineName) {
@@ -456,7 +454,7 @@ export async function getTripDetails(tripId, lineName) {
         `&remarks=false`;
 
     return await fetchJson(
-        createUrl(VBB_API_BASE, pathAndQuery),
+        createUrl(API_BASE_URL, pathAndQuery),
         "Failed to load trip route."
     );
 }

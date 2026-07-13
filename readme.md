@@ -1,3 +1,26 @@
+## Repository layout
+
+TransitRadar uses one shared frontend and one isolated API service per transport
+provider:
+
+```text
+web/                    Shared landing, status, and city frontend
+web/js/config.js        Hostname-based city configuration
+deploy/nginx.conf       Routing for the shared frontend image
+services/hvv-api/       Private Geofox adapter for Hamburg
+docker-compose.yaml     VBB API and cache stack
+Dockerfile              Shared frontend image used by every website
+```
+
+All website applications in Coolify build the root `Dockerfile`. A frontend
+change is therefore deployed consistently to the landing page, status page,
+Berlin, Hamburg, and future city sites. Provider credentials and API-specific
+normalization live only in `services/<provider>-api/`.
+
+To add another city, add its public configuration to `web/js/config.js`, add an
+Nginx hostname mapping to `deploy/nginx.conf`, and create a separate provider
+adapter only when its upstream API differs from an existing adapter.
+
 ![Status](https://img.shields.io/badge/status-active-success)
 ![Cities](https://img.shields.io/badge/planned_cities-9-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)

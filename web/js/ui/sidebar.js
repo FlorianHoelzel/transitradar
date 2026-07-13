@@ -8,6 +8,7 @@ import { createLineBadge } from "../lines/badges.js";
 import { loadDeparturesForStation } from "../stations/departureService.js";
 import { getStations } from "../stations/stationStore.js";
 import { markers, updateVisibleMarkers } from "../stations/stationMarkers.js";
+import { CITY_CONFIG } from "../config.js";
 
 const NEARBY_STATION_LIMIT = 8;
 const NEARBY_DEPARTURE_LIMIT = 5;
@@ -141,6 +142,9 @@ function createNearbyStationHtml(station, distance, departures = [], index) {
 }
 
 export function setupSidebar() {
+    const officialSourcesHtml = CITY_CONFIG.officialSources
+        .map(source => `<a href="${source.url}" target="_blank" rel="noreferrer">${source.label}</a>`)
+        .join(", ");
     const sidebarToggle = document.createElement("button");
     sidebarToggle.id = "sidebarToggle";
     sidebarToggle.className = "sidebar-toggle liquid-button";
@@ -229,7 +233,7 @@ export function setupSidebar() {
             <div class="about-header">
                 <div>
                     <div class="about-kicker">About</div>
-                    <h2>TransitRadar Berlin</h2>
+                    <h2>TransitRadar ${CITY_CONFIG.name}</h2>
                 </div>
 
                 <button id="aboutClose" class="about-close" type="button">×</button>
@@ -237,14 +241,14 @@ export function setupSidebar() {
 
             <div class="about-content">
                 <p>
-                    <strong>TransitRadar Berlin</strong> is a personal web project for exploring public transport in Berlin.
+                    <strong>TransitRadar ${CITY_CONFIG.name}</strong> is a personal web project for exploring public transport in ${CITY_CONFIG.name}.
                     The app shows nearby stops, live departures, live vehicle positions, highlighted lines and selected vehicle routes on an interactive map.
                 </p>
 
                 <div class="about-card">
                     <h3>🛰️ Data sources</h3>
                     <p>
-                        TransitRadar Berlin uses public transport API data from BVG / VBB related endpoints.
+                        TransitRadar ${CITY_CONFIG.name} uses ${CITY_CONFIG.dataSourceText}.
                         Stop data, departures, trip details and live vehicle positions may come from different APIs and can update at different intervals.
                     </p>
                 </div>
@@ -261,14 +265,12 @@ export function setupSidebar() {
                         not be considered legally binding.
                     </p>
                     <p>
-                        TransitRadar Berlin is an independent project and is
-                        <strong>not affiliated with BVG, VBB or Deutsche Bahn.</strong>
+                        TransitRadar ${CITY_CONFIG.name} is an independent project and is
+                        <strong>not affiliated with ${CITY_CONFIG.affiliationText}.</strong>
                     </p>
                     <p>
-                        For official and up-to-date travel information, always use official sources such as
-                        <strong>bvg.de</strong>,
-                        <strong>bahn.de</strong>
-                        or the official BVG / VBB apps.
+                        For official and up-to-date travel information, always use
+                        ${officialSourcesHtml} or the official ${CITY_CONFIG.network} services.
                     </p>
                 </div>
             </div>

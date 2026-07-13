@@ -1,4 +1,4 @@
-import { VEHICLE_CONFIG } from "../config.js";
+import { CITY_CONFIG, VEHICLE_CONFIG } from "../config.js";
 import { getBadgeStyle } from "../lines/lineColors.js";
 import { activeFilters } from "../ui/filters.js";
 
@@ -69,7 +69,7 @@ export function cleanStopName(name) {
         .replace(/^S\+U\s+/i, "")
         .replace(/^U\s+/i, "")
         .replace(/^S\s+/i, "")
-        .replace(/\s+\(Berlin\)$/i, "");
+        .replace(new RegExp(`\\s+\\(${CITY_CONFIG.name}\\)$`, "i"), "");
 }
 
 export function getLineColor(lineName) {

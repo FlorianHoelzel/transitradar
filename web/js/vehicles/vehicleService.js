@@ -1,7 +1,8 @@
 import {
-    getBerlinVehicleMovementsGrid,
+    getCityVehicleMovementsGrid,
     getVehicleMovements
-} from "../api/transportRestApi.js";
+} from "../api/transitApi.js";
+import { CITY_CONFIG } from "../config.js";
 
 async function loadVehicleMovementsFromRemoteApi(bounds, zoom) {
     return await getVehicleMovements(bounds, zoom);
@@ -12,17 +13,17 @@ export async function loadVehicleMovements(bounds, zoom) {
         console.log("Loading vehicles from API.");
         return await loadVehicleMovementsFromRemoteApi(bounds, zoom);
     } catch (apiError) {
-        console.warn("Failed to load live vehicles from VBB API:", apiError);
+        console.warn(`Failed to load live vehicles from ${CITY_CONFIG.network} API:`, apiError);
         return [];
     }
 }
 
-export async function loadBerlinVehicleMovements(zoom) {
+export async function loadCityVehicleMovements(zoom) {
     try {
         console.log("Loading citywide vehicles from API.");
-        return await getBerlinVehicleMovementsGrid(zoom);
+        return await getCityVehicleMovementsGrid(zoom);
     } catch (apiError) {
-        console.warn("Failed to load citywide live vehicles from VBB API:", apiError);
+        console.warn(`Failed to load citywide live vehicles from ${CITY_CONFIG.network} API:`, apiError);
         return null;
     }
 }

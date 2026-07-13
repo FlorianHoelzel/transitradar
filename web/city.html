@@ -7,7 +7,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>TransitRadar Berlin v2</title>
+    <title>TransitRadar</title>
 
     <link rel="stylesheet" href="./styles/fonts.css">
     <link rel="stylesheet" href="./styles/base.css">
@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="./styles/api-status.css">
     <link rel="stylesheet" href="./styles/responsive.css">
     <link rel="stylesheet" href="./styles/location.css">
-    <link rel="stylesheet" href="./styles/berlin-v2.css">
+    <link rel="stylesheet" href="./styles/city.css">
 
     <link
         rel="stylesheet"
@@ -29,10 +29,10 @@
     >
 </head>
 
-<body class="berlin-v2">
+<body class="city-app berlin-v2">
     <div class="route-field" aria-hidden="true"></div>
 
-    <header class="berlin-v2-topbar" aria-label="TransitRadar Berlin">
+    <header class="berlin-v2-topbar" aria-label="TransitRadar">
         <a class="brand" href="https://transitradar.de/">
             TransitRadar
         </a>
@@ -141,12 +141,12 @@
         </div>
     </div>
 
-    <main class="berlin-v2-map-shell" aria-label="Berlin transit radar">
+    <main class="berlin-v2-map-shell" aria-label="Transit radar map">
         <div id="map"></div>
     </main>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script type="module" src="./js/main.js?v=berlin-v2-1"></script>
-    <script type="module" src="./js/berlin-v2.js?v=lucide-icons-1"></script>
+    <script type="module" src="./js/main.js?v=city-1"></script>
+    <script type="module" src="./js/cityPage.js?v=city-1"></script>
 </body>
 </html>

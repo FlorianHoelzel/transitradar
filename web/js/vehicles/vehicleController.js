@@ -4,7 +4,7 @@ import { VEHICLE_CONFIG } from "../config.js";
 
 import { vehicleState } from "./vehicleState.js";
 import {
-    loadBerlinVehicleMovements,
+    loadCityVehicleMovements,
     loadVehicleMovements
 } from "./vehicleService.js";
 import {
@@ -171,7 +171,7 @@ export async function updateVehicles(force = false) {
             ? Math.max(zoom, VEHICLE_CONFIG.zoomThreshold)
             : zoom;
         const movements = selectedLineName
-            ? await loadBerlinVehicleMovements(requestZoom)
+            ? await loadCityVehicleMovements(requestZoom)
             : await loadVehicleMovements(map.getBounds(), requestZoom);
         const currentZoom = map.getZoom();
         const currentSelectedLineName = vehicleState.selectedLineName;

@@ -1,6 +1,8 @@
+import { CITY_CONFIG } from "../config.js";
+
 export function getDisplayStationName(station) {
     return station.name
-        .replace(/\s+\(Berlin\)$/u, "")
+        .replace(new RegExp(`\\s+\\(${CITY_CONFIG.name}\\)$`, "u"), "")
         .trim();
 }
 
