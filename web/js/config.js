@@ -7,6 +7,7 @@ const CITY_CONFIGS = {
         apiBaseUrl: "https://api.transitradar.de",
         mapCenter: [52.52, 13.40],
         mapZoom: 12,
+        importantStationMinScore: 6,
         vehicleGridStrategy: "grid",
         vehicleRequestTimeout: 2500,
         bounds: {
@@ -31,6 +32,7 @@ const CITY_CONFIGS = {
         apiBaseUrl: "https://api-hamburg.transitradar.de",
         mapCenter: [53.5511, 9.9937],
         mapZoom: 12,
+        importantStationMinScore: 3,
         vehicleGridStrategy: "single-request",
         vehicleRequestTimeout: 15000,
         bounds: {
@@ -48,7 +50,17 @@ const CITY_CONFIGS = {
     }
 };
 
+const LOCAL_DEV_HOSTNAMES = new Set(["localhost", "127.0.0.1"]);
+
 function getCityIdFromHostname(hostname) {
+    if (LOCAL_DEV_HOSTNAMES.has(hostname)) {
+        const requestedCity = new URLSearchParams(window.location.search).get("city");
+
+        if (CITY_CONFIGS[requestedCity]) {
+            return requestedCity;
+        }
+    }
+
     const matchingCity = Object.values(CITY_CONFIGS).find(city => {
         return hostname === city.hostname || hostname.startsWith(`${city.id}-`);
     });
@@ -60,7 +72,9 @@ export const CITY_CONFIG = CITY_CONFIGS[
     getCityIdFromHostname(window.location.hostname)
 ];
 
-export const API_BASE_URL = CITY_CONFIG.apiBaseUrl;
+export const API_BASE_URL = LOCAL_DEV_HOSTNAMES.has(window.location.hostname)
+    ? `/api/${CITY_CONFIG.id}`
+    : CITY_CONFIG.apiBaseUrl;
 export const CITY_BOUNDS = CITY_CONFIG.bounds;
 
 export const HTTP_CONFIG = {
@@ -84,6 +98,7 @@ export const MAP_CONFIG = {
 export const STATION_CONFIG = {
     apiResultsLimit: 1000,
     requestTimeout: 15000,
+    importantStationMinScore: CITY_CONFIG.importantStationMinScore,
     nearbyGridSize: 8,
     nearbyDistance: 4500,
     searchQueries: CITY_CONFIG.stationSearchQueries,

@@ -21,6 +21,18 @@ To add another city, add its public configuration to `web/js/config.js`, add an
 Nginx hostname mapping to `deploy/nginx.conf`, and create a separate provider
 adapter only when its upstream API differs from an existing adapter.
 
+## Local preview
+
+Run the dependency-free preview server from the repository root:
+
+```powershell
+node scripts/dev-server.mjs
+```
+
+Then open `http://localhost:4173/?city=hamburg`. The preview server proxies the
+production provider API through localhost, so the complete frontend works
+without changing API CORS settings or deploying to Coolify.
+
 ![Status](https://img.shields.io/badge/status-active-success)
 ![Cities](https://img.shields.io/badge/planned_cities-9-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)

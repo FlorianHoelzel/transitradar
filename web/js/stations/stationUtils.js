@@ -36,7 +36,8 @@ export function isImportantTrainStation(station) {
         return false;
     }
 
-    return getStationImportanceScore(station) >= 6;
+    return getStationImportanceScore(station) >=
+        STATION_CONFIG.importantStationMinScore;
 }
 
 export function shouldShowStation(station, zoom) {
