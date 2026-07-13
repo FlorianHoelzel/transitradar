@@ -1,21 +1,42 @@
-import { API_STATUS_CONFIG } from "./config.js";
-
 const statusText = document.getElementById("overallStatusText");
 const statusDot = document.getElementById("overallStatusDot");
 const refreshButton = document.getElementById("refreshStatus");
-
-const vbbCard = document.querySelector('[data-provider-card="vbb"]');
-const vbbStatus = document.querySelector('[data-provider-status="vbb"]');
-const vbbLatency = document.querySelector('[data-provider-latency="vbb"]');
-const vbbMessage = document.querySelector('[data-provider-message="vbb"]');
-const vbbGraph = document.querySelector('[data-provider-graph="vbb"]');
 const previewMode = new URLSearchParams(window.location.search).get("preview");
 const maxLatencySamples = 12;
 const previewLatencyHistory = [132, 164, 151, 208, 184, 171, 226, 193, 177, 184];
-const liveRefreshInterval = 5000;
+const liveRefreshInterval = 60000;
 const previewRefreshInterval = 2000;
-let vbbLatencyHistory = [];
 let isChecking = false;
+
+const providers = [
+    {
+        id: "vbb",
+        name: "VBB",
+        timeout: 3000,
+        urls: [
+            "https://api.transitradar.de/locations?query=Berlin&results=1&stops=true&addresses=false&poi=false",
+            "https://api.transitradar.de/radar?north=52.55&south=52.50&east=13.45&west=13.35&results=1&frames=1"
+        ]
+    },
+    {
+        id: "hvv",
+        name: "HVV",
+        timeout: 15000,
+        urls: [
+            "https://api-hamburg.transitradar.de/healthz",
+            "https://api-hamburg.transitradar.de/locations?query=Hamburg&results=1"
+        ]
+    }
+].map(provider => ({
+    ...provider,
+    card: document.querySelector(`[data-provider-card="${provider.id}"]`),
+    status: document.querySelector(`[data-provider-status="${provider.id}"]`),
+    latency: document.querySelector(`[data-provider-latency="${provider.id}"]`),
+    message: document.querySelector(`[data-provider-message="${provider.id}"]`),
+    graph: document.querySelector(`[data-provider-graph="${provider.id}"]`),
+    latencyHistory: [],
+    online: null
+}));
 
 function setClassState(element, state) {
     if (!element) {
@@ -53,28 +74,17 @@ function getLatencyState(latency) {
     return "critical";
 }
 
-function addLatencySample(latency) {
-    vbbLatencyHistory = [...vbbLatencyHistory, latency].slice(-maxLatencySamples);
-}
-
-function getPreviewLatency() {
-    const previousLatency = vbbLatencyHistory.at(-1) ?? 184;
-    const drift = Math.round((Math.random() - 0.46) * 72);
-
-    return Math.min(Math.max(previousLatency + drift, 118), 340);
-}
-
-function renderLatencyGraph(samples) {
-    if (!vbbGraph) {
+function renderLatencyGraph(provider) {
+    if (!provider.graph) {
         return;
     }
 
     const paddedSamples = [
-        ...Array(Math.max(maxLatencySamples - samples.length, 0)).fill(null),
-        ...samples
+        ...Array(Math.max(maxLatencySamples - provider.latencyHistory.length, 0)).fill(null),
+        ...provider.latencyHistory
     ];
 
-    vbbGraph.innerHTML = paddedSamples
+    provider.graph.innerHTML = paddedSamples
         .map(sample => {
             const state = getLatencyState(sample);
             const height = Number.isFinite(sample)
@@ -86,7 +96,7 @@ function renderLatencyGraph(samples) {
         .join("");
 }
 
-async function fetchWithTimeout(url, timeout = API_STATUS_CONFIG.timeout) {
+async function fetchWithTimeout(url, timeout) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     const startedAt = performance.now();
@@ -102,10 +112,7 @@ async function fetchWithTimeout(url, timeout = API_STATUS_CONFIG.timeout) {
             latency: Math.round(performance.now() - startedAt)
         };
     } catch {
-        return {
-            ok: false,
-            latency: null
-        };
+        return { ok: false, latency: null };
     } finally {
         clearTimeout(timeoutId);
     }
@@ -113,86 +120,97 @@ async function fetchWithTimeout(url, timeout = API_STATUS_CONFIG.timeout) {
 
 function renderChecking() {
     setClassState(statusDot, "checking");
-    setClassState(vbbCard, "checking");
-    setClassState(vbbStatus, "checking");
-
     statusText.textContent = "Checking";
-    vbbStatus.textContent = "Checking";
-    vbbLatency.textContent = "--";
-    vbbMessage.textContent = "Running a fresh availability check against the VBB transport API.";
-    renderLatencyGraph(vbbLatencyHistory);
     refreshButton.disabled = true;
+
+    providers.forEach(provider => {
+        setClassState(provider.card, "checking");
+        setClassState(provider.status, "checking");
+        provider.status.textContent = "Checking";
+        provider.latency.textContent = "--";
+        provider.message.textContent = `Running a fresh availability check against the ${provider.name} transport API.`;
+        renderLatencyGraph(provider);
+    });
 }
 
-function renderVbbStatus(isOnline, averageLatency) {
-    const state = isOnline ? "online" : "offline";
-    const checkedAt = formatTime(new Date());
+function updateOverallStatus() {
+    const allOnline = providers.every(provider => provider.online === true);
+    const state = allOnline ? "online" : "offline";
 
     setClassState(statusDot, state);
-    setClassState(vbbCard, state);
-    setClassState(vbbStatus, state);
-
-    statusText.textContent = isOnline ? "Operational" : "Disrupted";
-
-    vbbStatus.textContent = isOnline ? "Operational" : "Unavailable";
-    vbbLatency.textContent = averageLatency ? `${averageLatency} ms` : "No response";
-    addLatencySample(isOnline ? averageLatency : null);
-    renderLatencyGraph(vbbLatencyHistory);
-    vbbMessage.textContent = isOnline
-        ? `VBB probes are responding normally. Last checked at ${checkedAt}.`
-        : `VBB probes did not complete successfully. Last checked at ${checkedAt}.`;
-
+    statusText.textContent = allOnline ? "Operational" : "Disrupted";
     refreshButton.disabled = false;
 }
 
-async function checkVbbStatus({ showChecking = false } = {}) {
+function renderProviderStatus(provider, isOnline, averageLatency) {
+    const state = isOnline ? "online" : "offline";
+    const checkedAt = formatTime(new Date());
+
+    provider.online = isOnline;
+    setClassState(provider.card, state);
+    setClassState(provider.status, state);
+    provider.status.textContent = isOnline ? "Operational" : "Unavailable";
+    provider.latency.textContent = Number.isFinite(averageLatency)
+        ? `${averageLatency} ms`
+        : "No response";
+    provider.latencyHistory = [
+        ...provider.latencyHistory,
+        isOnline ? averageLatency : null
+    ].slice(-maxLatencySamples);
+    renderLatencyGraph(provider);
+    provider.message.textContent = isOnline
+        ? `${provider.name} probes are responding normally. Last checked at ${checkedAt}.`
+        : `${provider.name} probes did not complete successfully. Last checked at ${checkedAt}.`;
+}
+
+async function checkProvider(provider) {
+    if (previewMode === "online") {
+        if (!provider.latencyHistory.length) {
+            provider.latencyHistory = [...previewLatencyHistory];
+        }
+
+        renderProviderStatus(provider, true, provider.latencyHistory.at(-1));
+        return;
+    }
+
+    const results = await Promise.all(
+        provider.urls.map(url => fetchWithTimeout(url, provider.timeout))
+    );
+    const isOnline = results.every(result => result.ok);
+    const successfulLatencies = results
+        .map(result => result.latency)
+        .filter(Number.isFinite);
+    const averageLatency = successfulLatencies.length
+        ? Math.round(
+            successfulLatencies.reduce((total, latency) => total + latency, 0)
+            / successfulLatencies.length
+        )
+        : null;
+
+    renderProviderStatus(provider, isOnline, averageLatency);
+}
+
+async function checkAllProviders({ showChecking = false } = {}) {
     if (isChecking) {
         return;
     }
 
     isChecking = true;
 
-    if (previewMode === "online") {
-        if (!vbbLatencyHistory.length) {
-            vbbLatencyHistory = previewLatencyHistory;
-        }
-
-        renderVbbStatus(true, getPreviewLatency());
-        vbbMessage.textContent = "Preview mode: live response samples are updating in real time.";
-        refreshButton.disabled = false;
-        isChecking = false;
-        return;
-    }
-
     if (showChecking) {
         renderChecking();
     }
 
     try {
-        const results = await Promise.all(
-            API_STATUS_CONFIG.primaryTestUrls.map(url => fetchWithTimeout(url))
-        );
-
-        const isOnline = results.every(result => result.ok);
-        const successfulLatencies = results
-            .map(result => result.latency)
-            .filter(latency => Number.isFinite(latency));
-
-        const averageLatency = successfulLatencies.length
-            ? Math.round(
-                successfulLatencies.reduce((total, latency) => total + latency, 0)
-                / successfulLatencies.length
-            )
-            : null;
-
-        renderVbbStatus(isOnline, averageLatency);
+        await Promise.all(providers.map(checkProvider));
+        updateOverallStatus();
     } finally {
         isChecking = false;
     }
 }
 
 refreshButton.addEventListener("click", () => {
-    checkVbbStatus({ showChecking: true });
+    checkAllProviders({ showChecking: true });
 });
 
 function startRealtimeStatusWatcher() {
@@ -201,11 +219,8 @@ function startRealtimeStatusWatcher() {
         : liveRefreshInterval;
 
     async function tick(options = {}) {
-        await checkVbbStatus(options);
-
-        setTimeout(() => {
-            tick();
-        }, refreshInterval);
+        await checkAllProviders(options);
+        setTimeout(tick, refreshInterval);
     }
 
     tick({ showChecking: true });

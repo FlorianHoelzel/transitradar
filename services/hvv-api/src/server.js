@@ -17,7 +17,7 @@ function sendJson(response, status, value) {
 function applyCors(request, response) {
     const origin = request.headers.origin;
 
-    if (origin === config.allowedOrigin) {
+    if (config.allowedOrigins.has(origin)) {
         response.setHeader("access-control-allow-origin", origin);
         response.setHeader("vary", "origin");
     }

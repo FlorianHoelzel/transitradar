@@ -41,8 +41,8 @@
                     </span>
 
                     <span>
-                        <strong>1</strong>
-                        <span class="metric-label">live provider</span>
+                        <strong>2</strong>
+                        <span class="metric-label">live providers</span>
                     </span>
 
                     <button id="refreshStatus" class="refresh-button" type="button">
@@ -90,43 +90,40 @@
                 </footer>
             </article>
 
-            <article class="provider-card planned">
+            <article
+                id="hvvProvider"
+                class="provider-card checking"
+                data-provider-card="hvv"
+            >
                 <header class="provider-header">
                     <div>
                         <span class="provider-kicker">Hamburg</span>
                         <h2>HVV</h2>
                     </div>
 
-                    <span class="status-pill planned">Planned</span>
+                    <span class="status-pill checking" data-provider-status="hvv">
+                        Checking
+                    </span>
                 </header>
 
                 <div class="provider-metric">
                     <span>Response time</span>
-                    <strong>Coming soon</strong>
+                    <strong data-provider-latency="hvv">--</strong>
                 </div>
 
-                <div class="latency-graph latency-graph--empty" aria-hidden="true">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
+                <div
+                    class="latency-graph"
+                    data-provider-graph="hvv"
+                    aria-label="HVV response time history"
+                ></div>
 
-                <p>
-                    Placeholder for the future Hamburg transport provider integration.
+                <p data-provider-message="hvv">
+                    Running a fresh availability check against the HVV transport API.
                 </p>
 
                 <footer class="provider-footer">
                     <span>Geofox GTI</span>
-                    <span>Pending setup</span>
+                    <span>Stations endpoint</span>
                 </footer>
             </article>
 

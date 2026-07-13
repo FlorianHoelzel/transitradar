@@ -15,5 +15,10 @@ export const config = {
     geofoxPassword: requiredEnvironmentVariable("GEOFOX_PASSWORD"),
     geofoxApiVersion: Number(process.env.GEOFOX_API_VERSION || 63),
     minimumRequestIntervalMs: Number(process.env.GEOFOX_REQUEST_INTERVAL_MS || 1100),
-    allowedOrigin: process.env.ALLOWED_ORIGIN || "https://hamburg.transitradar.de"
+    allowedOrigins: new Set([
+        process.env.ALLOWED_ORIGIN,
+        ...(process.env.ALLOWED_ORIGINS || "").split(","),
+        "https://hamburg.transitradar.de",
+        "https://status.transitradar.de"
+    ].filter(Boolean).map(origin => origin.trim()))
 };
