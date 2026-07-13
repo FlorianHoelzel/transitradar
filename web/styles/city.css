@@ -190,7 +190,7 @@
 }
 
 .berlin-v2 .leaflet-tile-pane {
-    filter: saturate(0.8) contrast(1.06) brightness(0.82);
+    filter: saturate(0.8) contrast(1.06) brightness(var(--map-tile-brightness, 0.82));
 }
 
 .berlin-v2 .search-box {

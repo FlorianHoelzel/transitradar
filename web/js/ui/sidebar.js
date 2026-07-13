@@ -9,6 +9,7 @@ import { loadDeparturesForStation } from "../stations/departureService.js";
 import { getStations } from "../stations/stationStore.js";
 import { markers, updateVisibleMarkers } from "../stations/stationMarkers.js";
 import { CITY_CONFIG } from "../config.js";
+import { formatCompactDepartureTime } from "../settings/departureTime.js";
 
 const NEARBY_STATION_LIMIT = 8;
 const NEARBY_DEPARTURE_LIMIT = 5;
@@ -39,17 +40,6 @@ function formatDistance(distanceMeters) {
     }
 
     return `${(distanceMeters / 1000).toFixed(1)} km`;
-}
-
-function formatTime(dateString) {
-    if (!dateString) {
-        return "?";
-    }
-
-    return new Date(dateString).toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit"
-    });
 }
 
 function getDelayText(departure) {
@@ -96,7 +86,7 @@ function openStationOnMap(station) {
 function createNearbyDepartureHtml(departure) {
     const lineName = departure.line?.name || "";
     const direction = departure.direction || "Unknown direction";
-    const time = formatTime(departure.when || departure.plannedWhen);
+    const time = formatCompactDepartureTime(departure.when || departure.plannedWhen);
     const delayText = getDelayText(departure);
 
     return `
@@ -519,6 +509,16 @@ export function setupSidebar() {
     window.addEventListener("stationsUpdated", () => {
         if (nearbyPanel.classList.contains("open")) {
             renderNearbyStations();
+        }
+    });
+
+    window.addEventListener("transitRadarSettingsChanged", () => {
+        if (nearbyPanel.classList.contains("open")) {
+            renderNearbyStations();
+        }
+
+        if (favoritesPanel.classList.contains("open")) {
+            renderFavorites();
         }
     });
 

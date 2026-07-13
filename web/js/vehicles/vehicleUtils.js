@@ -1,6 +1,7 @@
 import { CITY_CONFIG, VEHICLE_CONFIG } from "../config.js";
 import { getBadgeStyle } from "../lines/lineColors.js";
 import { activeFilters } from "../ui/filters.js";
+import { getSettings } from "../settings/settingsStore.js";
 
 export function getVehicleType(movement) {
     const lineName = movement.line?.name || "";
@@ -108,6 +109,11 @@ export function animateMarker(marker, target) {
     const endLng = target[1];
 
     if (startLat === endLat && startLng === endLng) {
+        return;
+    }
+
+    if (!getSettings().smoothVehicleMovement) {
+        marker.setLatLng(target);
         return;
     }
 

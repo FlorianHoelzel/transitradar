@@ -1,4 +1,5 @@
 import { STATION_CONFIG } from "../config.js";
+import { getStationDensityZoomOffset } from "../settings/settingsStore.js";
 import {
     getStationImportanceScore,
     shouldShowStation,
@@ -6,15 +7,17 @@ import {
 } from "./stationUtils.js";
 
 function getMarkerLimitForZoom(zoom) {
-    if (zoom < STATION_CONFIG.zoomLevels.rapidTransit) {
+    const effectiveZoom = zoom + getStationDensityZoomOffset();
+
+    if (effectiveZoom < STATION_CONFIG.zoomLevels.rapidTransit) {
         return STATION_CONFIG.markerLimits.importantRapidTransit;
     }
 
-    if (zoom < STATION_CONFIG.zoomLevels.surfaceTransit) {
+    if (effectiveZoom < STATION_CONFIG.zoomLevels.surfaceTransit) {
         return STATION_CONFIG.markerLimits.rapidTransit;
     }
 
-    if (zoom < STATION_CONFIG.zoomLevels.allStations) {
+    if (effectiveZoom < STATION_CONFIG.zoomLevels.allStations) {
         return STATION_CONFIG.markerLimits.surfaceTransit;
     }
 

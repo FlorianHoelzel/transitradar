@@ -1,6 +1,10 @@
 import { createLineBadge } from "../lines/badges.js";
 import { isFavoriteStation } from "../favorites/favoriteService.js";
 import { getDisplayStationName } from "./stationNames.js";
+import {
+    formatClockTime,
+    getDepartureTimeDisplay
+} from "../settings/departureTime.js";
 
 const MAX_VISIBLE_LINES = 8;
 
@@ -97,41 +101,17 @@ export function getFallbackNoticeHtml(showNotice = false) {
     `;
 }
 
-function formatTime(dateString) {
-    if (!dateString) {
-        return "?";
-    }
+function createTimeHtml(departure) {
+    const plannedTime = formatClockTime(departure.plannedWhen);
+    const realtime = formatClockTime(departure.when || departure.plannedWhen);
+    const { showClock } = getDepartureTimeDisplay(
+        departure.when || departure.plannedWhen
+    );
+    const delay = departure.delay ?? 0;
 
-    return new Date(dateString).toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit"
-    });
-}
-
-function getRelativeTimeText(dateString) {
-    if (!dateString) {
+    if (delay <= 0 && !showClock) {
         return "";
     }
-
-    const minutes = Math.round(
-        (new Date(dateString).getTime() - Date.now()) / 60000
-    );
-
-    if (minutes <= 0) {
-        return "departing now";
-    }
-
-    if (minutes === 1) {
-        return "in 1 min";
-    }
-
-    return `in ${minutes} min`;
-}
-
-function createTimeHtml(departure) {
-    const plannedTime = formatTime(departure.plannedWhen);
-    const realtime = formatTime(departure.when || departure.plannedWhen);
-    const delay = departure.delay ?? 0;
 
     if (delay <= 0) {
         return `
@@ -146,10 +126,12 @@ function createTimeHtml(departure) {
 
     return `
         <div class="popup-departure-time-block">
-            <div class="popup-departure-times">
-                <span class="popup-planned-time">${plannedTime}</span>
-                <span class="popup-realtime">${realtime}</span>
-            </div>
+            ${showClock ? `
+                <div class="popup-departure-times">
+                    <span class="popup-planned-time">${plannedTime}</span>
+                    <span class="popup-realtime">${realtime}</span>
+                </div>
+            ` : ""}
 
             <span class="popup-delay ${delayClass}">
                 +${delayMinutes}
@@ -200,7 +182,7 @@ export function createDeparturesHtml(departures) {
         const lineName = departure.line?.name || "";
         const tripId = departure.tripId || "";
         const direction = departure.direction || "Unknown direction";
-        const relativeTime = getRelativeTimeText(
+        const timeDisplay = getDepartureTimeDisplay(
             departure.when || departure.plannedWhen
         );
 
@@ -220,9 +202,11 @@ export function createDeparturesHtml(departures) {
                             ${direction}
                         </div>
 
-                        <div class="popup-departure-relative">
-                            ${relativeTime}
-                        </div>
+                        ${timeDisplay.showRelative ? `
+                            <div class="popup-departure-relative">
+                                ${timeDisplay.relative}
+                            </div>
+                        ` : ""}
                     </div>
 
                     <div class="popup-departure-right">

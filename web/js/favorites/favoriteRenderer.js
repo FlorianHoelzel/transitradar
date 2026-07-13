@@ -1,18 +1,8 @@
 import { createLineBadge } from "../lines/badges.js";
+import { formatCompactDepartureTime } from "../settings/departureTime.js";
 
 function getStationKey(station) {
     return station.id || station.name;
-}
-
-function formatTime(dateString) {
-    if (!dateString) {
-        return "?";
-    }
-
-    return new Date(dateString).toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit"
-    });
 }
 
 function getDelayText(departure) {
@@ -26,7 +16,7 @@ function getDelayText(departure) {
 function createFavoriteDepartureHtml(departure) {
     const lineName = departure.line?.name || "";
     const direction = departure.direction || "Unknown direction";
-    const time = formatTime(departure.when || departure.plannedWhen);
+    const time = formatCompactDepartureTime(departure.when || departure.plannedWhen);
     const delayText = getDelayText(departure);
 
     return `

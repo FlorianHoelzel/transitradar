@@ -1,5 +1,9 @@
 import { STATION_CONFIG } from "../config.js";
 import { activeFilters } from "../ui/filters.js";
+import {
+    getImportantStationScoreOffset,
+    getStationDensityZoomOffset
+} from "../settings/settingsStore.js";
 
 function hasLinePrefix(station, prefixes) {
     return station.lines?.some(line => {
@@ -37,19 +41,21 @@ export function isImportantTrainStation(station) {
     }
 
     return getStationImportanceScore(station) >=
-        STATION_CONFIG.importantStationMinScore;
+        STATION_CONFIG.importantStationMinScore + getImportantStationScoreOffset();
 }
 
 export function shouldShowStation(station, zoom) {
-    if (zoom < STATION_CONFIG.zoomLevels.rapidTransit) {
+    const effectiveZoom = zoom + getStationDensityZoomOffset();
+
+    if (effectiveZoom < STATION_CONFIG.zoomLevels.rapidTransit) {
         return isImportantTrainStation(station);
     }
 
-    if (zoom < STATION_CONFIG.zoomLevels.surfaceTransit) {
+    if (effectiveZoom < STATION_CONFIG.zoomLevels.surfaceTransit) {
         return isTrainStation(station);
     }
 
-    if (zoom < STATION_CONFIG.zoomLevels.allStations) {
+    if (effectiveZoom < STATION_CONFIG.zoomLevels.allStations) {
         return isTrainStation(station) || isSurfaceStation(station);
     }
 

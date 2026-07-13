@@ -13,6 +13,7 @@ import { setupSidebar } from "./ui/sidebar.js";
 import { createLocationButton } from "./ui/locationButton.js";
 import { vehicleState } from "./vehicles/vehicleState.js";
 import { CITY_CONFIG } from "./config.js";
+import { setupSettings } from "./settings/settingsController.js";
 
 function applyCityMetadata() {
     document.title = `TransitRadar ${CITY_CONFIG.name}`;
@@ -42,12 +43,28 @@ async function setupStations() {
 
 function setupUi() {
     setupSidebar();
+    setupSettings();
     createLocationButton();
 
     setupFilters(() => {
         stopPopupRefresh();
         updateVisibleMarkers(getStations());
         updateVehicles(true);
+    });
+}
+
+function setupSettingsEvents() {
+    window.addEventListener("transitRadarSettingsChanged", event => {
+        const changedKey = event.detail?.changedKey;
+
+        if (changedKey === "stationDensity" || changedKey === "departureTimeDisplay" || changedKey === "reset") {
+            stopPopupRefresh();
+            updateVisibleMarkers(getStations());
+        }
+
+        if (changedKey === "showVehicles" || changedKey === "reset") {
+            updateVehicles(true);
+        }
     });
 }
 
@@ -69,6 +86,7 @@ function setupVehicleRefresh() {
 function initApp() {
     applyCityMetadata();
     setupUi();
+    setupSettingsEvents();
     createApiStatusIndicator();
     setupMapEvents();
     setupVehicleRefresh();

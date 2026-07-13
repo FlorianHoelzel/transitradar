@@ -17,6 +17,7 @@ import {
     renderVehicleMovements
 } from "./vehicleRenderer.js";
 import { getVehicleId } from "./vehicleUtils.js";
+import { getSettings } from "../settings/settingsStore.js";
 
 export { clearVehicleMarkers };
 
@@ -138,6 +139,12 @@ function renderSelectedLineMovements(
 }
 
 export async function updateVehicles(force = false) {
+    if (!getSettings().showVehicles) {
+        vehicleState.updateRequestId += 1;
+        clearVehicleMarkers();
+        return;
+    }
+
     const zoom = map.getZoom();
     const selectedLineName = vehicleState.selectedLineName;
 
