@@ -7,6 +7,8 @@ const CITY_CONFIGS = {
         apiBaseUrl: "https://api.transitradar.de",
         mapCenter: [52.52, 13.40],
         mapZoom: 12,
+        vehicleGridStrategy: "grid",
+        vehicleRequestTimeout: 2500,
         bounds: {
             minLat: 52.33,
             maxLat: 52.70,
@@ -29,6 +31,8 @@ const CITY_CONFIGS = {
         apiBaseUrl: "https://api-hamburg.transitradar.de",
         mapCenter: [53.5511, 9.9937],
         mapZoom: 12,
+        vehicleGridStrategy: "single-request",
+        vehicleRequestTimeout: 15000,
         bounds: {
             minLat: 53.35,
             maxLat: 53.75,
@@ -120,7 +124,7 @@ export const DEPARTURE_CONFIG = {
 export const VEHICLE_CONFIG = {
     refreshInterval: 30000,
     minimumUpdateInterval: 15000,
-    requestTimeout: 2500,
+    requestTimeout: CITY_CONFIG.vehicleRequestTimeout,
     zoomThreshold: 16,
     animationDuration: 16000,
     radarResultLimits: {

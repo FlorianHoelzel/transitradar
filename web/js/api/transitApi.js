@@ -1,6 +1,7 @@
 import {
     API_BASE_URL,
     CITY_BOUNDS,
+    CITY_CONFIG,
     STATION_CONFIG,
     DEPARTURE_CONFIG,
     VEHICLE_CONFIG
@@ -442,6 +443,15 @@ export async function getVehicleMovements(bounds, zoom) {
 }
 
 export async function getCityVehicleMovementsGrid(zoom) {
+    if (CITY_CONFIG.vehicleGridStrategy === "single-request") {
+        return await fetchVehicleMovements({
+            north: CITY_BOUNDS.maxLat,
+            south: CITY_BOUNDS.minLat,
+            east: CITY_BOUNDS.maxLng,
+            west: CITY_BOUNDS.minLng
+        }, zoom);
+    }
+
     return await fetchVehicleMovementsGrid(createCityBoundsGrid(), zoom);
 }
 
