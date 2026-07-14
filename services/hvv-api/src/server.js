@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import { cached } from "./cache.js";
 import { config } from "./config.js";
 import { geofoxRequest } from "./geofoxClient.js";
+import { REGULAR_S_BAHN_LINES } from "./regularLines.js";
 import {
     createStationLinesById,
     normalizeDepartures,
@@ -93,7 +94,10 @@ async function getStations() {
             console.warn("Failed to load static Geofox line data.", error);
         }
 
-        const stationLines = createStationLinesById(lineData.lines);
+        const stationLines = createStationLinesById(
+            lineData.lines,
+            REGULAR_S_BAHN_LINES
+        );
 
         return (stationData.stations || [])
             .filter(station => station.exists !== false && station.coordinate)

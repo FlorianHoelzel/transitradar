@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { REGULAR_S_BAHN_LINES } from "../src/regularLines.js";
 import {
     createStationLinesById,
     decodeTripContext,
@@ -33,7 +34,7 @@ test("normalizes short Geofox service type names", () => {
     assert.equal(products.ferry, true);
 });
 
-test("maps static Geofox lines to every station in their sublines", () => {
+test("combines Geofox lines with disruption-independent regular lines", () => {
     const stationLines = createStationLinesById([
         {
             name: "S3",
@@ -45,21 +46,28 @@ test("maps static Geofox lines to every station in their sublines", () => {
                 ]
             }]
         },
-        {
-            name: "S5",
-            exists: true,
-            sublines: [{
-                stationSequence: [
-                    { id: "Master:51989", name: "Buxtehude" },
-                    { id: "Master:40950", name: "Harburg Rathaus" },
-                    { id: "Master:49950", name: "Harburg" }
-                ]
-            }]
-        }
-    ]);
+    ], [{
+        name: "S5",
+        stationIds: [
+            "Master:51989",
+            "Master:40950",
+            "Master:49950",
+            "Master:54018"
+        ]
+    }]);
 
     assert.deepEqual(stationLines.get("Master:40950"), ["S3", "S5"]);
     assert.deepEqual(stationLines.get("Master:49950"), ["S3", "S5"]);
+    assert.deepEqual(stationLines.get("Master:51989"), ["S5"]);
+    assert.deepEqual(stationLines.get("Master:54018"), ["S5"]);
+});
+
+test("keeps regular southern S-Bahn lines during disruptions", () => {
+    const stationLines = createStationLinesById([], REGULAR_S_BAHN_LINES);
+
+    assert.deepEqual(stationLines.get("Master:54018"), ["S3", "S5"]);
+    assert.deepEqual(stationLines.get("Master:49950"), ["S3", "S5"]);
+    assert.deepEqual(stationLines.get("Master:40950"), ["S3", "S5"]);
     assert.deepEqual(stationLines.get("Master:51989"), ["S5"]);
 });
 

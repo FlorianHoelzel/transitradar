@@ -62,7 +62,7 @@ export function normalizeStop(stop, lines = []) {
     };
 }
 
-export function createStationLinesById(lines = []) {
+export function createStationLinesById(lines = [], regularLines = []) {
     const stationLines = new Map();
 
     for (const line of lines) {
@@ -82,6 +82,16 @@ export function createStationLinesById(lines = []) {
 
                 stationLines.get(station.id).add(line.name);
             }
+        }
+    }
+
+    for (const line of regularLines) {
+        for (const stationId of line.stationIds || []) {
+            if (!stationLines.has(stationId)) {
+                stationLines.set(stationId, new Set());
+            }
+
+            stationLines.get(stationId).add(line.name);
         }
     }
 
