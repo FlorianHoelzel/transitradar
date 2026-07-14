@@ -30,6 +30,7 @@ const CITY_CONFIGS = {
         network: "HVV",
         hostname: "hamburg.transitradar.de",
         apiBaseUrl: "https://api-hamburg.transitradar.de",
+        apiHealthCheckPath: "/healthz",
         mapCenter: [53.5511, 9.9937],
         mapZoom: 12,
         importantStationMinScore: 3,
@@ -84,10 +85,12 @@ export const HTTP_CONFIG = {
 export const API_STATUS_CONFIG = {
     timeout: 2500,
     refreshInterval: 60000,
-    primaryTestUrls: [
-        `${API_BASE_URL}/locations?query=${encodeURIComponent(CITY_CONFIG.name)}&results=1&stops=true&addresses=false&poi=false`,
-        `${API_BASE_URL}/radar?north=${CITY_BOUNDS.maxLat}&south=${CITY_BOUNDS.minLat}&east=${CITY_BOUNDS.maxLng}&west=${CITY_BOUNDS.minLng}&results=1&frames=1`
-    ]
+    primaryTestUrls: CITY_CONFIG.apiHealthCheckPath
+        ? [`${API_BASE_URL}${CITY_CONFIG.apiHealthCheckPath}`]
+        : [
+            `${API_BASE_URL}/locations?query=${encodeURIComponent(CITY_CONFIG.name)}&results=1&stops=true&addresses=false&poi=false`,
+            `${API_BASE_URL}/radar?north=${CITY_BOUNDS.maxLat}&south=${CITY_BOUNDS.minLat}&east=${CITY_BOUNDS.maxLng}&west=${CITY_BOUNDS.minLng}&results=1&frames=1`
+        ]
 };
 
 export const MAP_CONFIG = {
