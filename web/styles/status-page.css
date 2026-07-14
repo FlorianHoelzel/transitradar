@@ -233,6 +233,14 @@ h1 {
         0 0 1rem rgba(74, 222, 128, 0.62);
 }
 
+.summary-dot.checking,
+.summary-dot.issues {
+    background: var(--yellow);
+    box-shadow:
+        0 0 0 0.18rem rgba(247, 201, 72, 0.14),
+        0 0 1rem rgba(247, 201, 72, 0.62);
+}
+
 .summary-dot.offline {
     background: var(--red);
     box-shadow:
@@ -280,6 +288,11 @@ h1 {
 }
 
 .provider-card.online {
+    --accent: var(--green);
+}
+
+.provider-card.checking,
+.provider-card.issues {
     --accent: var(--yellow);
 }
 

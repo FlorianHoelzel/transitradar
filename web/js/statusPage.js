@@ -34,7 +34,7 @@ const providers = [
     message: document.querySelector(`[data-provider-message="${provider.id}"]`),
     graph: document.querySelector(`[data-provider-graph="${provider.id}"]`),
     latencyHistory: [],
-    online: null
+    state: "checking"
 }));
 
 function setClassState(element, state) {
@@ -42,7 +42,7 @@ function setClassState(element, state) {
         return;
     }
 
-    element.classList.remove("checking", "online", "offline");
+    element.classList.remove("checking", "online", "issues", "offline");
     element.classList.add(state);
 }
 
@@ -133,33 +133,43 @@ function renderChecking() {
 }
 
 function updateOverallStatus() {
-    const allOnline = providers.every(provider => provider.online === true);
-    const state = allOnline ? "online" : "offline";
+    const allOnline = providers.every(provider => provider.state === "online");
+    const allOffline = providers.every(provider => provider.state === "offline");
+    const state = allOnline ? "online" : allOffline ? "offline" : "issues";
 
     setClassState(statusDot, state);
-    statusText.textContent = allOnline ? "Operational" : "Disrupted";
+    statusText.textContent = state === "online"
+        ? "Operational"
+        : state === "issues"
+            ? "Issues detected"
+            : "Unavailable";
     refreshButton.disabled = false;
 }
 
-function renderProviderStatus(provider, isOnline, averageLatency) {
-    const state = isOnline ? "online" : "offline";
+function renderProviderStatus(provider, state, averageLatency) {
     const checkedAt = formatTime(new Date());
 
-    provider.online = isOnline;
+    provider.state = state;
     setClassState(provider.card, state);
     setClassState(provider.status, state);
-    provider.status.textContent = isOnline ? "Operational" : "Unavailable";
+    provider.status.textContent = state === "online"
+        ? "Operational"
+        : state === "issues"
+            ? "Issues"
+            : "Unavailable";
     provider.latency.textContent = Number.isFinite(averageLatency)
         ? `${averageLatency} ms`
         : "No response";
     provider.latencyHistory = [
         ...provider.latencyHistory,
-        isOnline ? averageLatency : null
+        state !== "offline" ? averageLatency : null
     ].slice(-maxLatencySamples);
     renderLatencyGraph(provider);
-    provider.message.textContent = isOnline
+    provider.message.textContent = state === "online"
         ? `${provider.name} availability checks are responding normally. Last checked at ${checkedAt}.`
-        : `${provider.name} availability checks did not complete successfully. Last checked at ${checkedAt}.`;
+        : state === "issues"
+            ? `Some ${provider.name} availability checks failed. Last checked at ${checkedAt}.`
+            : `${provider.name} availability checks did not complete successfully. Last checked at ${checkedAt}.`;
 }
 
 async function checkProvider(provider) {
@@ -168,14 +178,19 @@ async function checkProvider(provider) {
             provider.latencyHistory = [...previewLatencyHistory];
         }
 
-        renderProviderStatus(provider, true, provider.latencyHistory.at(-1));
+        renderProviderStatus(provider, "online", provider.latencyHistory.at(-1));
         return;
     }
 
     const results = await Promise.all(
         provider.urls.map(url => fetchWithTimeout(url, provider.timeout))
     );
-    const isOnline = results.every(result => result.ok);
+    const successfulCount = results.filter(result => result.ok).length;
+    const state = successfulCount === results.length
+        ? "online"
+        : successfulCount > 0
+            ? "issues"
+            : "offline";
     const successfulLatencies = results
         .map(result => result.latency)
         .filter(Number.isFinite);
@@ -186,7 +201,7 @@ async function checkProvider(provider) {
         )
         : null;
 
-    renderProviderStatus(provider, isOnline, averageLatency);
+    renderProviderStatus(provider, state, averageLatency);
 }
 
 async function checkAllProviders({ showChecking = false } = {}) {
