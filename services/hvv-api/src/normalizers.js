@@ -44,7 +44,7 @@ export function normalizeProducts(types = []) {
     return products;
 }
 
-export function normalizeStop(stop) {
+export function normalizeStop(stop, lines = []) {
     const name = stop.combinedName || stop.name;
     const types = stop.vehicleTypes || stop.serviceTypes || [];
 
@@ -58,8 +58,38 @@ export function normalizeStop(stop) {
             longitude: stop.coordinate?.x
         },
         products: normalizeProducts(types),
-        lines: []
+        lines: [...new Set(lines)].filter(Boolean)
     };
+}
+
+export function createStationLinesById(lines = []) {
+    const stationLines = new Map();
+
+    for (const line of lines) {
+        if (line?.exists === false || !line?.name) {
+            continue;
+        }
+
+        for (const subline of line.sublines || []) {
+            for (const station of subline.stationSequence || []) {
+                if (!station?.id) {
+                    continue;
+                }
+
+                if (!stationLines.has(station.id)) {
+                    stationLines.set(station.id, new Set());
+                }
+
+                stationLines.get(station.id).add(line.name);
+            }
+        }
+    }
+
+    return new Map(
+        [...stationLines].map(([stationId, names]) => {
+            return [stationId, [...names]];
+        })
+    );
 }
 
 export function productFromVehicleType(vehicleType) {

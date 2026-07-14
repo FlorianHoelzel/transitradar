@@ -4,6 +4,7 @@ import { cached } from "./cache.js";
 import { config } from "./config.js";
 import { geofoxRequest } from "./geofoxClient.js";
 import {
+    createStationLinesById,
     normalizeDepartures,
     decodeTripContext,
     normalizeCourse,
@@ -74,16 +75,31 @@ function geofoxDateTime(value) {
 
 async function getStations() {
     return await cached("stations", 6 * 60 * 60 * 1000, async () => {
-        const data = await geofoxRequest("listStations", {
+        const stationData = await geofoxRequest("listStations", {
             dataReleaseID: "",
             modificationTypes: [],
             coordinateType: "EPSG_4326",
             filterEquivalent: true
         });
+        let lineData = { lines: [] };
 
-        return (data.stations || [])
+        try {
+            lineData = await geofoxRequest("listLines", {
+                dataReleaseID: "",
+                modificationTypes: ["MAIN", "SEQUENCE"],
+                withSublines: true
+            });
+        } catch (error) {
+            console.warn("Failed to load static Geofox line data.", error);
+        }
+
+        const stationLines = createStationLinesById(lineData.lines);
+
+        return (stationData.stations || [])
             .filter(station => station.exists !== false && station.coordinate)
-            .map(normalizeStop);
+            .map(station => {
+                return normalizeStop(station, stationLines.get(station.id));
+            });
     });
 }
 

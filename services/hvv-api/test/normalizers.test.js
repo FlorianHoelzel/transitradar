@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+    createStationLinesById,
     decodeTripContext,
     encodeTripContext,
     normalizeCourse,
@@ -30,6 +31,36 @@ test("normalizes short Geofox service type names", () => {
     assert.equal(products.subway, true);
     assert.equal(products.suburban, true);
     assert.equal(products.ferry, true);
+});
+
+test("maps static Geofox lines to every station in their sublines", () => {
+    const stationLines = createStationLinesById([
+        {
+            name: "S3",
+            exists: true,
+            sublines: [{
+                stationSequence: [
+                    { id: "Master:40950", name: "Harburg Rathaus" },
+                    { id: "Master:49950", name: "Harburg" }
+                ]
+            }]
+        },
+        {
+            name: "S5",
+            exists: true,
+            sublines: [{
+                stationSequence: [
+                    { id: "Master:51989", name: "Buxtehude" },
+                    { id: "Master:40950", name: "Harburg Rathaus" },
+                    { id: "Master:49950", name: "Harburg" }
+                ]
+            }]
+        }
+    ]);
+
+    assert.deepEqual(stationLines.get("Master:40950"), ["S3", "S5"]);
+    assert.deepEqual(stationLines.get("Master:49950"), ["S3", "S5"]);
+    assert.deepEqual(stationLines.get("Master:51989"), ["S5"]);
 });
 
 test("round-trips opaque trip context tokens", () => {
