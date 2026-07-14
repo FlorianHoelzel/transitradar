@@ -10,6 +10,7 @@ const CITY_CONFIGS = {
         importantStationMinScore: 6,
         vehicleGridStrategy: "grid",
         vehicleRequestTimeout: 2500,
+        surfaceTransitLabel: "Bus / Tram",
         bounds: {
             minLat: 52.33,
             maxLat: 52.70,
@@ -36,6 +37,7 @@ const CITY_CONFIGS = {
         importantStationMinScore: 3,
         vehicleGridStrategy: "single-request",
         vehicleRequestTimeout: 15000,
+        surfaceTransitLabel: "Bus / Ferry",
         bounds: {
             minLat: 53.35,
             maxLat: 53.75,

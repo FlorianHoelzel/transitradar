@@ -19,6 +19,10 @@ function applyCityMetadata() {
     document.title = `TransitRadar ${CITY_CONFIG.name}`;
     document.body.dataset.city = CITY_CONFIG.id;
 
+    document.querySelectorAll('[data-filter="surface"]').forEach(option => {
+        option.textContent = CITY_CONFIG.surfaceTransitLabel;
+    });
+
     document.querySelector("header")?.setAttribute(
         "aria-label",
         `TransitRadar ${CITY_CONFIG.name}`
