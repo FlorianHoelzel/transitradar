@@ -5,6 +5,7 @@ import {
     filterStopsByBounds,
     normalizeDeparture,
     normalizeDepartures,
+    normalizeJourneyDetail,
     normalizeLocations,
     normalizeProducts,
     normalizeStop
@@ -128,4 +129,74 @@ test("filters incomplete departures", () => {
 
     assert.equal(departures.length, 1);
     assert.equal(departures[0].line.product, "suburban");
+});
+
+test("normalizes RMV journey stopovers and polyline geometry", () => {
+    const result = normalizeJourneyDetail({
+        ref: "journey-reference",
+        Stops: {
+            Stop: [
+                {
+                    extId: "start",
+                    name: "Start",
+                    lon: 8.6,
+                    lat: 50.1,
+                    depDate: "2026-07-14",
+                    depTime: "21:00:00",
+                    rtDepDate: "2026-07-14",
+                    rtDepTime: "21:02:00",
+                    depPlatform: { text: "1" },
+                    rtDepPlatform: { text: "2" }
+                },
+                {
+                    extId: "destination",
+                    name: "Destination",
+                    lon: 8.7,
+                    lat: 50.2,
+                    arrDate: "2026-07-14",
+                    arrTime: "21:20:00"
+                }
+            ]
+        },
+        Product: [{ name: "S8", matchId: "S8", cls: "8" }],
+        Directions: { Direction: [{ value: "Destination" }] },
+        PolylineGroup: {
+            polylineDesc: [{ crd: [8.6, 50.1, 8.65, 50.15, 8.7, 50.2] }]
+        }
+    });
+
+    assert.equal(result.trip.id, "journey-reference");
+    assert.equal(result.trip.direction, "Destination");
+    assert.equal(result.trip.line.name, "S8");
+    assert.equal(result.trip.line.product, "suburban");
+    assert.equal(result.trip.stopovers.length, 2);
+    assert.equal(result.trip.stopovers[0].departure, "2026-07-14T19:02:00.000Z");
+    assert.equal(result.trip.stopovers[0].plannedDeparture, "2026-07-14T19:00:00.000Z");
+    assert.equal(result.trip.stopovers[0].departurePlatform, "2");
+    assert.deepEqual(
+        result.trip.polyline.geometry.coordinates,
+        [[8.6, 50.1], [8.65, 50.15], [8.7, 50.2]]
+    );
+});
+
+test("uses stop coordinates when RMV omits journey geometry", () => {
+    const result = normalizeJourneyDetail({
+        Stops: {
+            Stop: [
+                { extId: "a", name: "A", lon: 8.6, lat: 50.1 },
+                { extId: "b", name: "B", lon: 8.7, lat: 50.2 }
+            ]
+        },
+        Product: [{ name: "Bus 64", cls: "64" }]
+    }, { journeyId: "fallback" });
+
+    assert.equal(result.trip.id, "fallback");
+    assert.deepEqual(
+        result.trip.polyline.geometry.coordinates,
+        [[8.6, 50.1], [8.7, 50.2]]
+    );
+});
+
+test("returns null for an empty journey response", () => {
+    assert.equal(normalizeJourneyDetail({}), null);
 });

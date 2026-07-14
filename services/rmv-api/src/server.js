@@ -5,6 +5,7 @@ import { config } from "./config.js";
 import {
     filterStopsByBounds,
     normalizeDepartures,
+    normalizeJourneyDetail,
     normalizeLocations
 } from "./normalizers.js";
 import { rmvRequest } from "./rmvClient.js";
@@ -108,6 +109,29 @@ async function getDepartures(url, stationId) {
     });
 }
 
+async function getTrip(url, journeyId) {
+    return await cached(`trip:${journeyId}`, 30000, async () => {
+        const data = await rmvRequest("journeyDetail", {
+            id: journeyId,
+            poly: 1,
+            polyEnc: "N",
+            showPassingPoints: 1
+        });
+        const result = normalizeJourneyDetail(data, {
+            journeyId,
+            lineName: url.searchParams.get("lineName") || ""
+        });
+
+        if (!result) {
+            const error = new Error("Trip not found.");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        return result;
+    });
+}
+
 async function routeRequest(request, response) {
     const url = new URL(request.url, "http://localhost");
 
@@ -149,6 +173,17 @@ async function routeRequest(request, response) {
             response,
             200,
             await getDepartures(url, decodeURIComponent(departureMatch[1]))
+        );
+        return;
+    }
+
+    const tripMatch = url.pathname.match(/^\/trips\/(.+)$/u);
+
+    if (tripMatch) {
+        sendJson(
+            response,
+            200,
+            await getTrip(url, decodeURIComponent(tripMatch[1]))
         );
         return;
     }

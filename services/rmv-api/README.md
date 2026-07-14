@@ -29,6 +29,7 @@ GET /stations
 GET /locations
 GET /locations/nearby
 GET /stops/:id/departures
+GET /trips/:id
 ```
 
 Run locally with `npm start` from this directory. The start script loads the

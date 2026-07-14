@@ -161,3 +161,100 @@ export function normalizeDepartures(data) {
         .map(normalizeDeparture)
         .filter(departure => departure.when && departure.line.name);
 }
+
+function stopDate(stop, realtimePrefix, plannedPrefix) {
+    return zonedDate(
+        stop?.[`${realtimePrefix}Date`] || stop?.[`${plannedPrefix}Date`],
+        stop?.[`${realtimePrefix}Time`] || stop?.[`${plannedPrefix}Time`]
+    );
+}
+
+function normalizeStopover(stop) {
+    const plannedArrival = zonedDate(stop?.arrDate, stop?.arrTime);
+    const plannedDeparture = zonedDate(stop?.depDate, stop?.depTime);
+    const arrival = stopDate(stop, "rtArr", "arr") || plannedArrival;
+    const departure = stopDate(stop, "rtDep", "dep") || plannedDeparture;
+
+    return {
+        stop: normalizeStop(stop),
+        arrival: arrival?.toISOString() || null,
+        plannedArrival: plannedArrival?.toISOString() || null,
+        departure: departure?.toISOString() || null,
+        plannedDeparture: plannedDeparture?.toISOString() || null,
+        arrivalPlatform: platformText(stop?.rtArrPlatform || stop?.arrPlatform),
+        departurePlatform: platformText(stop?.rtDepPlatform || stop?.depPlatform),
+        cancelled: Boolean(stop?.cancelled)
+    };
+}
+
+function coordinatesFromPolylineGroup(polylineGroup) {
+    const descriptors = polylineGroup?.polylineDesc || [];
+    const coordinates = [];
+
+    for (const descriptor of descriptors) {
+        const values = descriptor?.crd || [];
+
+        for (let index = 0; index + 1 < values.length; index += 2) {
+            const point = [Number(values[index]), Number(values[index + 1])];
+            const previousPoint = coordinates.at(-1);
+
+            if (
+                Number.isFinite(point[0])
+                && Number.isFinite(point[1])
+                && (point[0] !== previousPoint?.[0] || point[1] !== previousPoint?.[1])
+            ) {
+                coordinates.push(point);
+            }
+        }
+    }
+
+    return coordinates;
+}
+
+export function normalizeJourneyDetail(data, context = {}) {
+    const rawStops = data?.Stops?.Stop || [];
+
+    if (rawStops.length === 0) {
+        return null;
+    }
+
+    const product = Array.isArray(data?.Product) ? data.Product[0] : data?.Product || {};
+    const directions = data?.Directions?.Direction || [];
+    const directionEntry = Array.isArray(directions) ? directions.at(-1) : directions;
+    const stopovers = rawStops.map(normalizeStopover);
+    const polylineCoordinates = coordinatesFromPolylineGroup(data?.PolylineGroup);
+    const fallbackCoordinates = stopovers
+        .map(stopover => stopover.stop.location)
+        .filter(location => {
+            return Number.isFinite(location?.longitude)
+                && Number.isFinite(location?.latitude);
+        })
+        .map(location => [location.longitude, location.latitude]);
+
+    return {
+        trip: {
+            id: data?.ref || context.journeyId || "",
+            direction: directionEntry?.value
+                || context.direction
+                || stopovers.at(-1)?.stop?.name
+                || "",
+            line: {
+                type: "line",
+                id: product?.matchId || product?.internalName || product?.name,
+                name: product?.name || context.lineName || "",
+                product: productFromClass(product?.cls)
+            },
+            stopovers,
+            polyline: {
+                type: "Feature",
+                properties: {},
+                geometry: {
+                    type: "LineString",
+                    coordinates: polylineCoordinates.length >= 2
+                        ? polylineCoordinates
+                        : fallbackCoordinates
+                }
+            }
+        }
+    };
+}
