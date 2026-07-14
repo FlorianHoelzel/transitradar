@@ -4,11 +4,13 @@ import {
     getImportantStationScoreOffset,
     getStationDensityZoomOffset
 } from "../settings/settingsStore.js";
+import {
+    isSuburbanLine,
+    isSubwayLine
+} from "./stationLineTypes.js";
 
-function hasLinePrefix(station, prefixes) {
-    return station.lines?.some(line => {
-        return prefixes.some(prefix => line?.startsWith(prefix));
-    }) === true;
+function hasLineType(station, predicate) {
+    return station.lines?.some(predicate) === true;
 }
 
 function getLineCount(station) {
@@ -24,7 +26,8 @@ export function isTrainStation(station) {
         name.startsWith("u ") ||
         hasProduct(station, "suburban") ||
         hasProduct(station, "subway") ||
-        hasLinePrefix(station, ["S", "U"])
+        hasLineType(station, isSuburbanLine) ||
+        hasLineType(station, isSubwayLine)
     );
 }
 
@@ -80,8 +83,8 @@ export function getStationImportanceScore(station) {
     if (hasProduct(station, "regional")) score += 3;
     if (hasProduct(station, "express")) score += 2;
 
-    if (hasLinePrefix(station, ["S"])) score += 2;
-    if (hasLinePrefix(station, ["U"])) score += 2;
+    if (hasLineType(station, isSuburbanLine)) score += 2;
+    if (hasLineType(station, isSubwayLine)) score += 2;
     if (station.name.toLowerCase().startsWith("s+u ")) score += 2;
     if (station.name.toLowerCase().startsWith("u ")) score += 1;
 
@@ -97,13 +100,13 @@ export function matchesActiveStationFilter(station) {
         name.startsWith("s ") ||
         name.startsWith("s+u ") ||
         hasProduct(station, "suburban") ||
-        hasLinePrefix(station, ["S"]);
+        hasLineType(station, isSuburbanLine);
 
     const isSubway =
         name.startsWith("u ") ||
         name.startsWith("s+u ") ||
         hasProduct(station, "subway") ||
-        hasLinePrefix(station, ["U"]);
+        hasLineType(station, isSubwayLine);
 
     const isSurface =
         !isSuburban &&

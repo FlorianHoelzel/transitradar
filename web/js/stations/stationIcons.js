@@ -1,3 +1,8 @@
+import {
+    isSuburbanLine,
+    isSubwayLine
+} from "./stationLineTypes.js";
+
 const subwayIcon = L.divIcon({
     className: "station-marker subway-marker",
     html: "●",
@@ -31,10 +36,8 @@ function getStationLines(station) {
     ].filter(Boolean);
 }
 
-function hasLinePrefix(station, prefixes) {
-    return getStationLines(station).some(line => {
-        return prefixes.some(prefix => String(line).startsWith(prefix));
-    });
+function hasLineType(station, predicate) {
+    return getStationLines(station).some(predicate);
 }
 
 export function getStationIcon(station) {
@@ -44,7 +47,7 @@ export function getStationIcon(station) {
         name.startsWith("s+u ") ||
         name.startsWith("s ") ||
         station.products?.suburban ||
-        hasLinePrefix(station, ["S"])
+        hasLineType(station, isSuburbanLine)
     ) {
         return suburbanIcon;
     }
@@ -52,7 +55,7 @@ export function getStationIcon(station) {
     if (
         name.startsWith("u ") ||
         station.products?.subway ||
-        hasLinePrefix(station, ["U"])
+        hasLineType(station, isSubwayLine)
     ) {
         return subwayIcon;
     }
