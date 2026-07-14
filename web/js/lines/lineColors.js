@@ -60,9 +60,21 @@ const HAMBURG_LINE_COLORS = {
     A3: "#F7931D"
 };
 
+const FRANKFURT_MODE_COLORS = {
+    suburban: "#008754",
+    subway: "#0069B4",
+    tram: "#F39200",
+    premiumBus: "#A71680"
+};
+
+const FRANKFURT_TRAM_LINES = new Set([
+    "11", "12", "14", "15", "16", "17", "18", "19", "20", "21", "22"
+]);
+
 const CITY_LINE_COLORS = {
     berlin: BERLIN_LINE_COLORS,
-    hamburg: HAMBURG_LINE_COLORS
+    hamburg: HAMBURG_LINE_COLORS,
+    frankfurt: {}
 };
 
 const DARK_TEXT_LINES = {
@@ -82,6 +94,28 @@ const METRO_BUSES = [
     "M76", "M77", "M82", "M85"
 ];
 
+function getFrankfurtBadgeStyle(name, colorKey) {
+    if (CITY_CONFIG.id !== "frankfurt") {
+        return null;
+    }
+
+    let background = null;
+
+    if (/^S\d+$/u.test(colorKey)) {
+        background = FRANKFURT_MODE_COLORS.suburban;
+    } else if (/^U\d+$/u.test(colorKey)) {
+        background = FRANKFURT_MODE_COLORS.subway;
+    } else if (FRANKFURT_TRAM_LINES.has(name)) {
+        background = FRANKFURT_MODE_COLORS.tram;
+    } else if (/^[MX]\d+/u.test(colorKey)) {
+        background = FRANKFURT_MODE_COLORS.premiumBus;
+    }
+
+    return background
+        ? { background, color: "#fff", border: "none" }
+        : null;
+}
+
 export function getBadgeStyle(line) {
     if (!line) {
         return {
@@ -95,6 +129,11 @@ export function getBadgeStyle(line) {
     const colorKey = name
         .replace(/^([USA])\s*(\d+)$/i, "$1$2")
         .toUpperCase();
+    const frankfurtStyle = getFrankfurtBadgeStyle(name, colorKey);
+
+    if (frankfurtStyle) {
+        return frankfurtStyle;
+    }
 
     if (LINE_COLORS[colorKey]) {
         return {
