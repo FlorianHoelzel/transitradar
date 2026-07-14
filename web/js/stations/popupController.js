@@ -1,7 +1,9 @@
 import { showRouteForTrip } from "../map/routeLayer.js";
 import { DEPARTURE_CONFIG } from "../config.js";
 import {
+    addDepartureLinesToStation,
     createDeparturesHtml,
+    getStationLinesHtml,
     getFallbackNoticeHtml,
     hasFallbackDepartures
 } from "./stationPopup.js";
@@ -148,6 +150,26 @@ function updateFallbackNotice(popupElement, departures) {
     );
 }
 
+function updateStationLines(popupElement, station, departures) {
+    const linesContainer = popupElement?.querySelector(".station-lines");
+
+    if (!linesContainer) {
+        return;
+    }
+
+    const previousLines = station.lines || [];
+    const previousLineNames = previousLines.join("\n");
+    const lines = addDepartureLinesToStation(station, departures);
+
+    if (lines.join("\n") === previousLineNames) {
+        return;
+    }
+
+    linesContainer.classList.remove("expanded");
+    linesContainer.innerHTML = getStationLinesHtml(station);
+    setupStationLinesToggle(popupElement);
+}
+
 export function stopPopupRefresh() {
     if (popupRefreshInterval) {
         clearInterval(popupRefreshInterval);
@@ -172,6 +194,7 @@ async function refreshPopupDepartures(marker, station) {
         departuresContainer.innerHTML = departuresHtml;
         departuresContainer.scrollTop = currentScrollTop;
 
+        updateStationLines(popupElement, station, departures);
         updateFallbackNotice(popupElement, departures);
         setupDepartureRouteClicks(popupElement);
         setupFade(popupElement);

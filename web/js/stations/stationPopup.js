@@ -47,7 +47,7 @@ function sortStationLines(lines) {
         });
 }
 
-function getStationLinesHtml(station) {
+export function getStationLinesHtml(station) {
     const lines = sortStationLines(station.lines || []);
 
     if (lines.length === 0) {
@@ -83,6 +83,19 @@ function getStationLinesHtml(station) {
         : "";
 
     return lineBadges + toggleButton;
+}
+
+export function addDepartureLinesToStation(station, departures = []) {
+    const departureLines = departures
+        .map(departure => departure.line?.name)
+        .filter(Boolean);
+
+    station.lines = sortStationLines([
+        ...(station.lines || []),
+        ...departureLines
+    ]);
+
+    return station.lines;
 }
 
 export function hasFallbackDepartures(departures = []) {
