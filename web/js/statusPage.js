@@ -23,8 +23,7 @@ const providers = [
         name: "HVV",
         timeout: 15000,
         urls: [
-            "https://api-hamburg.transitradar.de/healthz",
-            "https://api-hamburg.transitradar.de/locations?query=Hamburg&results=1"
+            "https://api-hamburg.transitradar.de/healthz"
         ]
     }
 ].map(provider => ({
@@ -159,8 +158,8 @@ function renderProviderStatus(provider, isOnline, averageLatency) {
     ].slice(-maxLatencySamples);
     renderLatencyGraph(provider);
     provider.message.textContent = isOnline
-        ? `${provider.name} probes are responding normally. Last checked at ${checkedAt}.`
-        : `${provider.name} probes did not complete successfully. Last checked at ${checkedAt}.`;
+        ? `${provider.name} availability checks are responding normally. Last checked at ${checkedAt}.`
+        : `${provider.name} availability checks did not complete successfully. Last checked at ${checkedAt}.`;
 }
 
 async function checkProvider(provider) {
