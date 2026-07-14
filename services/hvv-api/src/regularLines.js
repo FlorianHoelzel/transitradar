@@ -26,3 +26,19 @@ export const REGULAR_S_BAHN_LINES = [
         ]
     }
 ];
+
+export const REGULAR_STATION_LINES = [
+    ...REGULAR_S_BAHN_LINES,
+    { name: "2804-AST", stationIds: ["Master:47003"] },
+    { name: "8119-AST", stationIds: ["Master:80317"] },
+    {
+        name: "6669-AST",
+        stationIds: [
+            "Master:99880",
+            "Master:99881",
+            "Master:99882",
+            "Master:99884",
+            "Master:99885"
+        ]
+    }
+];

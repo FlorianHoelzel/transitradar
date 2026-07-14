@@ -24,7 +24,9 @@ def line_sort_key(name):
 
 def normalize_station_name(name):
     value = name.casefold().strip()
-    value = re.sub(r"^(?:s\+u|u\+s|s|u|a|bf\.)\s+", "", value)
+    if "," in value:
+        value = value.split(",", 1)[1].strip()
+    value = re.sub(r"^(?:(?:s\+u|u\+s|s|u|a|bf\.)\s+)+", "", value)
     value = re.sub(r"\s*\([^)]*\)\s*", " ", value)
     return re.sub(r"\s+", " ", value).strip()
 

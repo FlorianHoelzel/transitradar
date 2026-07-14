@@ -80,10 +80,17 @@ test("loads every scheduled mode from the generated station catalog", () => {
     assert.equal(getStationLines("Master:54018").includes("13"), true);
     assert.equal(getStationLines("Master:54018").includes("S3-SEV"), false);
     assert.equal(getStationLines("Master:51989").includes("S5-SEV"), false);
+    assert.equal(getStationLines("Master:11943").includes("111"), true);
+    assert.equal(getStationLines("Master:11943").includes("130"), true);
+    assert.equal(getStationLines("Master:11943").includes("U4"), true);
+    assert.deepEqual(getStationLines("Master:47003"), ["2804-AST"]);
+    assert.deepEqual(getStationLines("Master:80317"), ["8119-AST"]);
+    assert.deepEqual(getStationLines("Master:99880"), ["6669-AST"]);
     assert.deepEqual(
         getStationLines("Master:51989").filter(line => /^S\d+$/u.test(line)),
         ["S5"]
     );
+    assert.equal(getStationLines("Master:10954").includes("S2"), true);
 });
 
 test("round-trips opaque trip context tokens", () => {
