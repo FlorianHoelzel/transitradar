@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 
 import { cached } from "./cache.js";
 import { config } from "./config.js";
-import { normalizeLocations } from "./normalizers.js";
+import { normalizeDepartures, normalizeLocations } from "./normalizers.js";
 import { rmvRequest } from "./rmvClient.js";
 
 function sendJson(response, status, value) {
@@ -27,9 +27,35 @@ function integerParameter(url, name, fallback, maximum) {
     return Number.isFinite(value) ? Math.min(Math.max(value, 1), maximum) : fallback;
 }
 
-async function findLocations(url) {
-    const query = (url.searchParams.get("query") || "Frankfurt").trim();
+async function findLocations(url, nearby = false) {
     const results = integerParameter(url, "results", 10, 100);
+
+    if (nearby) {
+        const latitude = Number(url.searchParams.get("latitude"));
+        const longitude = Number(url.searchParams.get("longitude"));
+
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+            const error = new Error("Valid latitude and longitude are required.");
+            error.statusCode = 400;
+            throw error;
+        }
+
+        const distance = integerParameter(url, "distance", 3000, 5000);
+        const cacheKey = `nearby:${latitude.toFixed(5)}:${longitude.toFixed(5)}:${distance}:${results}`;
+
+        return await cached(cacheKey, 30000, async () => {
+            const data = await rmvRequest("location.nearbystops", {
+                originCoordLat: latitude,
+                originCoordLong: longitude,
+                maxNo: results,
+                r: distance
+            });
+
+            return normalizeLocations(data);
+        });
+    }
+
+    const query = (url.searchParams.get("query") || "Frankfurt").trim();
     const cacheKey = `locations:${query.toLocaleLowerCase("de-DE")}:${results}`;
 
     return await cached(cacheKey, 5 * 60 * 1000, async () => {
@@ -40,6 +66,22 @@ async function findLocations(url) {
         });
 
         return normalizeLocations(data);
+    });
+}
+
+async function getDepartures(url, stationId) {
+    const results = integerParameter(url, "results", 20, 100);
+    const duration = integerParameter(url, "duration", 60, 360);
+    const cacheKey = `departures:${stationId}:${results}:${duration}`;
+
+    return await cached(cacheKey, 12000, async () => {
+        const data = await rmvRequest("departureBoard", {
+            id: stationId,
+            maxJourneys: results,
+            duration
+        });
+
+        return { departures: normalizeDepartures(data) };
     });
 }
 
@@ -67,6 +109,22 @@ async function routeRequest(request, response) {
         return;
     }
 
+    if (url.pathname === "/locations/nearby") {
+        sendJson(response, 200, await findLocations(url, true));
+        return;
+    }
+
+    const departureMatch = url.pathname.match(/^\/stops\/(.+)\/departures$/u);
+
+    if (departureMatch) {
+        sendJson(
+            response,
+            200,
+            await getDepartures(url, decodeURIComponent(departureMatch[1]))
+        );
+        return;
+    }
+
     sendJson(response, 404, { error: "Not found." });
 }
 
@@ -77,7 +135,11 @@ const server = createServer(async (request, response) => {
         await routeRequest(request, response);
     } catch (error) {
         console.error(error.message);
-        sendJson(response, 502, { error: "The RMV data service is unavailable." });
+        sendJson(
+            response,
+            error.statusCode || 502,
+            { error: error.statusCode ? error.message : "The RMV data service is unavailable." }
+        );
     }
 });
 

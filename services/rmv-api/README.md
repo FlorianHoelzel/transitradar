@@ -26,6 +26,8 @@ their combined upstream request rate.
 ```text
 GET /healthz
 GET /locations
+GET /locations/nearby
+GET /stops/:id/departures
 ```
 
 Run locally with `npm start` from this directory. The start script loads the
