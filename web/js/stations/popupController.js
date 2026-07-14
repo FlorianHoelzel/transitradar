@@ -2,6 +2,7 @@ import { showRouteForTrip } from "../map/routeLayer.js";
 import { DEPARTURE_CONFIG } from "../config.js";
 import {
     createDeparturesHtml,
+    getStationLinesHtml,
     getFallbackNoticeHtml,
     hasFallbackDepartures
 } from "./stationPopup.js";
@@ -148,6 +149,37 @@ function updateFallbackNotice(popupElement, departures) {
     );
 }
 
+const REPLACEMENT_SERVICE_PATTERN = /(?:^|[-\s])SEV(?:$|[-\s])/iu;
+
+function updateReplacementServiceLines(popupElement, station, departures) {
+    const linesContainer = popupElement?.querySelector(".station-lines");
+
+    if (!linesContainer) {
+        return;
+    }
+
+    const replacementLines = [
+        ...new Set(
+            departures
+                .map(departure => departure.line?.name)
+                .filter(line => REPLACEMENT_SERVICE_PATTERN.test(line || ""))
+        )
+    ].sort((a, b) => a.localeCompare(b, "de-DE", { numeric: true }));
+    const replacementLinesKey = replacementLines.join("\n");
+
+    if (linesContainer.dataset.replacementLines === replacementLinesKey) {
+        return;
+    }
+
+    linesContainer.dataset.replacementLines = replacementLinesKey;
+    linesContainer.classList.remove("expanded");
+    linesContainer.innerHTML = getStationLinesHtml({
+        ...station,
+        lines: [...(station.lines || []), ...replacementLines]
+    });
+    setupStationLinesToggle(popupElement);
+}
+
 export function stopPopupRefresh() {
     if (popupRefreshInterval) {
         clearInterval(popupRefreshInterval);
@@ -172,6 +204,7 @@ async function refreshPopupDepartures(marker, station) {
         departuresContainer.innerHTML = departuresHtml;
         departuresContainer.scrollTop = currentScrollTop;
 
+        updateReplacementServiceLines(popupElement, station, departures);
         updateFallbackNotice(popupElement, departures);
         setupDepartureRouteClicks(popupElement);
         setupFade(popupElement);

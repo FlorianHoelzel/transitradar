@@ -47,7 +47,7 @@ function sortStationLines(lines) {
         });
 }
 
-function getStationLinesHtml(station) {
+export function getStationLinesHtml(station) {
     const lines = sortStationLines(station.lines || []);
 
     if (lines.length === 0) {

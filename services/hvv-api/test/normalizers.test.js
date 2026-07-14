@@ -78,6 +78,8 @@ test("loads every scheduled mode from the generated station catalog", () => {
         ["13", "151", "152", "153", "154", "155", "156", "351", "355", "S3", "S5"]
     );
     assert.equal(getStationLines("Master:54018").includes("13"), true);
+    assert.equal(getStationLines("Master:54018").includes("S3-SEV"), false);
+    assert.equal(getStationLines("Master:51989").includes("S5-SEV"), false);
     assert.deepEqual(
         getStationLines("Master:51989").filter(line => /^S\d+$/u.test(line)),
         ["S5"]
