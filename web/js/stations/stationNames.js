@@ -1,8 +1,16 @@
 import { CITY_CONFIG } from "../config.js";
 
 export function getDisplayStationName(station) {
-    return station.name
+    const displayName = station.name
         .replace(new RegExp(`\\s+\\(${CITY_CONFIG.name}\\)$`, "u"), "")
+        .trim();
+
+    if (CITY_CONFIG.id !== "frankfurt") {
+        return displayName;
+    }
+
+    return displayName
+        .replace(/^Frankfurt\s*\(Main\)\s*,?\s*/iu, "")
         .trim();
 }
 

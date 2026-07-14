@@ -66,6 +66,9 @@ const CITY_CONFIGS = {
         supportsLiveVehicles: false,
         vehicleGridStrategy: "single-request",
         vehicleRequestTimeout: 15000,
+        departureRequestTimeout: 20000,
+        departureFirstRenderTimeout: 6500,
+        departureRefreshInterval: 20000,
         surfaceTransitLabel: "Bus / Tram",
         bounds: {
             minLat: 49.98,
@@ -161,13 +164,13 @@ export const SEARCH_CONFIG = {
 export const DEPARTURE_CONFIG = {
     requestResults: 20,
     requestDuration: 60,
-    requestTimeout: 3000,
-    firstRenderTimeout: 700,
+    requestTimeout: CITY_CONFIG.departureRequestTimeout ?? 3000,
+    firstRenderTimeout: CITY_CONFIG.departureFirstRenderTimeout ?? 700,
     displayLimit: 12,
     fallbackResults: 8,
     fallbackDuration: 30,
     staleGraceMs: 60000,
-    popupRefreshInterval: 15000
+    popupRefreshInterval: CITY_CONFIG.departureRefreshInterval ?? 15000
 };
 
 export const VEHICLE_CONFIG = {

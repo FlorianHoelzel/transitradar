@@ -92,17 +92,29 @@ function createDepartureCollector(stopIds, results, duration) {
     const collectedDepartures = [];
     const failures = [];
     let completedCount = 0;
+    let resolveFirstResult;
+    const firstResult = new Promise(resolve => {
+        resolveFirstResult = resolve;
+    });
 
     const requests = stopIds.map(stopId => {
         return fetchDeparturesForStop(stopId, results, duration)
             .then(departures => {
                 collectedDepartures.push(...departures);
+
+                if (departures.length > 0) {
+                    resolveFirstResult();
+                }
             })
             .catch(error => {
                 failures.push(error);
             })
             .finally(() => {
                 completedCount += 1;
+
+                if (completedCount === stopIds.length) {
+                    resolveFirstResult();
+                }
             });
     });
 
@@ -110,6 +122,7 @@ function createDepartureCollector(stopIds, results, duration) {
         collectedDepartures,
         failures,
         isComplete: () => completedCount === requests.length,
+        waitForFirstResult: () => firstResult,
         waitForAll: () => Promise.allSettled(requests)
     };
 }
@@ -258,6 +271,7 @@ async function fetchDeparturesForStation(
 
     await Promise.race([
         collector.waitForAll(),
+        collector.waitForFirstResult(),
         wait(DEPARTURE_CONFIG.firstRenderTimeout)
     ]);
 

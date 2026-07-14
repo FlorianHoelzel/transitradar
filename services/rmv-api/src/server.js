@@ -98,7 +98,7 @@ async function getDepartures(url, stationId) {
     const duration = integerParameter(url, "duration", 60, 360);
     const cacheKey = `departures:${stationId}:${results}:${duration}`;
 
-    return await cached(cacheKey, 12000, async () => {
+    return await cached(cacheKey, 30000, async () => {
         const data = await rmvRequest("departureBoard", {
             id: stationId,
             maxJourneys: results,

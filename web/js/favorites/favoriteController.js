@@ -2,6 +2,7 @@ import { map } from "../map/map.js";
 import { markers, updateVisibleMarkers } from "../stations/stationMarkers.js";
 import { getStations } from "../stations/stationStore.js";
 import { loadDeparturesForStation } from "../stations/departureService.js";
+import { DEPARTURE_CONFIG } from "../config.js";
 import {
     getFavorites,
     removeFavorite,
@@ -137,7 +138,7 @@ export function startFavoritesRefresh() {
 
     favoritesRefreshInterval = setInterval(() => {
         renderFavorites();
-    }, 15000);
+    }, DEPARTURE_CONFIG.popupRefreshInterval);
 }
 
 export function stopFavoritesRefresh() {
