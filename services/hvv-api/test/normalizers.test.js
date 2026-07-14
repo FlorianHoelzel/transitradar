@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { REGULAR_S_BAHN_LINES } from "../src/regularLines.js";
+import { getStationLines } from "../src/stationLineCatalog.js";
 import {
     createStationLinesById,
     decodeTripContext,
@@ -69,6 +70,18 @@ test("keeps regular southern S-Bahn lines during disruptions", () => {
     assert.deepEqual(stationLines.get("Master:49950"), ["S3", "S5"]);
     assert.deepEqual(stationLines.get("Master:40950"), ["S3", "S5"]);
     assert.deepEqual(stationLines.get("Master:51989"), ["S5"]);
+});
+
+test("loads every scheduled mode from the generated station catalog", () => {
+    assert.deepEqual(
+        getStationLines("Master:54951"),
+        ["13", "151", "152", "153", "154", "155", "156", "351", "355", "S3", "S5"]
+    );
+    assert.equal(getStationLines("Master:54018").includes("13"), true);
+    assert.deepEqual(
+        getStationLines("Master:51989").filter(line => /^S\d+$/u.test(line)),
+        ["S5"]
+    );
 });
 
 test("round-trips opaque trip context tokens", () => {

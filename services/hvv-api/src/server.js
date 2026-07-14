@@ -3,9 +3,8 @@ import { createServer } from "node:http";
 import { cached } from "./cache.js";
 import { config } from "./config.js";
 import { geofoxRequest } from "./geofoxClient.js";
-import { REGULAR_S_BAHN_LINES } from "./regularLines.js";
+import { getStationLines } from "./stationLineCatalog.js";
 import {
-    createStationLinesById,
     normalizeDepartures,
     decodeTripContext,
     normalizeCourse,
@@ -82,27 +81,10 @@ async function getStations() {
             coordinateType: "EPSG_4326",
             filterEquivalent: true
         });
-        let lineData = { lines: [] };
-
-        try {
-            lineData = await geofoxRequest("listLines", {
-                dataReleaseID: "",
-                modificationTypes: ["MAIN", "SEQUENCE"],
-                withSublines: true
-            });
-        } catch (error) {
-            console.warn("Failed to load static Geofox line data.", error);
-        }
-
-        const stationLines = createStationLinesById(
-            lineData.lines,
-            REGULAR_S_BAHN_LINES
-        );
-
         return (stationData.stations || [])
             .filter(station => station.exists !== false && station.coordinate)
             .map(station => {
-                return normalizeStop(station, stationLines.get(station.id));
+                return normalizeStop(station, getStationLines(station.id));
             });
     });
 }
