@@ -53,7 +53,10 @@ function setupUi() {
     setupFilters(() => {
         stopPopupRefresh();
         updateVisibleMarkers(getStations());
-        updateVehicles(true);
+
+        if (CITY_CONFIG.supportsLiveVehicles) {
+            updateVehicles(true);
+        }
     });
 }
 
@@ -66,7 +69,10 @@ function setupSettingsEvents() {
             updateVisibleMarkers(getStations());
         }
 
-        if (changedKey === "showVehicles" || changedKey === "reset") {
+        if (
+            CITY_CONFIG.supportsLiveVehicles
+            && (changedKey === "showVehicles" || changedKey === "reset")
+        ) {
             updateVehicles(true);
         }
     });
@@ -75,11 +81,18 @@ function setupSettingsEvents() {
 function setupMapEvents() {
     map.on("moveend", () => {
         updateVisibleMarkers(getStations());
-        updateVehicles(true);
+
+        if (CITY_CONFIG.supportsLiveVehicles) {
+            updateVehicles(true);
+        }
     });
 }
 
 function setupVehicleRefresh() {
+    if (!CITY_CONFIG.supportsLiveVehicles) {
+        return;
+    }
+
     updateVehicles(true);
 
     setInterval(() => {

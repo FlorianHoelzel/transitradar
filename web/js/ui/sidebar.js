@@ -218,6 +218,21 @@ export function setupSidebar() {
     aboutOverlay.id = "aboutOverlay";
     aboutOverlay.className = "about-overlay";
 
+    const featureSummary = CITY_CONFIG.supportsLiveVehicles
+        ? "nearby stops, live departures, live vehicle positions, highlighted lines and selected vehicle routes"
+        : "nearby stops, live departures, highlighted lines and trip routes";
+    const sourceSummary = CITY_CONFIG.supportsLiveVehicles
+        ? "Stop data, departures, trip details and live vehicle positions may come from different APIs and can update at different intervals."
+        : "Stop data, live departures and trip details can update at different intervals.";
+    const vehicleDisclaimer = CITY_CONFIG.supportsLiveVehicles
+        ? `
+                    <p>
+                        Live vehicle positions are estimates based on publicly available API data and may be delayed,
+                        temporarily unavailable or inaccurate due to API limitations.
+                    </p>
+        `
+        : "";
+
     aboutOverlay.innerHTML = `
         <section class="about-panel">
             <div class="about-header">
@@ -232,24 +247,21 @@ export function setupSidebar() {
             <div class="about-content">
                 <p>
                     <strong>TransitRadar ${CITY_CONFIG.name}</strong> is a personal web project for exploring public transport in ${CITY_CONFIG.name}.
-                    The app shows nearby stops, live departures, live vehicle positions, highlighted lines and selected vehicle routes on an interactive map.
+                    The app shows ${featureSummary} on an interactive map.
                 </p>
 
                 <div class="about-card">
                     <h3>🛰️ Data sources</h3>
                     <p>
                         TransitRadar ${CITY_CONFIG.name} uses ${CITY_CONFIG.dataSourceText}.
-                        Stop data, departures, trip details and live vehicle positions may come from different APIs and can update at different intervals.
+                        ${sourceSummary}
                     </p>
                 </div>
 
                 <div class="about-card warning">
                     <h3>⚠️ Important disclaimer</h3>
                     <p>All information is provided without guarantee.</p>
-                    <p>
-                        Live vehicle positions are estimates based on publicly available API data and may be delayed,
-                        temporarily unavailable or inaccurate due to API limitations.
-                    </p>
+                    ${vehicleDisclaimer}
                     <p>
                         Departures, delays, destinations, routes and stop information may change at any time and should
                         not be considered legally binding.

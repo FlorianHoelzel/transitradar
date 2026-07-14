@@ -8,13 +8,14 @@ web/                    Shared landing, status, and city frontend
 web/js/config.js        Hostname-based city configuration
 deploy/nginx.conf       Routing for the shared frontend image
 services/hvv-api/       Private Geofox adapter for Hamburg
+services/rmv-api/       Private HAFAS adapter for Frankfurt
 docker-compose.yaml     VBB API and cache stack
 Dockerfile              Shared frontend image used by every website
 ```
 
 All website applications in Coolify build the root `Dockerfile`. A frontend
 change is therefore deployed consistently to the landing page, status page,
-Berlin, Hamburg, and future city sites. Provider credentials and API-specific
+Berlin, Hamburg, Frankfurt, and future city sites. Provider credentials and API-specific
 normalization live only in `services/<provider>-api/`.
 
 To add another city, add its public configuration to `web/js/config.js`, add an
@@ -29,7 +30,7 @@ Run the dependency-free preview server from the repository root:
 node scripts/dev-server.mjs
 ```
 
-Then open `http://localhost:4173/?city=hamburg`. The preview server proxies the
+Then open `http://localhost:4173/?city=frankfurt`. The preview server proxies the
 production provider API through localhost, so the complete frontend works
 without changing API CORS settings or deploying to Coolify.
 
@@ -99,7 +100,7 @@ The project is built with scalability in mind. While the current focus is on Ber
 
 ---
 
-# 🏙️ Planned Cities
+# 🏙️ Cities
 
 TransitRadar is designed around a modular adapter architecture.
 
@@ -107,9 +108,9 @@ Adding a new city should only require implementing a new API adapter while the r
 
 | Region | Status |
 |---------|--------|
-| 🇩🇪 Berlin (VBB) | 🚧 In Development |
-| 🚇 Hamburg (HVV) | 📅 Planned |
-| 🚈 Frankfurt (RMV) | 📅 Planned |
+| 🇩🇪 Berlin (VBB) | ✅ Live |
+| 🚇 Hamburg (HVV) | ✅ Live |
+| 🚈 Frankfurt (RMV) | ✅ Live |
 | 🚋 Cologne (VRS) | 📅 Planned |
 | 🚉 Rhine-Ruhr (VRR) | 📅 Planned |
 | 🚊 Hanover (GVH) | 📅 Planned |

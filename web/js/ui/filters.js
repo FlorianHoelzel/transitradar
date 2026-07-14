@@ -1,3 +1,5 @@
+import { CITY_CONFIG } from "../config.js";
+
 export const activeFilters = {
     stations: {
         suburban: true,
@@ -18,6 +20,11 @@ export function setupFilters(onFilterChange) {
     const filterToggle = document.getElementById("filterToggle");
     const filterPanel = document.getElementById("filterPanel");
     const filterOptions = document.querySelectorAll(".filter-option");
+    const vehicleFilterSection = document.querySelector('[data-filter-section="vehicles"]');
+
+    if (!CITY_CONFIG.supportsLiveVehicles) {
+        vehicleFilterSection?.remove();
+    }
 
     if (!filterToggle || !filterPanel) {
         return;

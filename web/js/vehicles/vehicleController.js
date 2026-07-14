@@ -1,6 +1,6 @@
 import { showRouteForTrip, clearRouteLayer } from "../map/routeLayer.js";
 import { map } from "../map/map.js";
-import { VEHICLE_CONFIG } from "../config.js";
+import { CITY_CONFIG, VEHICLE_CONFIG } from "../config.js";
 
 import { vehicleState } from "./vehicleState.js";
 import {
@@ -139,7 +139,7 @@ function renderSelectedLineMovements(
 }
 
 export async function updateVehicles(force = false) {
-    if (!getSettings().showVehicles) {
+    if (!CITY_CONFIG.supportsLiveVehicles || !getSettings().showVehicles) {
         vehicleState.updateRequestId += 1;
         clearVehicleMarkers();
         return;

@@ -24,13 +24,13 @@ const cities = [
     {
         name: "Frankfurt am Main",
         network: "RMV",
-        state: "soon",
-        status: "Coming soon",
-        apiStatus: "pending",
+        state: "ready",
+        status: "Live",
+        apiStatus: "online",
         image: "./assets/landing/frankfurt-rmv.png",
-        href: "#frankfurt-rmv",
+        href: "https://frankfurt.transitradar.de/",
         accent: "#009C95",
-        details: "S-Bahn, U-Bahn, Tram und Regionalverkehr kommen als Nächstes.",
+        details: "Stationen, Abfahrten und Linien im RMV-Netz.",
     },
 ];
 

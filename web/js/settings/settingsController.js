@@ -1,3 +1,4 @@
+import { CITY_CONFIG } from "../config.js";
 import {
     DEFAULT_SETTINGS,
     getSettings,
@@ -76,17 +77,19 @@ function createSettingsOverlay() {
                     ]
                 })}
 
-                ${createToggleSetting({
-                    id: "showVehiclesSetting",
-                    label: "Live vehicles",
-                    description: "Show live vehicle positions on the map."
-                })}
+                ${CITY_CONFIG.supportsLiveVehicles ? `
+                    ${createToggleSetting({
+                        id: "showVehiclesSetting",
+                        label: "Live vehicles",
+                        description: "Show live vehicle positions on the map."
+                    })}
 
-                ${createToggleSetting({
-                    id: "smoothVehicleMovementSetting",
-                    label: "Smooth movement",
-                    description: "Animate vehicles between live position updates."
-                })}
+                    ${createToggleSetting({
+                        id: "smoothVehicleMovementSetting",
+                        label: "Smooth movement",
+                        description: "Animate vehicles between live position updates."
+                    })}
+                ` : ""}
 
                 ${createSelectSetting({
                     id: "mapBrightnessSetting",
@@ -123,8 +126,16 @@ function createSettingsOverlay() {
 
 function syncControls(overlay, settings) {
     overlay.querySelector("#stationDensitySetting").value = settings.stationDensity;
-    overlay.querySelector("#showVehiclesSetting").checked = settings.showVehicles;
-    overlay.querySelector("#smoothVehicleMovementSetting").checked = settings.smoothVehicleMovement;
+    const showVehiclesControl = overlay.querySelector("#showVehiclesSetting");
+    const smoothMovementControl = overlay.querySelector("#smoothVehicleMovementSetting");
+
+    if (showVehiclesControl) {
+        showVehiclesControl.checked = settings.showVehicles;
+    }
+
+    if (smoothMovementControl) {
+        smoothMovementControl.checked = settings.smoothVehicleMovement;
+    }
     overlay.querySelector("#mapBrightnessSetting").value = settings.mapBrightness;
     overlay.querySelector("#departureTimeDisplaySetting").value = settings.departureTimeDisplay;
 }

@@ -9,7 +9,8 @@ const webRoot = resolve(projectRoot, "web");
 
 const API_ORIGINS = {
     berlin: "https://api.transitradar.de",
-    hamburg: "https://api-hamburg.transitradar.de"
+    hamburg: "https://api-hamburg.transitradar.de",
+    frankfurt: "https://api-frankfurt.transitradar.de"
 };
 
 const CONTENT_TYPES = {
@@ -31,7 +32,7 @@ function send(response, status, body, contentType = "text/plain; charset=utf-8")
 }
 
 async function proxyApi(request, response, url) {
-    const match = url.pathname.match(/^\/api\/(berlin|hamburg)(\/.*)?$/);
+    const match = url.pathname.match(/^\/api\/(berlin|hamburg|frankfurt)(\/.*)?$/);
 
     if (!match) {
         return false;
@@ -110,6 +111,7 @@ createServer(async (request, response) => {
 
     await serveStatic(response, url);
 }).listen(port, "127.0.0.1", () => {
+    console.log(`Frankfurt: http://localhost:${port}/?city=frankfurt`);
     console.log(`Hamburg: http://localhost:${port}/?city=hamburg`);
     console.log(`Berlin:  http://localhost:${port}/?city=berlin`);
 });

@@ -8,6 +8,7 @@ const CITY_CONFIGS = {
         mapCenter: [52.52, 13.40],
         mapZoom: 12,
         importantStationMinScore: 6,
+        supportsLiveVehicles: true,
         vehicleGridStrategy: "grid",
         vehicleRequestTimeout: 2500,
         surfaceTransitLabel: "Bus / Tram",
@@ -35,6 +36,7 @@ const CITY_CONFIGS = {
         mapCenter: [53.5511, 9.9937],
         mapZoom: 12,
         importantStationMinScore: 3,
+        supportsLiveVehicles: true,
         vehicleGridStrategy: "single-request",
         vehicleRequestTimeout: 15000,
         surfaceTransitLabel: "Bus / Ferry",
@@ -50,6 +52,33 @@ const CITY_CONFIGS = {
         ],
         dataSourceText: "Geofox GTI data supplied for the HVV network",
         affiliationText: "HVV, Hamburger Hochbahn or the participating transport operators"
+    },
+    frankfurt: {
+        id: "frankfurt",
+        name: "Frankfurt",
+        network: "RMV",
+        hostname: "frankfurt.transitradar.de",
+        apiBaseUrl: "https://api-frankfurt.transitradar.de",
+        apiHealthCheckPath: "/healthz",
+        mapCenter: [50.1109, 8.6821],
+        mapZoom: 12,
+        importantStationMinScore: 3,
+        supportsLiveVehicles: false,
+        vehicleGridStrategy: "single-request",
+        vehicleRequestTimeout: 15000,
+        surfaceTransitLabel: "Bus / Tram",
+        bounds: {
+            minLat: 49.98,
+            maxLat: 50.25,
+            minLng: 8.40,
+            maxLng: 8.85
+        },
+        stationSearchQueries: ["Frankfurt", "S", "U", "Tram", "Bus", "Bahnhof"],
+        officialSources: [
+            { label: "rmv.de", url: "https://www.rmv.de" }
+        ],
+        dataSourceText: "RMV HAFAS data supplied for the Frankfurt network",
+        affiliationText: "RMV, traffiQ or the participating transport operators"
     }
 };
 

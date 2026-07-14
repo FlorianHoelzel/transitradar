@@ -41,7 +41,7 @@
                     </span>
 
                     <span>
-                        <strong>2</strong>
+                        <strong>3</strong>
                         <span class="metric-label">live providers</span>
                     </span>
 
@@ -127,43 +127,40 @@
                 </footer>
             </article>
 
-            <article class="provider-card planned">
+            <article
+                id="rmvProvider"
+                class="provider-card checking"
+                data-provider-card="rmv"
+            >
                 <header class="provider-header">
                     <div>
                         <span class="provider-kicker">Frankfurt am Main</span>
                         <h2>RMV</h2>
                     </div>
 
-                    <span class="status-pill planned">Planned</span>
+                    <span class="status-pill checking" data-provider-status="rmv">
+                        Checking
+                    </span>
                 </header>
 
                 <div class="provider-metric">
                     <span>Response time</span>
-                    <strong>Coming soon</strong>
+                    <strong data-provider-latency="rmv">--</strong>
                 </div>
 
-                <div class="latency-graph latency-graph--empty" aria-hidden="true">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
+                <div
+                    class="latency-graph"
+                    data-provider-graph="rmv"
+                    aria-label="RMV response time history"
+                ></div>
 
-                <p>
-                    Placeholder for the future Frankfurt am Main transport provider integration.
+                <p data-provider-message="rmv">
+                    Running a fresh availability check against the RMV transport API.
                 </p>
 
                 <footer class="provider-footer">
                     <span>HAFAS REST API</span>
-                    <span>Pending API availability</span>
+                    <span>Health endpoint</span>
                 </footer>
             </article>
         </section>
