@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+    filterStopsByBounds,
     normalizeDeparture,
     normalizeDepartures,
     normalizeLocations,
@@ -60,6 +61,27 @@ test("filters coordinate locations and stops without coordinates", () => {
 
     assert.equal(locations.length, 1);
     assert.equal(locations[0].id, "3000010");
+});
+
+test("filters normalized stops to the configured city bounds", () => {
+    const stops = [
+        normalizeStop(frankfurtCentral),
+        normalizeStop({
+            ...frankfurtCentral,
+            extId: "outside",
+            name: "Outside",
+            lat: 51,
+            lon: 9
+        })
+    ];
+    const filtered = filterStopsByBounds(stops, {
+        minLat: 49.98,
+        maxLat: 50.25,
+        minLng: 8.40,
+        maxLng: 8.85
+    });
+
+    assert.deepEqual(filtered.map(stop => stop.id), ["3000010"]);
 });
 
 test("normalizes planned and realtime RMV departures", () => {

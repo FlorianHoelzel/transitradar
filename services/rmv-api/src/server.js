@@ -2,8 +2,19 @@ import { createServer } from "node:http";
 
 import { cached } from "./cache.js";
 import { config } from "./config.js";
-import { normalizeDepartures, normalizeLocations } from "./normalizers.js";
+import {
+    filterStopsByBounds,
+    normalizeDepartures,
+    normalizeLocations
+} from "./normalizers.js";
 import { rmvRequest } from "./rmvClient.js";
+
+const FRANKFURT_BOUNDS = {
+    minLat: 49.98,
+    maxLat: 50.25,
+    minLng: 8.40,
+    maxLng: 8.85
+};
 
 function sendJson(response, status, value) {
     response.writeHead(status, { "content-type": "application/json; charset=utf-8" });
@@ -69,6 +80,18 @@ async function findLocations(url, nearby = false) {
     });
 }
 
+async function getStations() {
+    return await cached("stations:frankfurt", 6 * 60 * 60 * 1000, async () => {
+        const data = await rmvRequest("location.name", {
+            input: "Frankfurt",
+            maxNo: 1000,
+            type: "S"
+        });
+
+        return filterStopsByBounds(normalizeLocations(data), FRANKFURT_BOUNDS);
+    });
+}
+
 async function getDepartures(url, stationId) {
     const results = integerParameter(url, "results", 20, 100);
     const duration = integerParameter(url, "duration", 60, 360);
@@ -101,6 +124,11 @@ async function routeRequest(request, response) {
 
     if (url.pathname === "/healthz") {
         sendJson(response, 200, { status: "ok", provider: "rmv" });
+        return;
+    }
+
+    if (url.pathname === "/stations") {
+        sendJson(response, 200, await getStations());
         return;
     }
 

@@ -25,6 +25,7 @@ their combined upstream request rate.
 
 ```text
 GET /healthz
+GET /stations
 GET /locations
 GET /locations/nearby
 GET /stops/:id/departures

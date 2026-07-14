@@ -71,6 +71,17 @@ export function normalizeLocations(data) {
         });
 }
 
+export function filterStopsByBounds(stops, bounds) {
+    return stops.filter(stop => {
+        const { latitude, longitude } = stop.location;
+
+        return latitude >= bounds.minLat
+            && latitude <= bounds.maxLat
+            && longitude >= bounds.minLng
+            && longitude <= bounds.maxLng;
+    });
+}
+
 function zonedDate(date, time) {
     if (!date || !time) {
         return null;
