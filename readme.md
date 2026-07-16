@@ -34,6 +34,31 @@ Then open `http://localhost:4173/?city=frankfurt`. The preview server proxies th
 production provider API through localhost, so the complete frontend works
 without changing API CORS settings or deploying to Coolify.
 
+## Umami analytics
+
+TransitRadar includes an optional self-hosted Umami setup in
+`deploy/umami-compose.yaml`. Deploy that Compose file as its own Coolify
+application and configure:
+
+- `UMAMI_DB_PASSWORD`: a long random URL-safe database password
+- `UMAMI_APP_SECRET`: a separate long random application secret
+
+Attach a domain such as `stats.transitradar.de` to the Umami service on port
+`3000`. Log in with the initial credentials `admin` / `umami`, change the
+password immediately, and add TransitRadar as a website.
+
+Then add these build variables to every Coolify website application that builds
+the root `Dockerfile`:
+
+- `UMAMI_SCRIPT_URL=https://stats.transitradar.de/script.js`
+- `UMAMI_WEBSITE_ID=<website ID shown by Umami>`
+- `UMAMI_DOMAINS=transitradar.de,berlin.transitradar.de,hamburg.transitradar.de,frankfurt.transitradar.de,status.transitradar.de`
+
+The tracker is injected into every built HTML page only when both
+`UMAMI_SCRIPT_URL` and `UMAMI_WEBSITE_ID` are present. It respects browser Do
+Not Track settings and collects Core Web Vitals. Local previews remain
+untracked by default.
+
 ![Status](https://img.shields.io/badge/status-active-success)
 ![Cities](https://img.shields.io/badge/planned_cities-9-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)

@@ -5,6 +5,9 @@ import { fileURLToPath } from "node:url";
 const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const sourceRoot = resolve(projectRoot, "web");
 const outputRoot = resolve(process.argv[2] || resolve(projectRoot, "dist"));
+const umamiScriptUrl = process.env.UMAMI_SCRIPT_URL?.trim();
+const umamiWebsiteId = process.env.UMAMI_WEBSITE_ID?.trim();
+const umamiDomains = process.env.UMAMI_DOMAINS?.trim();
 
 const cities = [
     {
@@ -51,6 +54,51 @@ function escapeRegExp(value) {
 
 function escapeJsonForHtml(value) {
     return JSON.stringify(value).replaceAll("<", "\\u003c");
+}
+
+function escapeHtmlAttribute(value) {
+    return value
+        .replaceAll("&", "&amp;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+}
+
+function createUmamiTracker() {
+    if (!umamiScriptUrl && !umamiWebsiteId) {
+        return "";
+    }
+
+    if (!umamiScriptUrl || !umamiWebsiteId) {
+        throw new Error(
+            "UMAMI_SCRIPT_URL and UMAMI_WEBSITE_ID must either both be set or both be omitted."
+        );
+    }
+
+    const domainsAttribute = umamiDomains
+        ? `\n        data-domains="${escapeHtmlAttribute(umamiDomains)}"`
+        : "";
+
+    return `    <script
+        defer
+        src="${escapeHtmlAttribute(umamiScriptUrl)}"
+        data-website-id="${escapeHtmlAttribute(umamiWebsiteId)}"${domainsAttribute}
+        data-do-not-track="true"
+        data-performance="true"
+    ></script>
+`;
+}
+
+function injectBeforeHeadEnd(html, content) {
+    if (!content) {
+        return html;
+    }
+
+    if (!html.includes("</head>")) {
+        throw new Error("Cannot inject Umami tracker: missing </head>.");
+    }
+
+    return html.replace("</head>", `${content}</head>`);
 }
 
 function createSeoHead(city) {
@@ -138,6 +186,7 @@ await mkdir(outputRoot, { recursive: true });
 await cp(sourceRoot, outputRoot, { recursive: true });
 
 const cityTemplate = await readFile(resolve(sourceRoot, "city.html"), "utf8");
+const umamiTracker = createUmamiTracker();
 
 for (const city of cities) {
     let cityHtml = replaceSection(
@@ -152,6 +201,7 @@ for (const city of cities) {
         "<!-- CITY_SUMMARY_END -->",
         createCitySummary(city)
     );
+    cityHtml = injectBeforeHeadEnd(cityHtml, umamiTracker);
 
     await writeFile(resolve(outputRoot, `city-${city.id}.html`), cityHtml);
     await writeFile(
@@ -162,6 +212,12 @@ for (const city of cities) {
         resolve(outputRoot, `robots-${city.id}.txt`),
         createRobots(`https://${city.hostname}/sitemap.xml`)
     );
+}
+
+for (const filename of ["index.html", "city.html", "status.html"]) {
+    const path = resolve(outputRoot, filename);
+    const html = await readFile(path, "utf8");
+    await writeFile(path, injectBeforeHeadEnd(html, umamiTracker));
 }
 
 await writeFile(
