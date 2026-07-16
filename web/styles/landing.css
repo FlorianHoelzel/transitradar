@@ -277,7 +277,7 @@ h1 {
     align-items: center;
     gap: 0.42rem;
     padding: 0.36rem 0.54rem;
-    border: 1px solid color-mix(in srgb, var(--accent) 58%, white 9%);
+    border: 1px solid color-mix(in srgb, #4ade80 68%, white 8%);
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.24);
     color: var(--ink);
