@@ -91,8 +91,21 @@ function createUmamiTracker() {
             const pageName = pageNames[payload?.hostname];
 
             if (pageName && typeof payload.url === "string") {
+                let path = payload.url;
+
+                try {
+                    const url = new URL(
+                        payload.url,
+                        \`https://\${payload.hostname}\`
+                    );
+                    path = \`\${url.pathname}\${url.search}\${url.hash}\`;
+                } catch {
+                    // Keep the original value if Umami sends a non-standard URL.
+                }
+
+                const normalizedPath = path.startsWith("/") ? path : \`/\${path}\`;
                 payload.url =
-                    \`/\${pageName}\${payload.url === "/" ? "" : payload.url}\`;
+                    \`/\${pageName}\${normalizedPath === "/" ? "" : normalizedPath}\`;
             }
 
             return payload;

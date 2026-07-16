@@ -65,6 +65,7 @@ test("injects the configured Umami tracker into every deployed page", async () =
                 html,
                 /data-before-send="transitRadarUmamiBeforeSend"/
             );
+            assert.match(html, /const normalizedPath = path\.startsWith/);
             assert.match(html, /data-do-not-track="true"/);
             assert.match(html, /data-performance="true"/);
         }
