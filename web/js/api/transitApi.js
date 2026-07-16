@@ -26,6 +26,41 @@ function getCleanStopId(stopId) {
     return stopId;
 }
 
+function getStopDepartureScore(stop) {
+    const products = Object.values(stop.products || {})
+        .filter(Boolean)
+        .length;
+    const lines = new Set(stop.lines || []).size;
+    const isDetailedPlatform = /\/|\[|(?:Südseite|Fernbus|Straße)\b/iu.test(
+        stop.name || ""
+    );
+
+    return products * 100 + lines - (isDetailedPlatform ? 50 : 0);
+}
+
+function getDepartureStopIds(station) {
+    const uniqueStops = [
+        ...new Map(
+            (station.stops || [])
+                .filter(stop => stop?.id)
+                .map(stop => [getCleanStopId(stop.id), stop])
+        ).entries()
+    ].map(([id, stop]) => ({ ...stop, id }));
+
+    if (uniqueStops.length === 0 && station.id) {
+        return [getCleanStopId(station.id)];
+    }
+
+    if (DEPARTURE_CONFIG.stopStrategy === "best") {
+        return uniqueStops
+            .sort((a, b) => getStopDepartureScore(b) - getStopDepartureScore(a))
+            .slice(0, 1)
+            .map(stop => stop.id);
+    }
+
+    return uniqueStops.map(stop => stop.id);
+}
+
 function getRadarResultLimit(zoom) {
     if (zoom >= VEHICLE_CONFIG.radarZoomLevels.high) {
         return VEHICLE_CONFIG.radarResultLimits.highZoom;
@@ -258,14 +293,11 @@ async function fetchDeparturesForStation(
     results = DEPARTURE_CONFIG.fallbackResults,
     duration = DEPARTURE_CONFIG.fallbackDuration
 ) {
-    const uniqueStopIds = [
-        ...new Set(
-            station.stops
-                .map(stop => stop.id)
-                .filter(Boolean)
-                .map(getCleanStopId)
-        )
-    ];
+    const uniqueStopIds = getDepartureStopIds(station);
+
+    if (uniqueStopIds.length === 0) {
+        throw new Error("Station has no departure stop.");
+    }
 
     const collector = createDepartureCollector(uniqueStopIds, results, duration);
 

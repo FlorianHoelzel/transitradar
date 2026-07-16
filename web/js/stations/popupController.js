@@ -16,6 +16,7 @@ import {
 
 let popupRefreshInterval = null;
 let favoriteChangeHandler = null;
+const pendingPopupRefreshes = new WeakSet();
 
 function updateFade(departures) {
     if (!departures) {
@@ -188,6 +189,10 @@ export function stopPopupRefresh() {
 }
 
 async function refreshPopupDepartures(marker, station) {
+    if (pendingPopupRefreshes.has(marker)) {
+        return;
+    }
+
     const popupElement = marker.getPopup()?.getElement();
     const departuresContainer = popupElement?.querySelector(".departures");
 
@@ -195,6 +200,7 @@ async function refreshPopupDepartures(marker, station) {
         return;
     }
 
+    pendingPopupRefreshes.add(marker);
     const currentScrollTop = departuresContainer.scrollTop;
 
     try {
@@ -212,6 +218,8 @@ async function refreshPopupDepartures(marker, station) {
         console.error("Failed to update departures:", error);
         departuresContainer.innerHTML = "Departures could not be loaded.";
         setupFade(popupElement);
+    } finally {
+        pendingPopupRefreshes.delete(marker);
     }
 }
 

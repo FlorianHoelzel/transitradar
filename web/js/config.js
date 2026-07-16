@@ -69,6 +69,7 @@ const CITY_CONFIGS = {
         departureRequestTimeout: 20000,
         departureFirstRenderTimeout: 6500,
         departureRefreshInterval: 20000,
+        departureStopStrategy: "best",
         surfaceTransitLabel: "Bus / Tram",
         bounds: {
             minLat: 49.98,
@@ -166,6 +167,7 @@ export const DEPARTURE_CONFIG = {
     requestDuration: 60,
     requestTimeout: CITY_CONFIG.departureRequestTimeout ?? 3000,
     firstRenderTimeout: CITY_CONFIG.departureFirstRenderTimeout ?? 700,
+    stopStrategy: CITY_CONFIG.departureStopStrategy ?? "all",
     displayLimit: 12,
     fallbackResults: 8,
     fallbackDuration: 30,

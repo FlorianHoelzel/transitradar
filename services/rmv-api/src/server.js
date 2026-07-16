@@ -9,6 +9,7 @@ import {
     normalizeLocations
 } from "./normalizers.js";
 import { rmvRequest } from "./rmvClient.js";
+import { getDepartureStationId } from "./stationAliases.js";
 
 const FRANKFURT_BOUNDS = {
     minLat: 49.98,
@@ -96,11 +97,12 @@ async function getStations() {
 async function getDepartures(url, stationId) {
     const results = integerParameter(url, "results", 20, 100);
     const duration = integerParameter(url, "duration", 60, 360);
-    const cacheKey = `departures:${stationId}:${results}:${duration}`;
+    const departureStationId = getDepartureStationId(stationId);
+    const cacheKey = `departures:${departureStationId}:${results}:${duration}`;
 
     return await cached(cacheKey, 30000, async () => {
         const data = await rmvRequest("departureBoard", {
-            id: stationId,
+            id: departureStationId,
             maxJourneys: results,
             duration
         });
