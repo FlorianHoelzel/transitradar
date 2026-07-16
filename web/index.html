@@ -11,19 +11,35 @@
 
     <link rel="stylesheet" href="./styles/fonts.css">
     <link rel="stylesheet" href="./styles/landing.css">
+    <link
+        rel="preload"
+        as="image"
+        href="./assets/landing/berlin-neu-640.webp"
+        imagesrcset="./assets/landing/berlin-neu-640.webp 640w, ./assets/landing/berlin-neu-1254.webp 1254w"
+        imagesizes="(max-width: 720px) calc(100vw - 2rem), (max-width: 1020px) calc(50vw - 2.5rem), 390px"
+        type="image/webp"
+    >
+    <link
+        rel="preload"
+        as="image"
+        href="./assets/landing/hamburg-neu-640.webp"
+        imagesrcset="./assets/landing/hamburg-neu-640.webp 640w, ./assets/landing/hamburg-neu-1254.webp 1254w"
+        imagesizes="(max-width: 720px) calc(100vw - 2rem), (max-width: 1020px) calc(50vw - 2.5rem), 390px"
+        type="image/webp"
+    >
+    <link
+        rel="preload"
+        as="image"
+        href="./assets/landing/frankfurt-rmv-640.webp"
+        imagesrcset="./assets/landing/frankfurt-rmv-640.webp 640w, ./assets/landing/frankfurt-rmv-1254.webp 1254w"
+        imagesizes="(max-width: 720px) calc(100vw - 2rem), (max-width: 1020px) calc(50vw - 2.5rem), 390px"
+        type="image/webp"
+    >
 </head>
 
 <body>
     <div id="landing-root"></div>
 
-    <script
-        crossorigin
-        src="https://unpkg.com/react@18/umd/react.development.js"
-    ></script>
-    <script
-        crossorigin
-        src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
-    ></script>
     <script src="./js/landing/App.js"></script>
 </body>
 </html>

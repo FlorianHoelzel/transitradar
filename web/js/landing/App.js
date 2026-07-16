@@ -6,9 +6,9 @@ const cities = [
         status: "Live",
         apiStatus: "online",
         image: "./assets/landing/berlin-neu.png",
+        imageSrcSet: "./assets/landing/berlin-neu-640.webp 640w, ./assets/landing/berlin-neu-1254.webp 1254w",
         href: "https://berlin.transitradar.de/",
         accent: "#f7c948",
-        details: "Echtzeitkarte, Stationen, Abfahrten und Fahrzeuge.",
     },
     {
         name: "Hamburg",
@@ -17,9 +17,9 @@ const cities = [
         status: "Live",
         apiStatus: "online",
         image: "./assets/landing/hamburg-neu.png",
+        imageSrcSet: "./assets/landing/hamburg-neu-640.webp 640w, ./assets/landing/hamburg-neu-1254.webp 1254w",
         href: "https://hamburg.transitradar.de/",
         accent: "#f05252",
-        details: "Echtzeitkarte, Stationen, Abfahrten und Fahrzeuge.",
     },
     {
         name: "Frankfurt am Main",
@@ -28,118 +28,107 @@ const cities = [
         status: "Live",
         apiStatus: "online",
         image: "./assets/landing/frankfurt-rmv.png",
+        imageSrcSet: "./assets/landing/frankfurt-rmv-640.webp 640w, ./assets/landing/frankfurt-rmv-1254.webp 1254w",
         href: "https://frankfurt.transitradar.de/",
         accent: "#009C95",
-        details: "Stationen, Abfahrten und Linien im RMV-Netz.",
     },
 ];
 
 const upcomingCities = ["Köln", "München", "Leipzig", "Dresden", "Stuttgart"];
+const imageSizes = "(max-width: 720px) calc(100vw - 2rem), (max-width: 1020px) calc(50vw - 2.5rem), 390px";
 
-function CityCard({ city, index }) {
-    const isReady = city.state === "ready";
+function createElement(tagName, attributes = {}, children = []) {
+    const element = document.createElement(tagName);
 
-    return React.createElement(
-        "a",
-        {
-            className: `city-card ${isReady ? "city-card--ready" : "city-card--soon"}`,
-            href: city.href,
-            style: { "--accent": city.accent, "--delay": `${index * 85}ms` },
-            "aria-label": `${city.name}: ${city.status}`,
-        },
-        React.createElement(
-            "span",
-            { className: "city-image-wrap", "aria-hidden": "true" },
-            React.createElement("img", { src: city.image, alt: "" })
-        ),
-        React.createElement(
-            "span",
-            { className: "city-info" },
-            React.createElement(
-                "span",
-                { className: "city-heading" },
-                React.createElement("strong", null, city.name),
-                React.createElement(
-                    "span",
-                    { className: `city-status city-status--${city.apiStatus}` },
-                    React.createElement("span", { className: "api-status-dot", "aria-hidden": "true" }),
-                    city.status
-                )
-            ),
-            React.createElement("span", { className: "city-network" }, city.network)
-        )
-    );
+    Object.entries(attributes).forEach(([name, value]) => {
+        if (name === "className") {
+            element.className = value;
+        } else if (name === "text") {
+            element.textContent = value;
+        } else {
+            element.setAttribute(name, value);
+        }
+    });
+
+    element.append(...children);
+    return element;
 }
 
-function LandingPage() {
+function createCityCard(city, index) {
+    const picture = createElement("picture", { className: "city-image-wrap", "aria-hidden": "true" }, [
+        createElement("source", { type: "image/webp", srcset: city.imageSrcSet, sizes: imageSizes }),
+        createElement("img", {
+            src: city.image,
+            alt: "",
+            width: "1254",
+            height: "1254",
+            decoding: "async",
+            fetchpriority: "high",
+        }),
+    ]);
+    const status = createElement("span", { className: `city-status city-status--${city.apiStatus}` }, [
+        createElement("span", { className: "api-status-dot", "aria-hidden": "true" }),
+        document.createTextNode(city.status),
+    ]);
+    const heading = createElement("span", { className: "city-heading" }, [
+        createElement("strong", { text: city.name }),
+        status,
+    ]);
+    const info = createElement("span", { className: "city-info" }, [
+        heading,
+        createElement("span", { className: "city-network", text: city.network }),
+    ]);
+    const card = createElement("a", {
+        className: `city-card ${city.state === "ready" ? "city-card--ready" : "city-card--soon"}`,
+        href: city.href,
+        "aria-label": `${city.name}: ${city.status}`,
+    }, [picture, info]);
+
+    card.style.setProperty("--accent", city.accent);
+    card.style.setProperty("--delay", `${index * 85}ms`);
+    return card;
+}
+
+function renderLandingPage() {
     const liveCityCount = cities.filter(city => city.state === "ready").length;
     const upcomingCityCount = cities.filter(city => city.state !== "ready").length;
+    const metrics = [
+        [String(liveCityCount), " live"],
+        [String(upcomingCityCount), " coming soon"],
+        ["5+", " next"],
+    ].map(([value, label]) => createElement("span", {}, [
+        createElement("strong", { text: value }),
+        document.createTextNode(label),
+    ]));
+    const hero = createElement("section", { className: "hero" }, [
+        createElement("nav", { className: "topbar", "aria-label": "TransitRadar" }, [
+            createElement("a", { className: "brand", href: "/", text: "TransitRadar" }),
+        ]),
+        createElement("div", { className: "hero-grid" }, [
+            createElement("div", { className: "hero-copy" }, [
+                createElement("p", { className: "eyebrow", text: "City launchpad" }),
+                createElement("h1", { text: "Choose your city." }),
+            ]),
+            createElement("div", { className: "hero-metrics", "aria-label": "Status" }, metrics),
+        ]),
+    ]);
+    const cityGrid = createElement("div", { className: "city-grid" }, cities.map(createCityCard));
+    const chips = upcomingCities.map(city => createElement("span", { className: "city-chip", text: city }));
+    const citySection = createElement("section", { className: "city-section", "aria-label": "Stadtauswahl" }, [
+        cityGrid,
+        createElement("div", { className: "more-cities" }, [
+            createElement("span", { className: "more-label", text: "Even more cities coming soon" }),
+            createElement("span", { className: "city-chip-row", "aria-label": "Weitere geplante Städte" }, chips),
+        ]),
+    ]);
 
-    return React.createElement(
-        "main",
-        { className: "landing-shell" },
-        React.createElement("div", { className: "route-field", "aria-hidden": "true" }),
-        React.createElement(
-            "section",
-            { className: "hero" },
-            React.createElement(
-                "nav",
-                { className: "topbar", "aria-label": "TransitRadar" },
-                React.createElement("a", { className: "brand", href: "/" }, "TransitRadar")
-            ),
-            React.createElement(
-                "div",
-                { className: "hero-grid" },
-                React.createElement(
-                    "div",
-                    { className: "hero-copy" },
-                    React.createElement("p", { className: "eyebrow" }, "City launchpad"),
-                    React.createElement("h1", null, "Choose your city.")
-                ),
-                React.createElement(
-                    "div",
-                    { className: "hero-metrics", "aria-label": "Status" },
-                    React.createElement(
-                        "span",
-                        null,
-                        React.createElement("strong", null, String(liveCityCount)),
-                        " live"
-                    ),
-                    React.createElement(
-                        "span",
-                        null,
-                        React.createElement("strong", null, String(upcomingCityCount)),
-                        " coming soon"
-                    ),
-                    React.createElement(
-                        "span",
-                        null,
-                        React.createElement("strong", null, "5+"),
-                        " next"
-                    )
-                )
-            )
-        ),
-        React.createElement(
-            "section",
-            { className: "city-section", "aria-label": "Stadtauswahl" },
-            React.createElement(
-                "div",
-                { className: "city-grid" },
-                cities.map((city, index) => React.createElement(CityCard, { key: city.name, city, index }))
-            ),
-            React.createElement(
-                "div",
-                { className: "more-cities" },
-                React.createElement("span", { className: "more-label" }, "Even more cities coming soon"),
-                React.createElement(
-                    "span",
-                    { className: "city-chip-row", "aria-label": "Weitere geplante Städte" },
-                    upcomingCities.map((city) => React.createElement("span", { className: "city-chip", key: city }, city))
-                )
-            )
-        )
+    document.getElementById("landing-root").append(
+        createElement("main", { className: "landing-shell" }, [
+            createElement("div", { className: "route-field", "aria-hidden": "true" }),
+            hero,
+            citySection,
+        ])
     );
 }
 
-ReactDOM.createRoot(document.getElementById("landing-root")).render(React.createElement(LandingPage));
+renderLandingPage();

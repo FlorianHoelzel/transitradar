@@ -20,13 +20,14 @@ const CONTENT_TYPES = {
     ".json": "application/json; charset=utf-8",
     ".png": "image/png",
     ".svg": "image/svg+xml",
+    ".webp": "image/webp",
     ".woff2": "font/woff2"
 };
 
-function send(response, status, body, contentType = "text/plain; charset=utf-8") {
+function send(response, status, body, contentType = "text/plain; charset=utf-8", cacheControl = "no-store") {
     response.writeHead(status, {
         "content-type": contentType,
-        "cache-control": "no-store"
+        "cache-control": cacheControl
     });
     response.end(body);
 }
@@ -95,7 +96,8 @@ async function serveStatic(response, url) {
             response,
             200,
             await readFile(filePath),
-            CONTENT_TYPES[extname(filePath).toLowerCase()] || "application/octet-stream"
+            CONTENT_TYPES[extname(filePath).toLowerCase()] || "application/octet-stream",
+            url.pathname.startsWith("/assets/") ? "public, max-age=3600" : "no-store"
         );
     } catch {
         send(response, 404, "Not found");
