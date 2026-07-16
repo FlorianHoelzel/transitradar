@@ -79,10 +79,30 @@ function createUmamiTracker() {
         ? `\n        data-domains="${escapeHtmlAttribute(umamiDomains)}"`
         : "";
 
-    return `    <script
+    return `    <script>
+        window.transitRadarUmamiBeforeSend = function (type, payload) {
+            const pageNames = {
+                "transitradar.de": "landing",
+                "berlin.transitradar.de": "berlin",
+                "hamburg.transitradar.de": "hamburg",
+                "frankfurt.transitradar.de": "frankfurt",
+                "status.transitradar.de": "status"
+            };
+            const pageName = pageNames[payload?.hostname];
+
+            if (pageName && typeof payload.url === "string") {
+                payload.url =
+                    \`/\${pageName}\${payload.url === "/" ? "" : payload.url}\`;
+            }
+
+            return payload;
+        };
+    </script>
+    <script
         defer
         src="${escapeHtmlAttribute(umamiScriptUrl)}"
         data-website-id="${escapeHtmlAttribute(umamiWebsiteId)}"${domainsAttribute}
+        data-before-send="transitRadarUmamiBeforeSend"
         data-do-not-track="true"
         data-performance="true"
     ></script>

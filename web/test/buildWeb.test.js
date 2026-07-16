@@ -61,6 +61,10 @@ test("injects the configured Umami tracker into every deployed page", async () =
                 /src="https:\/\/stats\.transitradar\.de\/script\.js"/
             );
             assert.match(html, /data-website-id="test-website-id"/);
+            assert.match(
+                html,
+                /data-before-send="transitRadarUmamiBeforeSend"/
+            );
             assert.match(html, /data-do-not-track="true"/);
             assert.match(html, /data-performance="true"/);
         }
