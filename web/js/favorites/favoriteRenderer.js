@@ -1,5 +1,5 @@
 import { createLineBadge } from "../lines/badges.js";
-import { formatCompactDepartureTime } from "../settings/departureTime.js";
+import { formatClockTime } from "../settings/departureTime.js";
 
 function getStationKey(station) {
     return station.id || station.name;
@@ -16,7 +16,7 @@ function getDelayText(departure) {
 function createFavoriteDepartureHtml(departure) {
     const lineName = departure.line?.name || "";
     const direction = departure.direction || "Richtung unbekannt";
-    const time = formatCompactDepartureTime(departure.when || departure.plannedWhen);
+    const time = formatClockTime(departure.when || departure.plannedWhen);
     const delayText = getDelayText(departure);
 
     return `
