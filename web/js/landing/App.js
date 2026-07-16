@@ -97,8 +97,8 @@ function renderLandingPage() {
     const upcomingCityCount = cities.filter(city => city.state !== "ready").length;
     const metrics = [
         [String(liveCityCount), " live"],
-        [String(upcomingCityCount), " coming soon"],
-        ["5+", " next"],
+        [String(upcomingCityCount), " bald verfügbar"],
+        ["5+", " als Nächstes"],
     ].map(([value, label]) => createElement("span", {}, [
         createElement("strong", { text: value }),
         document.createTextNode(label),
@@ -109,8 +109,8 @@ function renderLandingPage() {
         ]),
         createElement("div", { className: "hero-grid" }, [
             createElement("div", { className: "hero-copy" }, [
-                createElement("p", { className: "eyebrow", text: "City launchpad" }),
-                createElement("h1", { text: "Choose your city." }),
+                createElement("p", { className: "eyebrow", text: "Dein ÖPNV-Radar" }),
+                createElement("h1", { text: "Wähle deine Stadt." }),
             ]),
             createElement("div", { className: "hero-metrics", "aria-label": "Status" }, metrics),
         ]),
@@ -120,7 +120,7 @@ function renderLandingPage() {
     const citySection = createElement("section", { className: "city-section", "aria-label": "Stadtauswahl" }, [
         cityGrid,
         createElement("div", { className: "more-cities" }, [
-            createElement("span", { className: "more-label", text: "Even more cities coming soon" }),
+            createElement("span", { className: "more-label", text: "Weitere Städte folgen bald" }),
             createElement("span", { className: "city-chip-row", "aria-label": "Weitere geplante Städte" }, chips),
         ]),
     ]);

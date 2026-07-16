@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta
@@ -7,7 +7,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>TransitRadar API Status</title>
+    <title>TransitRadar API-Status</title>
 
     <link rel="stylesheet" href="./styles/fonts.css">
     <link rel="stylesheet" href="./styles/status-page.css">
@@ -18,7 +18,7 @@
         <div class="route-field" aria-hidden="true"></div>
 
         <section class="status-hero">
-            <nav class="status-nav" aria-label="Status navigation">
+            <nav class="status-nav" aria-label="Statusnavigation">
                 <a class="brand" href="https://transitradar.de/">
                     TransitRadar
                 </a>
@@ -28,31 +28,31 @@
             <div class="hero-content">
                 <div>
                     <p class="eyebrow">status.transitradar.de</p>
-                    <h1>API status.</h1>
+                    <h1>API-Status.</h1>
                 </div>
 
                 <div class="hero-metrics" aria-live="polite">
                     <span>
-                        <strong id="overallStatusText">Checking services</strong>
+                        <strong id="overallStatusText">Dienste werden geprüft</strong>
                         <span class="metric-label">
                             <span id="overallStatusDot" class="summary-dot checking"></span>
-                            Current status
+                            Aktueller Status
                         </span>
                     </span>
 
                     <span>
                         <strong>3</strong>
-                        <span class="metric-label">live providers</span>
+                        <span class="metric-label">Live-Anbieter</span>
                     </span>
 
                     <button id="refreshStatus" class="refresh-button" type="button">
-                        Refresh
+                        Aktualisieren
                     </button>
                 </div>
             </div>
         </section>
 
-        <section class="provider-grid" aria-label="API providers">
+        <section class="provider-grid" aria-label="API-Anbieter">
             <article
                 id="vbbProvider"
                 class="provider-card checking"
@@ -60,33 +60,33 @@
             >
                 <header class="provider-header">
                     <div>
-                        <span class="provider-kicker">Berlin and Brandenburg</span>
+                        <span class="provider-kicker">Berlin und Brandenburg</span>
                         <h2>VBB</h2>
                     </div>
 
                     <span class="status-pill checking" data-provider-status="vbb">
-                        Checking
+                        Wird geprüft
                     </span>
                 </header>
 
                 <div class="provider-metric">
-                    <span>Response time</span>
+                    <span>Antwortzeit</span>
                     <strong data-provider-latency="vbb">--</strong>
                 </div>
 
                 <div
                     class="latency-graph"
                     data-provider-graph="vbb"
-                    aria-label="VBB response time history"
+                    aria-label="Verlauf der VBB-Antwortzeit"
                 ></div>
 
                 <p data-provider-message="vbb">
-                    Running a fresh availability check against the VBB transport API.
+                    Die Verfügbarkeit der VBB-API wird aktuell geprüft.
                 </p>
 
                 <footer class="provider-footer">
-                    <span>Stations endpoint</span>
-                    <span>Radar endpoint</span>
+                    <span>Haltestellen-Endpunkt</span>
+                    <span>Radar-Endpunkt</span>
                 </footer>
             </article>
 
@@ -102,28 +102,28 @@
                     </div>
 
                     <span class="status-pill checking" data-provider-status="hvv">
-                        Checking
+                        Wird geprüft
                     </span>
                 </header>
 
                 <div class="provider-metric">
-                    <span>Response time</span>
+                    <span>Antwortzeit</span>
                     <strong data-provider-latency="hvv">--</strong>
                 </div>
 
                 <div
                     class="latency-graph"
                     data-provider-graph="hvv"
-                    aria-label="HVV response time history"
+                    aria-label="Verlauf der HVV-Antwortzeit"
                 ></div>
 
                 <p data-provider-message="hvv">
-                    Running a fresh availability check against the HVV transport API.
+                    Die Verfügbarkeit der HVV-API wird aktuell geprüft.
                 </p>
 
                 <footer class="provider-footer">
                     <span>Geofox GTI</span>
-                    <span>Health endpoint</span>
+                    <span>Status-Endpunkt</span>
                 </footer>
             </article>
 
@@ -139,28 +139,28 @@
                     </div>
 
                     <span class="status-pill checking" data-provider-status="rmv">
-                        Checking
+                        Wird geprüft
                     </span>
                 </header>
 
                 <div class="provider-metric">
-                    <span>Response time</span>
+                    <span>Antwortzeit</span>
                     <strong data-provider-latency="rmv">--</strong>
                 </div>
 
                 <div
                     class="latency-graph"
                     data-provider-graph="rmv"
-                    aria-label="RMV response time history"
+                    aria-label="Verlauf der RMV-Antwortzeit"
                 ></div>
 
                 <p data-provider-message="rmv">
-                    Running a fresh availability check against the RMV transport API.
+                    Die Verfügbarkeit der RMV-API wird aktuell geprüft.
                 </p>
 
                 <footer class="provider-footer">
                     <span>HAFAS REST API</span>
-                    <span>Health endpoint</span>
+                    <span>Status-Endpunkt</span>
                 </footer>
             </article>
         </section>

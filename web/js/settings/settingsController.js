@@ -58,64 +58,64 @@ function createSettingsOverlay() {
         <section class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
             <div class="settings-header">
                 <div>
-                    <div class="settings-kicker">Preferences</div>
-                    <h2 id="settingsTitle">Settings</h2>
+                    <div class="settings-kicker">Darstellung</div>
+                    <h2 id="settingsTitle">Einstellungen</h2>
                 </div>
 
-                <button id="settingsClose" class="settings-close" type="button" aria-label="Close settings">×</button>
+                <button id="settingsClose" class="settings-close" type="button" aria-label="Einstellungen schließen">×</button>
             </div>
 
             <div class="settings-content">
                 ${createSelectSetting({
                     id: "stationDensitySetting",
-                    label: "Station density",
-                    description: "Choose how many stations appear at each zoom level.",
+                    label: "Haltestellendichte",
+                    description: "Lege fest, wie viele Haltestellen je Zoomstufe angezeigt werden.",
                     options: [
-                        { value: "low", label: "Low" },
-                        { value: "balanced", label: "Balanced" },
-                        { value: "high", label: "High" }
+                        { value: "low", label: "Niedrig" },
+                        { value: "balanced", label: "Ausgewogen" },
+                        { value: "high", label: "Hoch" }
                     ]
                 })}
 
                 ${CITY_CONFIG.supportsLiveVehicles ? `
                     ${createToggleSetting({
                         id: "showVehiclesSetting",
-                        label: "Live vehicles",
-                        description: "Show live vehicle positions on the map."
+                        label: "Live-Fahrzeuge",
+                        description: "Zeige aktuelle Fahrzeugpositionen auf der Karte."
                     })}
 
                     ${createToggleSetting({
                         id: "smoothVehicleMovementSetting",
-                        label: "Smooth movement",
-                        description: "Animate vehicles between live position updates."
+                        label: "Flüssige Bewegung",
+                        description: "Animiere Fahrzeuge zwischen den Positionsaktualisierungen."
                     })}
                 ` : ""}
 
                 ${createSelectSetting({
                     id: "mapBrightnessSetting",
-                    label: "Map brightness",
-                    description: "Adjust the visibility of streets and map labels.",
+                    label: "Kartenhelligkeit",
+                    description: "Passe die Sichtbarkeit von Straßen und Kartenbeschriftungen an.",
                     options: [
-                        { value: "dim", label: "Dim" },
-                        { value: "balanced", label: "Balanced" },
-                        { value: "bright", label: "Bright" }
+                        { value: "dim", label: "Dunkel" },
+                        { value: "balanced", label: "Ausgewogen" },
+                        { value: "bright", label: "Hell" }
                     ]
                 })}
 
                 ${createSelectSetting({
                     id: "departureTimeDisplaySetting",
-                    label: "Departure times",
-                    description: "Choose how upcoming departures are displayed.",
+                    label: "Abfahrtszeiten",
+                    description: "Lege fest, wie bevorstehende Abfahrten angezeigt werden.",
                     options: [
                         { value: "countdown", label: "Countdown" },
-                        { value: "clock", label: "Clock time" },
-                        { value: "both", label: "Both" }
+                        { value: "clock", label: "Uhrzeit" },
+                        { value: "both", label: "Beides" }
                     ]
                 })}
             </div>
 
             <div class="settings-footer">
-                <button id="settingsReset" class="settings-reset" type="button">Reset defaults</button>
+                <button id="settingsReset" class="settings-reset" type="button">Standardwerte wiederherstellen</button>
             </div>
         </section>
     `;

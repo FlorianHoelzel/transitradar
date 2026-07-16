@@ -103,8 +103,8 @@ export function createLocationButton() {
     button.id = "locationButton";
     button.className = "location-button";
     button.type = "button";
-    button.title = "Locate me";
-    button.setAttribute("aria-label", "Locate me");
+    button.title = "Meinen Standort anzeigen";
+    button.setAttribute("aria-label", "Meinen Standort anzeigen");
 
     button.innerHTML = `
         <span class="location-button-icon">⌖</span>

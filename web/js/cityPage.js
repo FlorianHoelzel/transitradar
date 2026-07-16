@@ -46,14 +46,14 @@ function replaceButtonIcon(selector, iconName, label) {
 }
 
 function replaceSidebarIcons() {
-    replaceButtonIcon("#sidebarToggle", "menu", "Open menu");
-    replaceButtonIcon("#sidebarClose", "x", "Close menu");
-    replaceButtonIcon("#aboutClose", "x", "Close about");
+    replaceButtonIcon("#sidebarToggle", "menu", "Menü öffnen");
+    replaceButtonIcon("#sidebarClose", "x", "Menü schließen");
+    replaceButtonIcon("#aboutClose", "x", "Info schließen");
 
-    replaceInlineIcon("#nearbyButton .sidebar-item-emoji", "mapPin", "Nearby stations");
-    replaceInlineIcon("#favoritesButton .sidebar-item-emoji", "star", "Favorites");
-    replaceInlineIcon("#settingsButton .sidebar-item-emoji", "settings", "Settings");
-    replaceInlineIcon("#aboutButton .sidebar-item-emoji", "info", "About");
+    replaceInlineIcon("#nearbyButton .sidebar-item-emoji", "mapPin", "Haltestellen in der Nähe");
+    replaceInlineIcon("#favoritesButton .sidebar-item-emoji", "star", "Favoriten");
+    replaceInlineIcon("#settingsButton .sidebar-item-emoji", "settings", "Einstellungen");
+    replaceInlineIcon("#aboutButton .sidebar-item-emoji", "info", "Über TransitRadar");
     replaceInlineIcon("#nearbyChevron", "chevronDown");
     replaceInlineIcon("#favoritesChevron", "chevronDown");
 }
@@ -83,7 +83,7 @@ function replaceLocationIcon() {
         locationIcon &&
         (locationIcon.dataset.v2Icon !== "locateFixed" || !locationIcon.querySelector(".lucide-icon"))
     ) {
-        locationIcon.innerHTML = icon("locateFixed", "Locate me");
+        locationIcon.innerHTML = icon("locateFixed", "Meinen Standort anzeigen");
         locationIcon.dataset.v2Icon = "locateFixed";
     }
 }
@@ -95,7 +95,7 @@ function replaceFilterIcon() {
         filterToggle &&
         (filterToggle.dataset.v2Icon !== "slidersHorizontal" || !filterToggle.querySelector(".lucide-icon"))
     ) {
-        filterToggle.innerHTML = `${icon("slidersHorizontal")}<span>Filters</span>`;
+        filterToggle.innerHTML = `${icon("slidersHorizontal")}<span>Filter</span>`;
         filterToggle.dataset.v2Icon = "slidersHorizontal";
     }
 }
@@ -108,7 +108,7 @@ function replaceFavoriteIcons() {
             return;
         }
 
-        button.innerHTML = icon("star", button.classList.contains("active") ? "Saved favorite" : "Save favorite");
+        button.innerHTML = icon("star", button.classList.contains("active") ? "Als Favorit gespeichert" : "Als Favorit speichern");
         button.dataset.v2Icon = `star-${activeState}`;
     });
 
@@ -117,7 +117,7 @@ function replaceFavoriteIcons() {
             return;
         }
 
-        star.innerHTML = icon("star", "Favorite station");
+        star.innerHTML = icon("star", "Favorisierte Haltestelle");
         star.dataset.v2Icon = "star";
     });
 
@@ -126,7 +126,7 @@ function replaceFavoriteIcons() {
             return;
         }
 
-        button.innerHTML = icon("x", "Remove favorite");
+        button.innerHTML = icon("x", "Favorit entfernen");
         button.dataset.v2Icon = "x";
     });
 }

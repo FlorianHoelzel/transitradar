@@ -6,14 +6,14 @@ import {
 
 function getTooltipText(status) {
     if (status === "online") {
-        return "API online.";
+        return "API ist erreichbar.";
     }
 
     if (status === "offline") {
-        return "API currently unavailable.";
+        return "API ist derzeit nicht verfügbar.";
     }
 
-    return "Checking API status...";
+    return "API-Status wird geprüft …";
 }
 
 function updateApiStatusIndicator() {
@@ -30,12 +30,12 @@ function updateApiStatusIndicator() {
     indicator.setAttribute("aria-label", getTooltipText(status));
 
     indicator.querySelector(".api-status-tooltip").innerHTML = `
-        <strong>API Status</strong>
+        <strong>API-Status</strong>
         <span>${getTooltipText(status)}</span>
         ${
             lastCheckedAt
-                ? `<small>Last checked: ${lastCheckedAt}</small>`
-                : `<small>Waiting for response</small>`
+                ? `<small>Zuletzt geprüft: ${lastCheckedAt}</small>`
+                : `<small>Antwort wird erwartet</small>`
         }
     `;
 }
@@ -49,9 +49,9 @@ export function createApiStatusIndicator() {
         <div class="api-status-dot"></div>
 
         <div class="api-status-tooltip">
-            <strong>API Status</strong>
-            <span>Checking API status...</span>
-            <small>Waiting for response</small>
+            <strong>API-Status</strong>
+            <span>API-Status wird geprüft …</span>
+            <small>Antwort wird erwartet</small>
         </div>
     `;
 

@@ -55,7 +55,7 @@ function setClassState(element, state) {
 }
 
 function formatTime(date) {
-    return date.toLocaleTimeString("en-GB", {
+    return date.toLocaleTimeString("de-DE", {
         hour: "2-digit",
         minute: "2-digit"
     });
@@ -127,15 +127,15 @@ async function fetchWithTimeout(url, timeout) {
 
 function renderChecking() {
     setClassState(statusDot, "checking");
-    statusText.textContent = "Checking";
+    statusText.textContent = "Wird geprüft";
     refreshButton.disabled = true;
 
     providers.forEach(provider => {
         setClassState(provider.card, "checking");
         setClassState(provider.status, "checking");
-        provider.status.textContent = "Checking";
+        provider.status.textContent = "Wird geprüft";
         provider.latency.textContent = "--";
-        provider.message.textContent = `Running a fresh availability check against the ${provider.name} transport API.`;
+        provider.message.textContent = `Die Verfügbarkeit der ${provider.name}-API wird aktuell geprüft.`;
         renderLatencyGraph(provider);
     });
 }
@@ -147,10 +147,10 @@ function updateOverallStatus() {
 
     setClassState(statusDot, state);
     statusText.textContent = state === "online"
-        ? "Operational"
+        ? "Betriebsbereit"
         : state === "issues"
-            ? "Issues detected"
-            : "Unavailable";
+            ? "Störungen erkannt"
+            : "Nicht verfügbar";
     refreshButton.disabled = false;
 }
 
@@ -161,23 +161,23 @@ function renderProviderStatus(provider, state, averageLatency) {
     setClassState(provider.card, state);
     setClassState(provider.status, state);
     provider.status.textContent = state === "online"
-        ? "Operational"
+        ? "Betriebsbereit"
         : state === "issues"
-            ? "Issues"
-            : "Unavailable";
+            ? "Störungen"
+            : "Nicht verfügbar";
     provider.latency.textContent = Number.isFinite(averageLatency)
         ? `${averageLatency} ms`
-        : "No response";
+        : "Keine Antwort";
     provider.latencyHistory = [
         ...provider.latencyHistory,
         state !== "offline" ? averageLatency : null
     ].slice(-maxLatencySamples);
     renderLatencyGraph(provider);
     provider.message.textContent = state === "online"
-        ? `${provider.name} availability checks are responding normally. Last checked at ${checkedAt}.`
+        ? `Die Verfügbarkeitsprüfungen für ${provider.name} antworten normal. Zuletzt geprüft um ${checkedAt} Uhr.`
         : state === "issues"
-            ? `Some ${provider.name} availability checks failed. Last checked at ${checkedAt}.`
-            : `${provider.name} availability checks did not complete successfully. Last checked at ${checkedAt}.`;
+            ? `Einige Verfügbarkeitsprüfungen für ${provider.name} sind fehlgeschlagen. Zuletzt geprüft um ${checkedAt} Uhr.`
+            : `Die Verfügbarkeitsprüfungen für ${provider.name} konnten nicht erfolgreich abgeschlossen werden. Zuletzt geprüft um ${checkedAt} Uhr.`;
 }
 
 async function checkProvider(provider) {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta
@@ -38,8 +38,8 @@
             TransitRadar
         </a>
 
-        <nav class="berlin-v2-links" aria-label="Site links">
-            <a class="nav-link" href="https://status.transitradar.de/">API status</a>
+        <nav class="berlin-v2-links" aria-label="Seitennavigation">
+            <a class="nav-link" href="https://status.transitradar.de/">API-Status</a>
         </nav>
     </header>
 
@@ -47,7 +47,7 @@
         <input
             id="searchInput"
             type="text"
-            placeholder="Search station..."
+            placeholder="Haltestelle suchen …"
             autocomplete="new-password"
             name="transitradar-search"
             spellcheck="false"
@@ -61,7 +61,7 @@
             id="filterToggle"
             class="filter-toggle"
         >
-            Filters
+            Filter
         </button>
 
         <div
@@ -69,7 +69,7 @@
             class="filter-panel"
         >
             <div class="filter-section">
-                <div class="filter-panel-title">Stations</div>
+                <div class="filter-panel-title">Haltestellen</div>
 
                 <button
                     class="filter-option active"
@@ -92,12 +92,12 @@
                     data-filter-group="stations"
                     data-filter="surface"
                 >
-                    Bus / Tram
+                    Bus / Straßenbahn
                 </button>
             </div>
 
             <div class="filter-section" data-filter-section="vehicles">
-                <div class="filter-panel-title">Live Vehicles</div>
+                <div class="filter-panel-title">Live-Fahrzeuge</div>
 
                 <button
                     class="filter-option active"
@@ -120,7 +120,7 @@
                     data-filter-group="vehicles"
                     data-filter="surface"
                 >
-                    Bus / Tram
+                    Bus / Straßenbahn
                 </button>
 
                 <button
@@ -142,7 +142,7 @@
         </div>
     </div>
 
-    <main class="berlin-v2-map-shell" aria-label="Transit radar map">
+    <main class="berlin-v2-map-shell" aria-label="ÖPNV-Karte">
         <div id="map"></div>
     </main>
 

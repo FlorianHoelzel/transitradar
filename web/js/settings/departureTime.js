@@ -21,14 +21,14 @@ export function formatRelativeTime(dateString) {
     );
 
     if (minutes <= 0) {
-        return "now";
+        return "jetzt";
     }
 
     if (minutes === 1) {
-        return "in 1 min";
+        return "in 1 Min.";
     }
 
-    return `in ${minutes} min`;
+    return `in ${minutes} Min.`;
 }
 
 export function getDepartureTimeDisplay(dateString) {

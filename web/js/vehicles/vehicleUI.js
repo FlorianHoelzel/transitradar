@@ -184,7 +184,7 @@ export function createVehicleStopsHtml(stopovers, lineColor) {
                 ></div>
 
                 <div>
-                    <div class="vehicle-destination-label">Destination</div>
+                    <div class="vehicle-destination-label">Ziel</div>
                     <div class="vehicle-destination-name">${destinationName}</div>
                 </div>
             </div>
@@ -237,7 +237,7 @@ export function createVehiclePopup(movement) {
                 nextStops
                     ? `
                         <div class="vehicle-popup-title">
-                            Next stops
+                            Nächste Haltestellen
                         </div>
 
                         ${nextStops}
@@ -270,7 +270,7 @@ export function createSelectedLineControl(onClear) {
     vehicleState.selectedLineControl.className = "selected-line-control";
     vehicleState.selectedLineControl.innerHTML = `
         <div class="selected-line-label"></div>
-        <button class="selected-line-clear">Clear</button>
+        <button class="selected-line-clear">Aufheben</button>
     `;
 
     document.body.appendChild(vehicleState.selectedLineControl);
@@ -291,7 +291,7 @@ export function updateSelectedLineControl(onClear) {
     vehicleState.selectedLineControl
         .querySelector(".selected-line-label")
         .innerHTML = `
-            <span>Selected line</span>
+            <span>Ausgewählte Linie</span>
             ${createLineBadge(vehicleState.selectedLineName)}
         `;
 

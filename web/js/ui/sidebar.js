@@ -85,7 +85,7 @@ function openStationOnMap(station) {
 
 function createNearbyDepartureHtml(departure) {
     const lineName = departure.line?.name || "";
-    const direction = departure.direction || "Unknown direction";
+    const direction = departure.direction || "Richtung unbekannt";
     const time = formatCompactDepartureTime(departure.when || departure.plannedWhen);
     const delayText = getDelayText(departure);
 
@@ -112,12 +112,12 @@ function createNearbyStationHtml(station, distance, departures = [], index) {
             .slice(0, NEARBY_DEPARTURE_LIMIT)
             .map(createNearbyDepartureHtml)
             .join("")
-        : `<div class="favorite-empty">No departures found.</div>`;
+        : `<div class="favorite-empty">Keine Abfahrten gefunden.</div>`;
 
     return `
         <article class="favorite-card nearby-card" data-nearby-index="${index}">
             <div class="favorite-card-header nearby-card-header">
-                <button class="favorite-open nearby-open" type="button" title="Open station">
+                <button class="favorite-open nearby-open" type="button" title="Haltestelle öffnen">
                     <span class="favorite-station-name">${station.name}</span>
                 </button>
 
@@ -165,33 +165,33 @@ export function setupSidebar() {
             <nav class="sidebar-nav">
                 <button id="nearbyButton" class="sidebar-item" type="button">
                     <span class="sidebar-item-emoji">📍</span>
-                    <span>Nearby Stations</span>
+                    <span>Haltestellen in der Nähe</span>
                     <span id="nearbyChevron" class="sidebar-chevron">⌄</span>
                 </button>
 
                 <section id="nearbyPanel" class="nearby-panel">
                     <div class="nearby-panel-header">
-                        <h3>Nearby Stations</h3>
-                        <span>Stations close to your location</span>
+                        <h3>In der Nähe</h3>
+                        <span>Haltestellen rund um deinen Standort</span>
                     </div>
 
                     <div id="nearbyList" class="nearby-list">
                         <div class="nearby-empty">
-                            Tap the location button to show nearby stations.
+                            Tippe auf den Standort-Button, um Haltestellen in der Nähe anzuzeigen.
                         </div>
                     </div>
                 </section>
 
                 <button id="favoritesButton" class="sidebar-item" type="button">
                     <span class="sidebar-item-emoji">⭐</span>
-                    <span>Favorites</span>
+                    <span>Favoriten</span>
                     <span id="favoritesChevron" class="sidebar-chevron">⌄</span>
                 </button>
 
                 <section id="favoritesPanel" class="favorites-panel">
                     <div class="favorites-panel-header">
-                        <h3>Favorites</h3>
-                        <span>Live departures</span>
+                        <h3>Favoriten</h3>
+                        <span>Aktuelle Abfahrten</span>
                     </div>
 
                     <div id="favoritesListWrapper" class="favorites-list-wrapper">
@@ -204,12 +204,12 @@ export function setupSidebar() {
         <div class="sidebar-footer">
             <button id="settingsButton" class="sidebar-item sidebar-settings" type="button">
                 <span class="sidebar-item-emoji">⚙️</span>
-                <span>Settings</span>
+                <span>Einstellungen</span>
             </button>
 
             <button id="aboutButton" class="sidebar-item sidebar-about" type="button">
                 <span class="sidebar-item-emoji">ℹ️</span>
-                <span>About</span>
+                <span>Über TransitRadar</span>
             </button>
         </div>
     `;
@@ -219,16 +219,16 @@ export function setupSidebar() {
     aboutOverlay.className = "about-overlay";
 
     const featureSummary = CITY_CONFIG.supportsLiveVehicles
-        ? "nearby stops, live departures, live vehicle positions, highlighted lines and selected vehicle routes"
-        : "nearby stops, live departures, highlighted lines and trip routes";
+        ? "Haltestellen in der Nähe, aktuelle Abfahrten, Live-Fahrzeugpositionen, hervorgehobene Linien und ausgewählte Fahrzeugrouten"
+        : "Haltestellen in der Nähe, aktuelle Abfahrten, hervorgehobene Linien und Fahrtverläufe";
     const sourceSummary = CITY_CONFIG.supportsLiveVehicles
-        ? "Stop data, departures, trip details and live vehicle positions may come from different APIs and can update at different intervals."
-        : "Stop data, live departures and trip details can update at different intervals.";
+        ? "Haltestellendaten, Abfahrten, Fahrtdetails und Live-Fahrzeugpositionen können aus unterschiedlichen Schnittstellen stammen und in verschiedenen Abständen aktualisiert werden."
+        : "Haltestellendaten, aktuelle Abfahrten und Fahrtdetails können in verschiedenen Abständen aktualisiert werden.";
     const vehicleDisclaimer = CITY_CONFIG.supportsLiveVehicles
         ? `
                     <p>
-                        Live vehicle positions are estimates based on publicly available API data and may be delayed,
-                        temporarily unavailable or inaccurate due to API limitations.
+                        Live-Fahrzeugpositionen sind Schätzungen auf Grundlage öffentlich zugänglicher API-Daten.
+                        Sie können verspätet, vorübergehend nicht verfügbar oder aufgrund technischer Einschränkungen ungenau sein.
                     </p>
         `
         : "";
@@ -237,7 +237,7 @@ export function setupSidebar() {
         <section class="about-panel">
             <div class="about-header">
                 <div>
-                    <div class="about-kicker">About</div>
+                    <div class="about-kicker">Über</div>
                     <h2>TransitRadar ${CITY_CONFIG.name}</h2>
                 </div>
 
@@ -246,33 +246,33 @@ export function setupSidebar() {
 
             <div class="about-content">
                 <p>
-                    <strong>TransitRadar ${CITY_CONFIG.name}</strong> is a personal web project for exploring public transport in ${CITY_CONFIG.name}.
-                    The app shows ${featureSummary} on an interactive map.
+                    <strong>TransitRadar ${CITY_CONFIG.name}</strong> ist ein persönliches Webprojekt zur Erkundung des öffentlichen Nahverkehrs in ${CITY_CONFIG.name}.
+                    Die App zeigt ${featureSummary} auf einer interaktiven Karte.
                 </p>
 
                 <div class="about-card">
-                    <h3>🛰️ Data sources</h3>
+                    <h3>🛰️ Datenquellen</h3>
                     <p>
-                        TransitRadar ${CITY_CONFIG.name} uses ${CITY_CONFIG.dataSourceText}.
+                        TransitRadar ${CITY_CONFIG.name} verwendet ${CITY_CONFIG.dataSourceText}.
                         ${sourceSummary}
                     </p>
                 </div>
 
                 <div class="about-card warning">
-                    <h3>⚠️ Important disclaimer</h3>
-                    <p>All information is provided without guarantee.</p>
+                    <h3>⚠️ Wichtiger Hinweis</h3>
+                    <p>Alle Angaben sind ohne Gewähr.</p>
                     ${vehicleDisclaimer}
                     <p>
-                        Departures, delays, destinations, routes and stop information may change at any time and should
-                        not be considered legally binding.
+                        Abfahrten, Verspätungen, Ziele, Routen und Haltestelleninformationen können sich jederzeit ändern
+                        und sind nicht rechtsverbindlich.
                     </p>
                     <p>
-                        TransitRadar ${CITY_CONFIG.name} is an independent project and is
-                        <strong>not affiliated with ${CITY_CONFIG.affiliationText}.</strong>
+                        TransitRadar ${CITY_CONFIG.name} ist ein unabhängiges Projekt und steht
+                        <strong>in keiner Verbindung zu ${CITY_CONFIG.affiliationText}.</strong>
                     </p>
                     <p>
-                        For official and up-to-date travel information, always use
-                        ${officialSourcesHtml} or the official ${CITY_CONFIG.network} services.
+                        Für offizielle und aktuelle Reiseinformationen nutze bitte immer
+                        ${officialSourcesHtml} oder die offiziellen Angebote des ${CITY_CONFIG.network}.
                     </p>
                 </div>
             </div>
@@ -356,12 +356,12 @@ export function setupSidebar() {
 
     async function renderNearbyStations() {
         if (!lastUserPosition) {
-            setNearbyMessage("Use the location button to show nearby stations.");
+            setNearbyMessage("Nutze den Standort-Button, um Haltestellen in der Nähe anzuzeigen.");
             return;
         }
 
         if (getStations().length === 0) {
-            setNearbyMessage("Loading nearby stations...");
+            setNearbyMessage("Haltestellen in der Nähe werden geladen …");
             return;
         }
 
@@ -369,12 +369,12 @@ export function setupSidebar() {
         const nearbyStations = getNearbyStations(lastUserPosition);
 
         if (nearbyStations.length === 0) {
-            setNearbyMessage("No nearby stations found.");
+            setNearbyMessage("Keine Haltestellen in der Nähe gefunden.");
             return;
         }
 
         if (nearbyList.querySelectorAll(".nearby-card").length === 0) {
-            setNearbyMessage("Loading nearby departures...");
+            setNearbyMessage("Abfahrten in der Nähe werden geladen …");
         }
 
         const nearbyCards = await Promise.all(
@@ -514,7 +514,7 @@ export function setupSidebar() {
 
     window.addEventListener("userLocationError", () => {
         if (nearbyPanel.classList.contains("open")) {
-            setNearbyMessage("Could not access your location.");
+            setNearbyMessage("Dein Standort konnte nicht abgerufen werden.");
         }
     });
 

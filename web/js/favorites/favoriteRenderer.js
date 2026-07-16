@@ -15,7 +15,7 @@ function getDelayText(departure) {
 
 function createFavoriteDepartureHtml(departure) {
     const lineName = departure.line?.name || "";
-    const direction = departure.direction || "Unknown direction";
+    const direction = departure.direction || "Richtung unbekannt";
     const time = formatCompactDepartureTime(departure.when || departure.plannedWhen);
     const delayText = getDelayText(departure);
 
@@ -41,17 +41,17 @@ export function createFavoriteStationHtml(station, departures = []) {
 
     const departuresHtml = departures.length > 0
         ? departures.slice(0, 5).map(createFavoriteDepartureHtml).join("")
-        : `<div class="favorite-empty">No departures found.</div>`;
+        : `<div class="favorite-empty">Keine Abfahrten gefunden.</div>`;
 
     return `
         <article class="favorite-card" data-station-id="${stationKey}">
             <div class="favorite-card-header">
-                <button class="favorite-open" type="button" title="Open station">
+                <button class="favorite-open" type="button" title="Haltestelle öffnen">
                     <span class="favorite-star">⭐</span>
                     <span class="favorite-station-name">${station.name}</span>
                 </button>
 
-                <button class="favorite-remove" type="button" title="Remove favorite">
+                <button class="favorite-remove" type="button" title="Favorit entfernen">
                     ×
                 </button>
             </div>
@@ -66,7 +66,7 @@ export function createFavoriteStationHtml(station, departures = []) {
 export function createFavoritesEmptyHtml() {
     return `
         <div class="favorites-empty">
-            No favorite stations yet.
+            Noch keine Haltestellen als Favoriten gespeichert.
         </div>
     `;
 }
@@ -74,7 +74,7 @@ export function createFavoritesEmptyHtml() {
 export function createFavoritesLoadingHtml() {
     return `
         <div class="favorites-loading">
-            Loading favorites...
+            Favoriten werden geladen …
         </div>
     `;
 }

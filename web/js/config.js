@@ -11,7 +11,7 @@ const CITY_CONFIGS = {
         supportsLiveVehicles: true,
         vehicleGridStrategy: "grid",
         vehicleRequestTimeout: 2500,
-        surfaceTransitLabel: "Bus / Tram",
+        surfaceTransitLabel: "Bus / Straßenbahn",
         bounds: {
             minLat: 52.33,
             maxLat: 52.70,
@@ -23,8 +23,8 @@ const CITY_CONFIGS = {
             { label: "vbb.de", url: "https://www.vbb.de" },
             { label: "bvg.de", url: "https://www.bvg.de" }
         ],
-        dataSourceText: "VBB-related public transport endpoints",
-        affiliationText: "BVG, VBB or Deutsche Bahn"
+        dataSourceText: "öffentlich zugängliche ÖPNV-Schnittstellen aus dem VBB-Umfeld",
+        affiliationText: "BVG, VBB oder der Deutschen Bahn"
     },
     hamburg: {
         id: "hamburg",
@@ -39,7 +39,7 @@ const CITY_CONFIGS = {
         supportsLiveVehicles: true,
         vehicleGridStrategy: "single-request",
         vehicleRequestTimeout: 15000,
-        surfaceTransitLabel: "Bus / Ferry",
+        surfaceTransitLabel: "Bus / Fähre",
         bounds: {
             minLat: 53.35,
             maxLat: 53.75,
@@ -50,8 +50,8 @@ const CITY_CONFIGS = {
         officialSources: [
             { label: "hvv.de", url: "https://www.hvv.de" }
         ],
-        dataSourceText: "Geofox GTI data supplied for the HVV network",
-        affiliationText: "HVV, Hamburger Hochbahn or the participating transport operators"
+        dataSourceText: "Geofox-GTI-Daten für das HVV-Netz",
+        affiliationText: "dem HVV, der Hamburger Hochbahn oder den beteiligten Verkehrsunternehmen"
     },
     frankfurt: {
         id: "frankfurt",
@@ -81,7 +81,7 @@ const CITY_CONFIGS = {
                 ]
             }
         },
-        surfaceTransitLabel: "Bus / Tram",
+        surfaceTransitLabel: "Bus / Straßenbahn",
         bounds: {
             minLat: 49.98,
             maxLat: 50.25,
@@ -92,8 +92,8 @@ const CITY_CONFIGS = {
         officialSources: [
             { label: "rmv.de", url: "https://www.rmv.de" }
         ],
-        dataSourceText: "RMV HAFAS data supplied for the Frankfurt network",
-        affiliationText: "RMV, traffiQ or the participating transport operators"
+        dataSourceText: "RMV-HAFAS-Daten für das Frankfurter Verkehrsnetz",
+        affiliationText: "dem RMV, traffiQ oder den beteiligten Verkehrsunternehmen"
     }
 };
 

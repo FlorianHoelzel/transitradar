@@ -29,7 +29,7 @@ function applyCityMetadata() {
     );
     document.querySelector("main")?.setAttribute(
         "aria-label",
-        `${CITY_CONFIG.name} transit radar map`
+        `ÖPNV-Karte für ${CITY_CONFIG.name}`
     );
 }
 

@@ -55,7 +55,7 @@ function createRoutePreviewControl() {
 
     routePreviewControl.innerHTML = `
         <div class="selected-line-label"></div>
-        <button class="selected-line-clear">Clear</button>
+        <button class="selected-line-clear">Schließen</button>
     `;
 
     document.body.appendChild(routePreviewControl);
@@ -73,7 +73,7 @@ function showRoutePreviewControl(lineName) {
     routePreviewControl
         .querySelector(".selected-line-label")
         .innerHTML = `
-            <span>Route preview</span>
+            <span>Routenvorschau</span>
             ${createLineBadge(lineName)}
         `;
 

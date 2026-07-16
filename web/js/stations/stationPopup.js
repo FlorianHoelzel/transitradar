@@ -51,7 +51,7 @@ export function getStationLinesHtml(station) {
     const lines = sortStationLines(station.lines || []);
 
     if (lines.length === 0) {
-        return `<span class="station-line-placeholder">No line data</span>`;
+        return `<span class="station-line-placeholder">Keine Liniendaten</span>`;
     }
 
     const hiddenCount = Math.max(0, lines.length - MAX_VISIBLE_LINES);
@@ -75,7 +75,7 @@ export function getStationLinesHtml(station) {
                 type="button"
                 data-expanded="false"
                 data-hidden-count="${hiddenCount}"
-                title="Show all lines"
+                title="Alle Linien anzeigen"
             >
                 +${hiddenCount}
             </button>
@@ -96,7 +96,7 @@ export function getFallbackNoticeHtml(showNotice = false) {
 
     return `
         <div class="station-fallback-notice">
-            Live API currently unavailable. Using scheduled data
+            Live-API derzeit nicht verfügbar. Es werden Fahrplandaten verwendet.
         </div>
     `;
 }
@@ -158,7 +158,7 @@ export function createPopupContent(station, content = createSkeletonHtml()) {
                 <button
                     class="station-favorite-button ${favoriteClass}"
                     type="button"
-                    title="Toggle favorite"
+                    title="Favoritenstatus ändern"
                 >
                     ${favoriteIcon}
                 </button>
@@ -175,13 +175,13 @@ export function createPopupContent(station, content = createSkeletonHtml()) {
 
 export function createDeparturesHtml(departures) {
     if (departures.length === 0) {
-        return "<div class='empty-departures'>No departures found.</div>";
+        return "<div class='empty-departures'>Keine Abfahrten gefunden.</div>";
     }
 
     return departures.map(departure => {
         const lineName = departure.line?.name || "";
         const tripId = departure.tripId || "";
-        const direction = departure.direction || "Unknown direction";
+        const direction = departure.direction || "Richtung unbekannt";
         const timeDisplay = getDepartureTimeDisplay(
             departure.when || departure.plannedWhen
         );
