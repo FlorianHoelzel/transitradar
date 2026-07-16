@@ -255,15 +255,20 @@ h1 {
 }
 
 .city-heading {
+    display: block;
+}
+
+.city-heading strong {
+    display: block;
+    font-size: clamp(1.55rem, 3vw, 2.2rem);
+    line-height: 1;
+}
+
+.city-meta {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.8rem;
-}
-
-.city-heading strong {
-    font-size: clamp(1.55rem, 3vw, 2.2rem);
-    line-height: 1;
 }
 
 .city-status {

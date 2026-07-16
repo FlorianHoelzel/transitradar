@@ -72,11 +72,14 @@ function createCityCard(city, index) {
     ]);
     const heading = createElement("span", { className: "city-heading" }, [
         createElement("strong", { text: city.name }),
+    ]);
+    const meta = createElement("span", { className: "city-meta" }, [
+        createElement("span", { className: "city-network", text: city.network }),
         status,
     ]);
     const info = createElement("span", { className: "city-info" }, [
         heading,
-        createElement("span", { className: "city-network", text: city.network }),
+        meta,
     ]);
     const card = createElement("a", {
         className: `city-card ${city.state === "ready" ? "city-card--ready" : "city-card--soon"}`,
