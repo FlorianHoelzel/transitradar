@@ -125,6 +125,12 @@ function renderLandingPage() {
         ]),
     ]);
 
+    citySection.append(
+        createElement("footer", { className: "landing-footer" }, [
+            createElement("a", { href: "/datenschutz", text: "Datenschutz" }),
+        ])
+    );
+
     document.getElementById("landing-root").append(
         createElement("main", { className: "landing-shell" }, [
             createElement("div", { className: "route-field", "aria-hidden": "true" }),

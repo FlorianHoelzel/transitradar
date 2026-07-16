@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datenschutz – TransitRadar</title>
+    <meta
+        name="description"
+        content="Datenschutzhinweise zur Webanalyse mit der selbst gehosteten Software Umami bei TransitRadar."
+    >
+    <meta name="robots" content="noindex, follow">
+    <meta name="theme-color" content="#08090d">
+    <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/assets/icons/favicon.ico" sizes="any">
+    <link rel="icon" href="/assets/icons/favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+    <link rel="stylesheet" href="./styles/fonts.css">
+    <link rel="stylesheet" href="./styles/privacy.css">
+</head>
+
+<body>
+    <main class="privacy-shell">
+        <div class="route-field" aria-hidden="true"></div>
+
+        <nav class="privacy-nav" aria-label="Seitennavigation">
+            <a class="brand" href="/">TransitRadar</a>
+            <a class="back-link" href="/">Zurück</a>
+        </nav>
+
+        <header class="privacy-hero">
+            <p class="eyebrow">Datenschutzhinweise</p>
+            <h1>Webanalyse mit Umami.</h1>
+            <p class="intro">
+                Diese Hinweise beschreiben die bei TransitRadar eingesetzte
+                Reichweitenmessung. Stand: 16. Juli 2026.
+            </p>
+        </header>
+
+        <section class="privacy-card">
+            <h2>Zweck der Verarbeitung</h2>
+            <p>
+                TransitRadar verwendet die Open-Source-Software Umami, um die
+                Nutzung des Angebots statistisch auszuwerten. Die Auswertung
+                hilft dabei, aufgerufene Städte und Seiten, technische
+                Probleme, verwendete Gerätetypen und die allgemeine
+                Performance des Angebots zu verstehen und TransitRadar zu
+                verbessern.
+            </p>
+        </section>
+
+        <section class="privacy-card">
+            <h2>Verarbeitete Daten</h2>
+            <p>Bei einem Seitenaufruf können insbesondere verarbeitet werden:</p>
+            <ul>
+                <li>Hostname, aufgerufener Seitenpfad, Seitentitel und verweisende Seite,</li>
+                <li>Browser- und Betriebssystemtyp, Gerätetyp und Bildschirmauflösung,</li>
+                <li>Browsersprache sowie ungefähres Land, Region und Stadt,</li>
+                <li>Zeitpunkt des Aufrufs und anonyme Sitzungsinformationen,</li>
+                <li>Core Web Vitals wie Ladezeit, Reaktionszeit und Layout-Stabilität.</li>
+            </ul>
+            <p>
+                Umami setzt für die Reichweitenmessung keine Cookies ein und
+                speichert die zur Standortbestimmung verwendete IP-Adresse
+                nicht. Es findet keine websiteübergreifende Verfolgung statt.
+                TransitRadar verwendet keine Funktionen zur Identifizierung
+                einzelner Personen.
+            </p>
+        </section>
+
+        <section class="privacy-card">
+            <h2>Selbsthosting und Empfänger</h2>
+            <p>
+                Umami wird von TransitRadar selbst unter
+                <code>stats.transitradar.de</code> auf derselben
+                Server-Infrastruktur betrieben. Die Analysedaten werden in
+                einer eigenen PostgreSQL-Datenbank gespeichert. Für die
+                Reichweitenmessung werden keine Daten an Umami Software oder
+                andere Werbe- und Analyseanbieter übermittelt.
+            </p>
+        </section>
+
+        <section class="privacy-card">
+            <h2>Rechtsgrundlage</h2>
+            <p>
+                Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte
+                Interesse liegt in der datensparsamen Reichweitenmessung, der
+                technischen Überwachung und der Verbesserung von TransitRadar.
+                Dabei werden Umami selbst gehostet, keine Cookies gesetzt und
+                keine Profile über verschiedene Websites hinweg gebildet.
+            </p>
+        </section>
+
+        <section class="privacy-card">
+            <h2>Speicherdauer</h2>
+            <p>
+                Eine automatische Löschfrist ist derzeit nicht konfiguriert.
+                Die anonymisierten Statistikdaten bleiben deshalb gespeichert,
+                bis sie im selbst gehosteten Umami-System manuell gelöscht
+                werden.
+            </p>
+        </section>
+
+        <section class="privacy-card opt-out-card">
+            <h2>Widerspruch und Opt-out</h2>
+            <p>
+                Die Erfassung kann für diesen Browser und die aktuell
+                aufgerufene TransitRadar-Domain deaktiviert werden. Die
+                Einstellung wird ausschließlich lokal im Browser gespeichert.
+                Da die Städte auf eigenen Subdomains laufen, muss das Opt-out
+                bei Bedarf auf jeder verwendeten Subdomain einmal gesetzt
+                werden.
+            </p>
+
+            <button id="umamiOptOut" class="opt-out-button" type="button">
+                Statistik-Erfassung deaktivieren
+            </button>
+            <p id="umamiOptOutStatus" class="opt-out-status" aria-live="polite"></p>
+
+            <p>
+                Zusätzlich respektiert TransitRadar die „Do Not Track“-Einstellung
+                des Browsers. Ein gesetztes Opt-out verhindert zukünftige
+                Aufrufe; bereits erhobene, anonyme Statistiken lassen sich
+                keinem bestimmten Browser nachträglich zuordnen.
+            </p>
+        </section>
+
+        <p class="privacy-note">
+            Diese Seite ergänzt die allgemeinen Datenschutzinformationen von
+            TransitRadar um die Angaben zur Reichweitenmessung mit Umami.
+        </p>
+    </main>
+
+    <script src="./js/privacy.js"></script>
+</body>
+</html>

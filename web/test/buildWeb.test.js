@@ -83,6 +83,10 @@ test("leaves analytics disabled when Umami is not configured", async () => {
 
         const html = await readFile(resolve(outputRoot, "index.html"), "utf8");
         assert.doesNotMatch(html, /data-website-id=/);
+        assert.match(
+            await readFile(resolve(outputRoot, "datenschutz.html"), "utf8"),
+            /Webanalyse mit Umami/
+        );
     } finally {
         await rm(outputRoot, { recursive: true, force: true });
     }

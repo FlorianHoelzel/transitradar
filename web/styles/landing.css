@@ -345,6 +345,19 @@ h1 {
     font-weight: 650;
 }
 
+.landing-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    color: var(--muted);
+    font-size: 0.86rem;
+    font-weight: 650;
+}
+
+.landing-footer a:hover {
+    color: var(--ink);
+}
+
 @keyframes routeSweep {
     from {
         transform: translateX(-2vw) translateY(0);

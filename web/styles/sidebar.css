@@ -321,6 +321,11 @@
     color: var(--text-muted);
 }
 
+.sidebar-privacy {
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
 /* Shared panels */
 
 .nearby-panel,
