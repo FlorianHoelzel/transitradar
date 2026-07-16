@@ -70,6 +70,17 @@ const CITY_CONFIGS = {
         departureFirstRenderTimeout: 6500,
         departureRefreshInterval: 20000,
         departureStopStrategy: "best",
+        stationGroups: {
+            "3000010": {
+                name: "Frankfurt Hbf",
+                stopIds: [
+                    "3000010",
+                    "3000008",
+                    "3060865",
+                    "3007011"
+                ]
+            }
+        },
         surfaceTransitLabel: "Bus / Tram",
         bounds: {
             minLat: 49.98,
@@ -112,6 +123,8 @@ export const API_BASE_URL = LOCAL_DEV_HOSTNAMES.has(window.location.hostname)
     ? `/api/${CITY_CONFIG.id}`
     : CITY_CONFIG.apiBaseUrl;
 export const CITY_BOUNDS = CITY_CONFIG.bounds;
+
+export const STATION_GROUP_CONFIG = CITY_CONFIG.stationGroups ?? {};
 
 export const HTTP_CONFIG = {
     timeout: 10000

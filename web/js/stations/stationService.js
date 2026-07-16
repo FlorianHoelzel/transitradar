@@ -1,5 +1,21 @@
 import { loadStationsFromApi } from "../api/transitApi.js";
-import { CITY_BOUNDS, CITY_CONFIG } from "../config.js";
+import {
+    CITY_BOUNDS,
+    CITY_CONFIG,
+    STATION_GROUP_CONFIG
+} from "../config.js";
+
+const CONFIGURED_STATION_GROUPS_BY_STOP_ID = new Map(
+    Object.entries(STATION_GROUP_CONFIG).flatMap(([canonicalId, group]) => {
+        return group.stopIds.map(stopId => [
+            String(stopId),
+            {
+                canonicalId,
+                name: group.name
+            }
+        ]);
+    })
+);
 
 function isCityAreaStation(station) {
     const [lat, lng] = station.coordinates;
@@ -84,7 +100,28 @@ function normalizeStationGroupKey(name) {
         .toLocaleLowerCase("de-DE");
 }
 
-function getStationDisplayName(name) {
+function getConfiguredStationGroup(stationId) {
+    return CONFIGURED_STATION_GROUPS_BY_STOP_ID.get(String(stationId));
+}
+
+function getStationGroupKey(station) {
+    const configuredGroup = getConfiguredStationGroup(station.id);
+
+    if (configuredGroup) {
+        return `id:${configuredGroup.canonicalId}`;
+    }
+
+    return `name:${normalizeStationGroupKey(station.name)}`;
+}
+
+function getStationDisplayName(station) {
+    const configuredGroup = getConfiguredStationGroup(station.id);
+
+    if (configuredGroup) {
+        return configuredGroup.name;
+    }
+
+    const { name } = station;
     const cleanName = removeStopDetails(name);
 
     if (/^S\+U Hauptbahnhof(?:\s|\(|$)/u.test(cleanName)) {
@@ -128,8 +165,9 @@ function groupStationsByName(rawStations) {
     const groupedStations = {};
 
     rawStations.forEach(station => {
-        const stationGroupKey = normalizeStationGroupKey(station.name);
-        const displayName = getStationDisplayName(station.name);
+        const stationGroupKey = getStationGroupKey(station);
+        const configuredGroup = getConfiguredStationGroup(station.id);
+        const displayName = getStationDisplayName(station);
 
         if (!groupedStations[stationGroupKey]) {
             groupedStations[stationGroupKey] = {
@@ -139,6 +177,10 @@ function groupStationsByName(rawStations) {
                 lines: [],
                 stops: []
             };
+        }
+
+        if (station.id === configuredGroup?.canonicalId) {
+            groupedStations[stationGroupKey].coordinates = station.coordinates;
         }
 
         groupedStations[stationGroupKey].name = chooseStationDisplayName(
@@ -169,7 +211,7 @@ function groupStationsByName(rawStations) {
         .sort((a, b) => a.name.localeCompare(b.name, "de-DE", { numeric: true }));
 }
 
-function prepareStations(rawStops) {
+export function prepareStations(rawStops) {
     const rawStations = rawStops
         .filter(isValidStop)
         .map(normalizeStop)
