@@ -16,8 +16,28 @@ import { CITY_CONFIG } from "./config.js";
 import { setupSettings } from "./settings/settingsController.js";
 
 function applyCityMetadata() {
-    document.title = `TransitRadar ${CITY_CONFIG.name}`;
+    if (document.title === "TransitRadar – Live-ÖPNV-Karte") {
+        document.title = `TransitRadar ${CITY_CONFIG.name}`;
+    }
+
     document.body.dataset.city = CITY_CONFIG.id;
+
+    const summaryTitle = document.getElementById("citySummaryTitle");
+    const summaryText = document.getElementById("citySummaryText");
+
+    if (summaryTitle) {
+        summaryTitle.textContent = `Live-ÖPNV-Karte ${CITY_CONFIG.name}`;
+    }
+
+    if (summaryText) {
+        const liveVehicleText = CITY_CONFIG.supportsLiveVehicles
+            ? "Live-Fahrzeuge, "
+            : "";
+
+        summaryText.textContent =
+            `Entdecke ${liveVehicleText}Haltestellen, aktuelle Abfahrten und ` +
+            `Verspätungen im ${CITY_CONFIG.network}-Netz auf einer interaktiven Karte.`;
+    }
 
     document.querySelectorAll('[data-filter="surface"]').forEach(option => {
         option.textContent = CITY_CONFIG.surfaceTransitLabel;
