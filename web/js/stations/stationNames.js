@@ -15,7 +15,16 @@ export function getDisplayStationName(station) {
 }
 
 export function getSearchStationName(station) {
-    return getDisplayStationName(station)
+    const displayName = getDisplayStationName(station);
+
+    if (
+        CITY_CONFIG.id === "frankfurt" &&
+        station.stops?.some(stop => String(stop.id) === "3000010")
+    ) {
+        return `Hauptbahnhof ${displayName}`;
+    }
+
+    return displayName
         .replace(/^(?:S\+U|S|U)\s+/u, "")
         .trim();
 }

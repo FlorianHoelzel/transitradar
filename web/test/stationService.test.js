@@ -10,6 +10,10 @@ globalThis.window = {
 };
 
 const { prepareStations } = await import("../js/stations/stationService.js");
+const {
+    getDisplayStationName,
+    getSearchStationName
+} = await import("../js/stations/stationNames.js");
 
 function createStop(id, name, latitude, longitude, products, lines) {
     return {
@@ -81,5 +85,11 @@ test("groups Frankfurt Hauptbahnhof access stops under the aggregate station", (
     assert.deepEqual(
         stations[0].lines,
         ["Bus 37", "Bus 64", "Bus N4", "ICE", "RE55", "S8", "Tram 16", "Tram 17", "U4"]
+    );
+    assert.equal(getDisplayStationName(stations[0]), "Frankfurt Hbf");
+    assert.equal(getSearchStationName(stations[0]), "Hauptbahnhof Frankfurt Hbf");
+    assert.equal(
+        getSearchStationName(stations[0]).toLowerCase().includes("hauptbahnhof"),
+        true
     );
 });
