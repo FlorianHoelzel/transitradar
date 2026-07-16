@@ -117,7 +117,7 @@ export async function showRouteForTrip(tripId, lineName, options = {}) {
         const data = await loadTripDetails(tripId, lineName);
 
         if (!data) {
-            console.warn("No trip data available.");
+            console.warn("Keine Fahrtdaten verfügbar.");
             return;
         }
 
@@ -127,7 +127,7 @@ export async function showRouteForTrip(tripId, lineName, options = {}) {
         const coordinates = extractRouteCoordinates(polyline);
 
         if (coordinates.length < 2) {
-            console.warn("No route coordinates found.");
+            console.warn("Keine Routenkoordinaten gefunden.");
             return;
         }
 
@@ -158,6 +158,6 @@ export async function showRouteForTrip(tripId, lineName, options = {}) {
             showRoutePreviewControl(lineName);
         }
     } catch (error) {
-        console.error("Route could not be displayed:", error);
+        console.error("Route konnte nicht angezeigt werden:", error);
     }
 }

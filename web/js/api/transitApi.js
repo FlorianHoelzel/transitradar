@@ -222,7 +222,7 @@ async function fetchVehicleMovementsGrid(boundsGrid, zoom) {
         });
 
         if (failures.length > 0) {
-            throw new Error("Failed to load the complete citywide vehicle grid.");
+            throw new Error("Das vollständige stadtweite Fahrzeugraster konnte nicht geladen werden.");
         }
 
         movements.push(
@@ -278,7 +278,7 @@ async function fetchDeparturesForStop(stopId, results, duration) {
 
     const data = await fetchJson(
         primaryUrl,
-        "Failed to load departures.",
+        "Abfahrten konnten nicht geladen werden.",
         DEPARTURE_CONFIG.requestTimeout
     );
     const departures = Array.isArray(data)
@@ -296,7 +296,7 @@ async function fetchDeparturesForStation(
     const uniqueStopIds = getDepartureStopIds(station);
 
     if (uniqueStopIds.length === 0) {
-        throw new Error("Station has no departure stop.");
+        throw new Error("Die Haltestelle besitzt keinen Abfahrts-Halt.");
     }
 
     const collector = createDepartureCollector(uniqueStopIds, results, duration);
@@ -316,7 +316,7 @@ async function fetchDeparturesForStation(
     }
 
     if (collector.collectedDepartures.length === 0) {
-        throw collector.failures[0] ?? new Error("Failed to load departures.");
+        throw collector.failures[0] ?? new Error("Abfahrten konnten nicht geladen werden.");
     }
 
     return prepareDepartureResults(collector.collectedDepartures);
@@ -334,7 +334,7 @@ async function searchStops(query) {
 
     const data = await fetchJson(
         createUrl(API_BASE_URL, pathAndQuery),
-        "Failed to search stations.",
+        "Haltestellen konnten nicht gesucht werden.",
         STATION_CONFIG.requestTimeout
     );
 
@@ -354,7 +354,7 @@ async function fetchNearbyStops(point) {
 
     const data = await fetchJson(
         createUrl(API_BASE_URL, pathAndQuery),
-        "Failed to load nearby stations.",
+        "Haltestellen in der Nähe konnten nicht geladen werden.",
         STATION_CONFIG.requestTimeout
     );
 
@@ -420,11 +420,11 @@ export async function loadStationsFromApi() {
     try {
         data = await fetchJson(
             createUrl(API_BASE_URL, pathAndQuery),
-            "Failed to load stations.",
+            "Haltestellen konnten nicht geladen werden.",
             STATION_CONFIG.requestTimeout
         );
     } catch (error) {
-        console.warn("Stations endpoint failed. Trying nearby station grid.", error);
+        console.warn("Der Haltestellen-Endpunkt ist fehlgeschlagen. Das Umgebungsraster wird versucht.", error);
     }
 
     const stations = normalizeStationsResponse(data);
@@ -433,7 +433,7 @@ export async function loadStationsFromApi() {
         return stations;
     }
 
-    console.warn("Stations endpoint returned no stops. Trying nearby station grid.");
+    console.warn("Der Haltestellen-Endpunkt lieferte keine Halte. Das Umgebungsraster wird versucht.");
 
     try {
         const nearbyStations = await loadStationsFromNearbyGrid();
@@ -442,9 +442,9 @@ export async function loadStationsFromApi() {
             return nearbyStations;
         }
 
-        console.warn("Nearby station grid returned no stops. Trying station search.");
+        console.warn("Das Umgebungsraster lieferte keine Halte. Die Haltestellensuche wird versucht.");
     } catch (error) {
-        console.warn("Nearby station grid failed. Trying station search.", error);
+        console.warn("Das Umgebungsraster ist fehlgeschlagen. Die Haltestellensuche wird versucht.", error);
     }
 
     const searchStations = await loadStationsFromLocationSearch();
@@ -477,7 +477,7 @@ async function fetchVehicleMovements(boundsQuery, zoom) {
 
     const data = await fetchJson(
         createUrl(API_BASE_URL, pathAndQuery),
-        "Failed to load live vehicles.",
+        "Live-Fahrzeuge konnten nicht geladen werden.",
         VEHICLE_CONFIG.requestTimeout
     );
 
@@ -511,6 +511,6 @@ export async function getTripDetails(tripId, lineName) {
 
     return await fetchJson(
         createUrl(API_BASE_URL, pathAndQuery),
-        "Failed to load trip route."
+        "Die Fahrtroute konnte nicht geladen werden."
     );
 }

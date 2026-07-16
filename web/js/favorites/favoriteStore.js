@@ -10,7 +10,7 @@ export function getStoredFavorites() {
     try {
         return JSON.parse(storedFavorites);
     } catch (error) {
-        console.error("Failed to parse favorites:", error);
+        console.error("Favoriten konnten nicht gelesen werden:", error);
         return [];
     }
 }

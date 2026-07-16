@@ -13,7 +13,7 @@ export function getLastCheckedAt() {
 
 export function setApiStatus(status) {
     apiStatus = status;
-    lastCheckedAt = new Date().toLocaleTimeString("en-GB", {
+    lastCheckedAt = new Date().toLocaleTimeString("de-DE", {
         hour: "2-digit",
         minute: "2-digit"
     });
@@ -54,7 +54,7 @@ export async function checkApiStatus(onStatusChange) {
 
     apiStatus = hasWorkingApi ? "online" : "offline";
 
-    lastCheckedAt = new Date().toLocaleTimeString("en-GB", {
+    lastCheckedAt = new Date().toLocaleTimeString("de-DE", {
         hour: "2-digit",
         minute: "2-digit"
     });

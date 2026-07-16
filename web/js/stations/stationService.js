@@ -222,12 +222,12 @@ export function prepareStations(rawStops) {
 
 export async function loadStations() {
     try {
-        console.log(`Loading stations from ${CITY_CONFIG.network} API.`);
+        console.log(`Haltestellen werden von der ${CITY_CONFIG.network}-API geladen.`);
         const data = await loadStationsFromApi();
 
         return prepareStations(data);
     } catch (error) {
-        console.error(`Failed to load stations from ${CITY_CONFIG.network} API:`, error);
+        console.error(`Haltestellen konnten nicht von der ${CITY_CONFIG.network}-API geladen werden:`, error);
         return [];
     }
 }

@@ -221,7 +221,7 @@ export async function updateVehicles(force = false) {
 
         if (currentSelectedLineName && visibleMovements.length === 0) {
             console.warn(
-                `No citywide live vehicles returned for ${currentSelectedLineName}. ` +
+                `Keine stadtweiten Live-Fahrzeuge für ${currentSelectedLineName} erhalten. ` +
                 "Keeping existing selected-line markers."
             );
             renderSelectedLineMovements(

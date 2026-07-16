@@ -147,7 +147,7 @@ function updateOverallStatus() {
 
     setClassState(statusDot, state);
     statusText.textContent = state === "online"
-        ? "Betriebsbereit"
+        ? "Live"
         : state === "issues"
             ? "Störungen erkannt"
             : "Nicht verfügbar";
@@ -161,7 +161,7 @@ function renderProviderStatus(provider, state, averageLatency) {
     setClassState(provider.card, state);
     setClassState(provider.status, state);
     provider.status.textContent = state === "online"
-        ? "Betriebsbereit"
+        ? "Live"
         : state === "issues"
             ? "Störungen"
             : "Nicht verfügbar";

@@ -57,7 +57,7 @@ async function renderFavoriteStation(favorite) {
         const departures = await loadDeparturesForStation(station);
         return createFavoriteStationHtml(station, departures);
     } catch (error) {
-        console.error(`Failed to load departures for ${station.name}:`, error);
+        console.error(`Abfahrten für ${station.name} konnten nicht geladen werden:`, error);
         return createFavoriteStationHtml(station, []);
     }
 }

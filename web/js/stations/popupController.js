@@ -215,8 +215,8 @@ async function refreshPopupDepartures(marker, station) {
         setupDepartureRouteClicks(popupElement);
         setupFade(popupElement);
     } catch (error) {
-        console.error("Failed to update departures:", error);
-        departuresContainer.innerHTML = "Departures could not be loaded.";
+        console.error("Abfahrten konnten nicht aktualisiert werden:", error);
+        departuresContainer.innerHTML = "Abfahrten konnten nicht geladen werden.";
         setupFade(popupElement);
     } finally {
         pendingPopupRefreshes.delete(marker);

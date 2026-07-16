@@ -349,7 +349,7 @@ export function setupSidebar() {
 
             return createNearbyStationHtml(station, distance, departures, index);
         } catch (error) {
-            console.error(`Failed to load departures for ${station.name}:`, error);
+            console.error(`Abfahrten für ${station.name} konnten nicht geladen werden:`, error);
             return createNearbyStationHtml(station, distance, [], index);
         }
     }

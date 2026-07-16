@@ -37,7 +37,7 @@ function loadSettings() {
             ? sanitizeSettings(JSON.parse(storedSettings))
             : { ...DEFAULT_SETTINGS };
     } catch (error) {
-        console.warn("Failed to load settings:", error);
+        console.warn("Einstellungen konnten nicht geladen werden:", error);
         return { ...DEFAULT_SETTINGS };
     }
 }
@@ -48,7 +48,7 @@ function saveSettings() {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     } catch (error) {
-        console.warn("Failed to save settings:", error);
+        console.warn("Einstellungen konnten nicht gespeichert werden:", error);
     }
 }
 

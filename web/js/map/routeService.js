@@ -7,10 +7,10 @@ async function loadTripFromRemoteApi(tripId, lineName) {
 
 export async function loadTripDetails(tripId, lineName) {
     try {
-        console.log("Loading trip from API.");
+        console.log("Fahrt wird von der API geladen.");
         return await loadTripFromRemoteApi(tripId, lineName);
     } catch (apiError) {
-        console.warn(`Failed to load trip from ${CITY_CONFIG.network} API:`, apiError);
+        console.warn(`Fahrt konnte nicht von der ${CITY_CONFIG.network}-API geladen werden:`, apiError);
         return null;
     }
 }

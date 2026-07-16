@@ -22,7 +22,7 @@ export async function loadDeparturesForStation(station) {
     const request = getDepartures(station)
         .catch(apiError => {
             console.warn(
-                `Failed to load departures from ${CITY_CONFIG.network} API:`,
+                `Abfahrten konnten nicht von der ${CITY_CONFIG.network}-API geladen werden:`,
                 apiError
             );
             return [];

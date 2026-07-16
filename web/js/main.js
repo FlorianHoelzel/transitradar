@@ -41,7 +41,7 @@ async function setupStations() {
         updateVisibleMarkers(getStations());
         setupSearch(getStations());
     } catch (error) {
-        console.error("Failed to load stations:", error);
+        console.error("Haltestellen konnten nicht geladen werden:", error);
     }
 }
 
