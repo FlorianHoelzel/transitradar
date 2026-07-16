@@ -93,13 +93,6 @@ function createCityCard(city, index) {
 }
 
 function renderLandingPage() {
-    const liveCityCount = cities.filter(city => city.state === "ready").length;
-    const metrics = [
-        [String(liveCityCount), " live"],
-    ].map(([value, label]) => createElement("span", {}, [
-        createElement("strong", { text: value }),
-        document.createTextNode(label),
-    ]));
     const hero = createElement("section", { className: "hero" }, [
         createElement("nav", { className: "topbar", "aria-label": "TransitRadar" }, [
             createElement("a", { className: "brand", href: "/", text: "TransitRadar" }),
@@ -109,7 +102,6 @@ function renderLandingPage() {
                 createElement("p", { className: "eyebrow", text: "Dein ÖPNV-Radar" }),
                 createElement("h1", { text: "Wähle deine Stadt." }),
             ]),
-            createElement("div", { className: "hero-metrics", "aria-label": "Status" }, metrics),
         ]),
     ]);
     const cityGrid = createElement("div", { className: "city-grid" }, cities.map(createCityCard));
