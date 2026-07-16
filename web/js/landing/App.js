@@ -94,11 +94,8 @@ function createCityCard(city, index) {
 
 function renderLandingPage() {
     const liveCityCount = cities.filter(city => city.state === "ready").length;
-    const upcomingCityCount = cities.filter(city => city.state !== "ready").length;
     const metrics = [
         [String(liveCityCount), " live"],
-        [String(upcomingCityCount), " bald verfügbar"],
-        ["5+", " als Nächstes"],
     ].map(([value, label]) => createElement("span", {}, [
         createElement("strong", { text: value }),
         document.createTextNode(label),
