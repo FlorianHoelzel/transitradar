@@ -10,7 +10,7 @@ BACKGROUND = "#08090d"
 RADAR = "#5dd3ff"
 
 
-def create_icon(size: int) -> Image.Image:
+def create_icon(size: int, transparent: bool = False) -> Image.Image:
     scale = 4
     canvas_size = size * scale
     image = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
@@ -19,15 +19,16 @@ def create_icon(size: int) -> Image.Image:
     def point(value: float) -> int:
         return round(value * size / 64 * scale)
 
-    draw.rounded_rectangle(
-        (0, 0, canvas_size - 1, canvas_size - 1),
-        radius=point(14),
-        fill=BACKGROUND,
-    )
+    if not transparent:
+        draw.rounded_rectangle(
+            (0, 0, canvas_size - 1, canvas_size - 1),
+            radius=point(14),
+            fill=BACKGROUND,
+        )
 
     halo = Image.new("RGBA", image.size, (0, 0, 0, 0))
     halo_draw = ImageDraw.Draw(halo)
-    halo_radius = point(14)
+    halo_radius = point(22 if transparent else 14)
     halo_draw.ellipse(
         (
             point(32) - halo_radius,
@@ -40,7 +41,7 @@ def create_icon(size: int) -> Image.Image:
     image = Image.alpha_composite(image, halo)
     draw = ImageDraw.Draw(image)
 
-    dot_radius = point(7)
+    dot_radius = point(12 if transparent else 7)
     draw.ellipse(
         (
             point(32) - dot_radius,
@@ -58,7 +59,6 @@ def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     icons = {
-        "favicon-32.png": 32,
         "apple-touch-icon.png": 180,
         "icon-192.png": 192,
         "icon-512.png": 512,
@@ -69,7 +69,11 @@ def main() -> None:
         rendered[size] = create_icon(size)
         rendered[size].save(OUTPUT_DIR / filename, optimize=True)
 
-    create_icon(256).save(
+    create_icon(32, transparent=True).save(
+        OUTPUT_DIR / "favicon-32.png",
+        optimize=True,
+    )
+    create_icon(256, transparent=True).save(
         OUTPUT_DIR / "favicon.ico",
         format="ICO",
         sizes=[(16, 16), (32, 32), (48, 48)],
