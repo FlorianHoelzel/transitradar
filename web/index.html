@@ -80,8 +80,139 @@
 </head>
 
 <body>
-    <div id="landing-root"></div>
+    <main class="landing-shell">
+        <div class="route-field" aria-hidden="true"></div>
 
-    <script src="./js/landing/App.js"></script>
+        <section class="hero">
+            <nav class="topbar" aria-label="TransitRadar">
+                <a class="brand" href="/">TransitRadar</a>
+            </nav>
+
+            <div class="hero-grid">
+                <div class="hero-copy">
+                    <p class="eyebrow">Dein ÖPNV-Radar</p>
+                    <h1>Wähle deine Stadt.</h1>
+                </div>
+            </div>
+        </section>
+
+        <section class="city-section" aria-label="Stadtauswahl">
+            <div class="city-grid">
+                <a
+                    class="city-card city-card--ready"
+                    href="https://berlin.transitradar.de/"
+                    aria-label="Berlin: Live"
+                    style="--accent: #f7c948; --delay: 0ms"
+                >
+                    <picture class="city-image-wrap" aria-hidden="true">
+                        <source
+                            type="image/webp"
+                            srcset="./assets/landing/berlin-neu-640.webp 640w, ./assets/landing/berlin-neu-1254.webp 1254w"
+                            sizes="(max-width: 720px) calc(100vw - 2rem), (max-width: 1020px) calc(50vw - 2.5rem), 390px"
+                        >
+                        <img
+                            src="./assets/landing/berlin-neu.png"
+                            alt=""
+                            width="1254"
+                            height="1254"
+                            decoding="async"
+                            fetchpriority="high"
+                        >
+                    </picture>
+                    <span class="city-info">
+                        <span class="city-heading"><strong>Berlin</strong></span>
+                        <span class="city-meta">
+                            <span class="city-network">VBB</span>
+                            <span class="city-status city-status--online">
+                                <span class="api-status-dot" aria-hidden="true"></span>
+                                Live
+                            </span>
+                        </span>
+                    </span>
+                </a>
+
+                <a
+                    class="city-card city-card--ready"
+                    href="https://hamburg.transitradar.de/"
+                    aria-label="Hamburg: Live"
+                    style="--accent: #f05252; --delay: 85ms"
+                >
+                    <picture class="city-image-wrap" aria-hidden="true">
+                        <source
+                            type="image/webp"
+                            srcset="./assets/landing/hamburg-neu-640.webp 640w, ./assets/landing/hamburg-neu-1254.webp 1254w"
+                            sizes="(max-width: 720px) calc(100vw - 2rem), (max-width: 1020px) calc(50vw - 2.5rem), 390px"
+                        >
+                        <img
+                            src="./assets/landing/hamburg-neu.png"
+                            alt=""
+                            width="1254"
+                            height="1254"
+                            decoding="async"
+                            fetchpriority="high"
+                        >
+                    </picture>
+                    <span class="city-info">
+                        <span class="city-heading"><strong>Hamburg</strong></span>
+                        <span class="city-meta">
+                            <span class="city-network">HVV</span>
+                            <span class="city-status city-status--online">
+                                <span class="api-status-dot" aria-hidden="true"></span>
+                                Live
+                            </span>
+                        </span>
+                    </span>
+                </a>
+
+                <a
+                    class="city-card city-card--ready"
+                    href="https://frankfurt.transitradar.de/"
+                    aria-label="Frankfurt am Main: Live"
+                    style="--accent: #009C95; --delay: 170ms"
+                >
+                    <picture class="city-image-wrap" aria-hidden="true">
+                        <source
+                            type="image/webp"
+                            srcset="./assets/landing/frankfurt-rmv-640.webp 640w, ./assets/landing/frankfurt-rmv-1254.webp 1254w"
+                            sizes="(max-width: 720px) calc(100vw - 2rem), (max-width: 1020px) calc(50vw - 2.5rem), 390px"
+                        >
+                        <img
+                            src="./assets/landing/frankfurt-rmv.png"
+                            alt=""
+                            width="1254"
+                            height="1254"
+                            decoding="async"
+                            fetchpriority="high"
+                        >
+                    </picture>
+                    <span class="city-info">
+                        <span class="city-heading"><strong>Frankfurt am Main</strong></span>
+                        <span class="city-meta">
+                            <span class="city-network">RMV</span>
+                            <span class="city-status city-status--online">
+                                <span class="api-status-dot" aria-hidden="true"></span>
+                                Live
+                            </span>
+                        </span>
+                    </span>
+                </a>
+            </div>
+
+            <div class="more-cities">
+                <span class="more-label">Weitere Städte folgen bald</span>
+                <span class="city-chip-row" aria-label="Weitere geplante Städte">
+                    <span class="city-chip">Köln</span>
+                    <span class="city-chip">München</span>
+                    <span class="city-chip">Leipzig</span>
+                    <span class="city-chip">Dresden</span>
+                    <span class="city-chip">Stuttgart</span>
+                </span>
+            </div>
+
+            <footer class="landing-footer">
+                <a href="/datenschutz">Datenschutz</a>
+            </footer>
+        </section>
+    </main>
 </body>
 </html>

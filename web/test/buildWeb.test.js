@@ -92,6 +92,25 @@ test("leaves analytics disabled when Umami is not configured", async () => {
     }
 });
 
+test("ships crawlable landing-page content without JavaScript rendering", async () => {
+    const outputRoot = await mkdtemp(resolve(tmpdir(), "transitradar-build-"));
+
+    try {
+        const result = await runBuild(outputRoot);
+        assert.equal(result.code, 0, result.stderr);
+
+        const html = await readFile(resolve(outputRoot, "index.html"), "utf8");
+        assert.match(html, /<h1>Wähle deine Stadt\.<\/h1>/);
+        assert.match(html, /href="https:\/\/berlin\.transitradar\.de\/"/);
+        assert.match(html, /href="https:\/\/hamburg\.transitradar\.de\/"/);
+        assert.match(html, /href="https:\/\/frankfurt\.transitradar\.de\/"/);
+        assert.doesNotMatch(html, /js\/landing\/App\.js/);
+        assert.doesNotMatch(html, /id="landing-root"/);
+    } finally {
+        await rm(outputRoot, { recursive: true, force: true });
+    }
+});
+
 test("fails the build when the Umami configuration is incomplete", async () => {
     const outputRoot = await mkdtemp(resolve(tmpdir(), "transitradar-build-"));
 
