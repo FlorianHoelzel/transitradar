@@ -9,6 +9,7 @@ import {
     createVehicleIcon,
     createVehiclePopup
 } from "./vehicleUI.js";
+import { setupVehiclePopupLifecycle } from "./vehiclePopupLifecycle.js";
 
 export function clearVehicleMarkers() {
     Object.values(vehicleMarkers).forEach(marker => {
@@ -69,8 +70,12 @@ function createNewVehicleMarker(id, movement, coordinates, onVehicleClick) {
     marker.transitMovement = movement;
 
     marker.bindPopup(createVehiclePopup(movement), {
-        closeButton: false
+        className: "vehicle-leaflet-popup",
+        closeButton: false,
+        autoPanPadding: [16, 16]
     });
+
+    setupVehiclePopupLifecycle(marker);
 
     marker.on("click", () => {
         onVehicleClick(marker.transitMovement);
