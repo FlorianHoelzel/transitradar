@@ -17,3 +17,14 @@ export function setStationMarker(stationName, marker) {
 export function getStationMarker(stationName) {
     return stationMarkers[stationName];
 }
+
+export function removeStationMarker(stationName, map) {
+    const marker = stationMarkers[stationName];
+
+    if (!marker) {
+        return;
+    }
+
+    map.removeLayer(marker);
+    delete stationMarkers[stationName];
+}

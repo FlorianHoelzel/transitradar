@@ -16,7 +16,9 @@ export function renderStationMarker(station) {
     setStationMarker(station.name, marker);
 
     marker.bindPopup(createPopupContent(station), {
-        closeButton: false
+        closeButton: false,
+        autoPanPaddingTopLeft: L.point(10, 10),
+        autoPanPaddingBottomRight: L.point(10, 10)
     });
 
     marker.on("popupopen", async () => {

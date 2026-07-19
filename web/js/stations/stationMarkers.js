@@ -1,7 +1,7 @@
 import { stopPopupRefresh } from "./popupController.js";
 import {
     stationMarkers,
-    clearStationMarkers
+    removeStationMarker
 } from "./stationMarkerStore.js";
 import { renderStationMarker } from "./stationRenderer.js";
 import { getVisibleStations } from "./stationVisibility.js";
@@ -13,12 +13,22 @@ export { stationMarkers as markers };
 export function updateVisibleMarkers(stations) {
     const bounds = map.getBounds();
     const zoom = map.getZoom();
-
-    clearStationMarkers(map);
-
     const visibleStations = getVisibleStations(stations, bounds, zoom);
+    const visibleStationNames = new Set(
+        visibleStations.map(station => station.name)
+    );
+
+    Object.entries(stationMarkers).forEach(([stationName, marker]) => {
+        if (visibleStationNames.has(stationName) || marker.isPopupOpen()) {
+            return;
+        }
+
+        removeStationMarker(stationName, map);
+    });
 
     visibleStations.forEach(station => {
-        renderStationMarker(station);
+        if (!stationMarkers[station.name]) {
+            renderStationMarker(station);
+        }
     });
 }
