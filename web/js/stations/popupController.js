@@ -7,6 +7,7 @@ import {
     hasFallbackDepartures
 } from "./stationPopup.js";
 import { loadDeparturesForStation } from "./departureService.js";
+import { waitForPopupElement } from "./popupLifecycle.js";
 import {
     toggleFavorite,
     isFavoriteStation,
@@ -236,14 +237,19 @@ function startPopupRefresh(marker, station) {
 export async function handleStationPopupOpen(marker, station) {
     stopPopupRefresh();
 
-    setTimeout(() => {
-        const popupElement = marker.getPopup()?.getElement();
-        setupPopupInteractions(popupElement, station);
-    }, 0);
+    const popupElement = await waitForPopupElement(marker);
+
+    if (!popupElement || !marker.isPopupOpen()) {
+        return;
+    }
+
+    setupPopupInteractions(popupElement, station);
 
     await refreshPopupDepartures(marker, station);
 
-    startPopupRefresh(marker, station);
+    if (marker.isPopupOpen()) {
+        startPopupRefresh(marker, station);
+    }
 }
 
 export function handleStationPopupClose() {
