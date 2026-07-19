@@ -615,27 +615,25 @@
         inset: 7.25rem 0.85rem 0.85rem;
     }
 
-    .berlin-v2 .sidebar-toggle,
-    .berlin-v2 .location-button {
-        top: auto;
-        bottom: 0.85rem;
-    }
-
     .berlin-v2 .sidebar-toggle {
-        left: 0.85rem;
+        top: calc(7.25rem + 0.85rem);
+        bottom: auto;
+        left: calc(0.85rem + 0.85rem);
     }
 
     .berlin-v2 .location-button {
-        right: 0.85rem;
+        top: calc(7.25rem + 0.85rem);
+        right: calc(0.85rem + 0.85rem);
+        bottom: auto;
     }
 
     .berlin-v2 .filter-control {
-        right: 4.2rem;
-        bottom: 0.85rem;
+        right: calc(0.85rem + 0.85rem);
+        bottom: calc(0.85rem + 0.85rem);
     }
 
     .berlin-v2 .filter-panel {
-        right: -3.35rem;
+        right: 0;
         width: min(17rem, calc(100vw - 1.7rem));
         max-height: calc(100dvh - 6rem);
         overflow-y: auto;
@@ -654,12 +652,12 @@
     }
 
     .berlin-v2 .api-status-indicator {
-        left: 4.2rem;
-        bottom: 0.85rem;
+        left: calc(0.85rem + 0.85rem);
+        bottom: calc(0.85rem + 0.85rem);
     }
 
     .berlin-v2 .selected-line-control {
-        bottom: 4.25rem;
+        bottom: 5.2rem;
         max-width: calc(100vw - 1.7rem);
     }
 }
