@@ -82,11 +82,6 @@ function selectLineFromMovement(movement) {
         return;
     }
 
-    if (vehicleState.selectedLineName === lineName) {
-        clearSelectedLine();
-        return;
-    }
-
     vehicleState.selectedLineName = lineName;
     replaceSelectedLineMovementCache(
         [

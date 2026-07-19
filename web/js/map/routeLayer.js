@@ -6,6 +6,7 @@ import { createLineBadge } from "../lines/badges.js";
 let activeRouteLayer = null;
 let activeGlowLayer = null;
 let routePreviewControl = null;
+let routeRequestId = 0;
 
 export let activeTripDetails = null;
 
@@ -89,6 +90,7 @@ function hideRoutePreviewControl() {
 }
 
 export function clearRouteLayer() {
+    routeRequestId += 1;
     activeTripDetails = null;
 
     if (activeGlowLayer) {
@@ -106,6 +108,7 @@ export function clearRouteLayer() {
 
 export async function showRouteForTrip(tripId, lineName, options = {}) {
     clearRouteLayer();
+    const requestId = routeRequestId;
 
     if (!tripId || !lineName) {
         return;
@@ -118,6 +121,10 @@ export async function showRouteForTrip(tripId, lineName, options = {}) {
 
         if (!data) {
             console.warn("Keine Fahrtdaten verfügbar.");
+            return;
+        }
+
+        if (requestId !== routeRequestId) {
             return;
         }
 
