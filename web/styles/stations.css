@@ -504,8 +504,8 @@
     }
 
     .station-popup-v2 {
-        width: 382px;
-        max-width: calc(100vw - 24px);
+        width: min(350px, calc(100vw - 48px));
+        max-width: calc(100vw - 48px);
     }
 
     .station-popup-header {
