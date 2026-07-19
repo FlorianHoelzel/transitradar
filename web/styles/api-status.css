@@ -7,7 +7,8 @@
     width: 14px;
     height: 14px;
 
-    cursor: help;
+    padding: 0;
+    cursor: pointer;
 }
 
 .api-status-dot {
@@ -88,7 +89,9 @@
     color: #94a3b8;
 }
 
-.api-status-indicator:hover .api-status-tooltip {
+.api-status-indicator:hover .api-status-tooltip,
+.api-status-indicator:focus-visible .api-status-tooltip,
+.api-status-indicator.open .api-status-tooltip {
     opacity: 1;
     transform: translateY(0);
 }

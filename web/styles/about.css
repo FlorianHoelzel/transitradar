@@ -131,3 +131,26 @@
     border-color: rgba(251, 191, 36, 0.28);
     background: rgba(251, 191, 36, 0.08);
 }
+
+@media (max-width: 600px) {
+    .about-overlay {
+        align-items: flex-end;
+        padding: 12px;
+    }
+
+    .about-panel {
+        max-height: calc(100dvh - 24px);
+        padding: 18px;
+        border-radius: 18px;
+    }
+
+    .about-header h2 {
+        font-size: 24px;
+    }
+
+    .about-close {
+        flex: 0 0 44px;
+        width: 44px;
+        height: 44px;
+    }
+}

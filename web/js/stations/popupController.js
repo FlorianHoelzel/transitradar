@@ -214,10 +214,12 @@ async function refreshPopupDepartures(marker, station) {
         updateFallbackNotice(popupElement, departures);
         setupDepartureRouteClicks(popupElement);
         setupFade(popupElement);
+        marker.getPopup()?.update();
     } catch (error) {
         console.error("Abfahrten konnten nicht aktualisiert werden:", error);
         departuresContainer.innerHTML = "Abfahrten konnten nicht geladen werden.";
         setupFade(popupElement);
+        marker.getPopup()?.update();
     } finally {
         pendingPopupRefreshes.delete(marker);
     }

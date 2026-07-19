@@ -24,6 +24,7 @@
     --glass-blur-soft: blur(16px) saturate(1.16);
 
     min-height: 100vh;
+    min-height: 100dvh;
     overflow: hidden;
     background:
         linear-gradient(120deg, rgba(92, 211, 255, 0.18), transparent 30rem),
@@ -575,10 +576,13 @@
         top: 0.7rem;
         left: 0.85rem;
         right: 0.85rem;
-        height: 2.55rem;
+        height: 2.75rem;
     }
 
     .berlin-v2 .brand {
+        min-height: 2.75rem;
+        display: inline-flex;
+        align-items: center;
         font-size: 0.92rem;
     }
 
@@ -587,7 +591,7 @@
     }
 
     .berlin-v2 .nav-link {
-        min-height: 2.2rem;
+        min-height: 2.75rem;
         padding: 0 0.68rem;
         font-size: 0.78rem;
     }
@@ -598,7 +602,13 @@
     }
 
     .berlin-v2 #searchInput {
-        height: 2.7rem;
+        height: 2.75rem;
+    }
+
+    .berlin-v2 #searchResults {
+        max-height: calc(100dvh - 11rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
 
     .berlin-v2-map-shell {
@@ -627,6 +637,20 @@
     .berlin-v2 .filter-panel {
         right: -3.35rem;
         width: min(17rem, calc(100vw - 1.7rem));
+        max-height: calc(100dvh - 6rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(167, 175, 191, 0.55) transparent;
+    }
+
+    .berlin-v2 .filter-panel::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .berlin-v2 .filter-panel::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgba(167, 175, 191, 0.55);
     }
 
     .berlin-v2 .api-status-indicator {

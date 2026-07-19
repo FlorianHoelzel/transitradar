@@ -625,6 +625,19 @@
     }
 
     .sidebar {
-        width: 290px;
+        width: min(320px, calc(100vw - 24px));
+        padding-bottom: max(18px, env(safe-area-inset-bottom));
+    }
+
+    .sidebar-close,
+    .favorite-remove {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .sidebar-item:hover,
+    .sidebar-item.active,
+    .favorite-card:hover {
+        transform: none;
     }
 }

@@ -492,6 +492,17 @@
 /* Responsive */
 
 @media (max-width: 520px) {
+    .station-marker::after {
+        content: "";
+        position: absolute;
+        inset: -12px;
+        border-radius: 999px;
+    }
+
+    .bus-marker::after {
+        inset: -16px;
+    }
+
     .station-popup-v2 {
         width: 382px;
         max-width: calc(100vw - 24px);
@@ -514,6 +525,25 @@
     .station-lines-toggle {
         height: 25px;
         font-size: 12px;
+    }
+
+    .station-lines-toggle,
+    .station-favorite-button {
+        position: relative;
+    }
+
+    .station-lines-toggle::after,
+    .station-favorite-button::after {
+        content: "";
+        position: absolute;
+        inset: 50% auto auto 50%;
+        width: 44px;
+        height: 44px;
+        transform: translate(-50%, -50%);
+    }
+
+    .station-departures {
+        max-height: clamp(160px, calc(100dvh - 18rem), 300px);
     }
 
     .popup-departure-card {

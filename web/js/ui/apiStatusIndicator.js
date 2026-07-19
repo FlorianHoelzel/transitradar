@@ -26,7 +26,8 @@ function updateApiStatusIndicator() {
     const status = getApiStatus();
     const lastCheckedAt = getLastCheckedAt();
 
-    indicator.className = `api-status-indicator ${status}`;
+    indicator.classList.remove("checking", "online", "offline");
+    indicator.classList.add(status);
     indicator.setAttribute("aria-label", getTooltipText(status));
 
     indicator.querySelector(".api-status-tooltip").innerHTML = `
@@ -41,9 +42,11 @@ function updateApiStatusIndicator() {
 }
 
 export function createApiStatusIndicator() {
-    const indicator = document.createElement("div");
+    const indicator = document.createElement("button");
     indicator.id = "apiStatusIndicator";
     indicator.className = "api-status-indicator checking";
+    indicator.type = "button";
+    indicator.setAttribute("aria-expanded", "false");
 
     indicator.innerHTML = `
         <div class="api-status-dot"></div>
@@ -56,6 +59,25 @@ export function createApiStatusIndicator() {
     `;
 
     document.body.appendChild(indicator);
+
+    const closeTooltip = () => {
+        indicator.classList.remove("open");
+        indicator.setAttribute("aria-expanded", "false");
+    };
+
+    indicator.addEventListener("click", event => {
+        event.stopPropagation();
+
+        const isOpen = indicator.classList.toggle("open");
+        indicator.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    document.addEventListener("click", closeTooltip);
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeTooltip();
+        }
+    });
 
     updateApiStatusIndicator();
 
