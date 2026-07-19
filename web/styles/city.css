@@ -635,7 +635,7 @@
     .berlin-v2 .filter-panel {
         right: 0;
         width: min(17rem, calc(100vw - 1.7rem));
-        max-height: calc(100dvh - 6rem);
+        max-height: calc(100dvh - 7.25rem - 1.7rem - 3.35rem);
         overflow-y: auto;
         overscroll-behavior: contain;
         scrollbar-width: thin;
