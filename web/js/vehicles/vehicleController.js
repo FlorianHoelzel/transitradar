@@ -129,7 +129,8 @@ function renderSelectedLineMovements(
         movements,
         selectLineFromMovement,
         zoom,
-        selectedLineName
+        selectedLineName,
+        true
     );
 }
 

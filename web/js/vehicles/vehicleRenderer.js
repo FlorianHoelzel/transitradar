@@ -124,7 +124,8 @@ export function renderVehicleMovements(
     movements,
     onVehicleClick,
     zoom,
-    selectedLineName = null
+    selectedLineName = null,
+    preserveUnlistedMarkers = false
 ) {
     const visibleVehicleIds = new Set();
 
@@ -138,5 +139,7 @@ export function renderVehicleMovements(
         );
     });
 
-    removeOutdatedVehicleMarkers(visibleVehicleIds);
+    if (!preserveUnlistedMarkers) {
+        removeOutdatedVehicleMarkers(visibleVehicleIds);
+    }
 }
