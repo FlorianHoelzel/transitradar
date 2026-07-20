@@ -211,11 +211,6 @@ export function setupSidebar() {
                 <span class="sidebar-item-emoji">ℹ️</span>
                 <span>Über TransitRadar</span>
             </button>
-
-            <a class="sidebar-item sidebar-privacy" href="/datenschutz">
-                <span class="sidebar-item-emoji">🔒</span>
-                <span>Datenschutz</span>
-            </a>
         </div>
     `;
 
@@ -280,6 +275,11 @@ export function setupSidebar() {
                         ${officialSourcesHtml} oder die offiziellen Angebote des ${CITY_CONFIG.network}.
                     </p>
                 </div>
+
+                <a class="about-privacy-link" href="/datenschutz">
+                    <span aria-hidden="true">🔒</span>
+                    <span>Datenschutz</span>
+                </a>
             </div>
         </section>
     `;
