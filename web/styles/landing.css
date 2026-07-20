@@ -303,6 +303,10 @@ h1 {
         0 0 1rem rgba(250, 204, 21, 0.36);
 }
 
+.city-status--pending {
+    border-color: color-mix(in srgb, #facc15 68%, white 8%);
+}
+
 .city-network {
     color: color-mix(in srgb, var(--accent) 60%, white 40%);
     font-size: 0.9rem;
