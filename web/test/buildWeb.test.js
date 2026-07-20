@@ -104,6 +104,12 @@ test("ships crawlable landing-page content without JavaScript rendering", async 
         assert.match(html, /href="https:\/\/berlin\.transitradar\.de\/"/);
         assert.match(html, /href="https:\/\/hamburg\.transitradar\.de\/"/);
         assert.match(html, /href="https:\/\/frankfurt\.transitradar\.de\/"/);
+        assert.match(html, /aria-label="Hannover: Coming soon"/);
+        assert.match(html, /<span class="city-network">GVH<\/span>/);
+        assert.match(html, /aria-label="Köln: Coming soon"/);
+        assert.match(html, /<span class="city-network">VRS<\/span>/);
+        assert.match(html, /hannover-gvh-640\.webp/);
+        assert.match(html, /koeln-vrs-640\.webp/);
         assert.doesNotMatch(html, /js\/landing\/App\.js/);
         assert.doesNotMatch(html, /id="landing-root"/);
     } finally {
