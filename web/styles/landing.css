@@ -80,7 +80,7 @@ img {
 
 .hero {
     display: grid;
-    min-height: clamp(18rem, 32vh, 26rem);
+    min-height: 36vh;
     padding: 0 0 clamp(1rem, 2.5vw, 2rem);
 }
 
@@ -212,21 +212,9 @@ h1 {
     transition: transform 220ms ease, border-color 220ms ease;
 }
 
-.city-card--ready:hover,
-.city-card--ready:focus-visible {
+.city-card--ready:hover {
     border-color: color-mix(in srgb, var(--accent) 68%, white 8%);
     transform: translateY(-0.38rem);
-}
-
-.city-card--ready:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--accent) 78%, white 22%);
-    outline-offset: 4px;
-}
-
-.city-card--ready:active {
-    border-color: color-mix(in srgb, var(--accent) 78%, white 12%);
-    transform: translateY(-0.12rem) scale(0.995);
-    transition-duration: 80ms;
 }
 
 .city-image-wrap {
@@ -252,8 +240,7 @@ h1 {
     transition: transform 340ms ease, filter 340ms ease;
 }
 
-.city-card--ready:hover .city-image-wrap img,
-.city-card--ready:focus-visible .city-image-wrap img {
+.city-card--ready:hover .city-image-wrap img {
     filter: saturate(1.12) contrast(1.08);
     transform: scale(1.055);
 }
