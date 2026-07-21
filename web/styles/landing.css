@@ -80,7 +80,7 @@ img {
 
 .hero {
     display: grid;
-    min-height: clamp(15rem, 26vh, 22rem);
+    min-height: clamp(18rem, 32vh, 26rem);
     padding: 0 0 clamp(1rem, 2.5vw, 2rem);
 }
 
