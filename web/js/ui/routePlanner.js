@@ -57,11 +57,48 @@ function lineName(line) {
     return typeof value === "string" || typeof value === "number" ? String(value) : "";
 }
 
+function linePriority(line) {
+    const name = lineName(line).trim().toUpperCase();
+    const metadata = line && typeof line === "object"
+        ? [line.product, line.mode, line.type, line.productName, line.product?.name]
+            .filter(value => typeof value === "string")
+            .join(" ")
+            .toUpperCase()
+        : "";
+
+    if (/^S\s*\d/u.test(name) || /S-?BAHN|SUBURBAN/u.test(metadata)) return 0;
+    if (/^U\s*\d/u.test(name) || /U-?BAHN|SUBWAY/u.test(metadata)) return 1;
+    if (/^(RE|RB|IRE)\s*\d/u.test(name) || /REGIONAL/u.test(metadata)) return 2;
+    if (/^(M?\d+|TRAM)/u.test(name) || /TRAM/u.test(metadata)) return 3;
+    if (/^(BUS|N|X)\s*\d/u.test(name) || /BUS/u.test(metadata)) return 4;
+    return 5;
+}
+
 function stationLines(station) {
-    return [...new Set([
+    const lines = [
         ...(station.lines || []),
         ...(station.stops || []).flatMap(stop => stop.lines || [])
-    ].map(lineName))].filter(Boolean);
+    ];
+    const rankedLines = new Map();
+
+    lines.forEach((line, index) => {
+        const name = lineName(line);
+
+        if (!name) {
+            return;
+        }
+
+        const candidate = { name, priority: linePriority(line), index };
+        const current = rankedLines.get(name);
+
+        if (!current || candidate.priority < current.priority) {
+            rankedLines.set(name, candidate);
+        }
+    });
+
+    return [...rankedLines.values()]
+        .sort((a, b) => a.priority - b.priority || a.index - b.index)
+        .map(line => line.name);
 }
 
 function rankStations(stations, query) {

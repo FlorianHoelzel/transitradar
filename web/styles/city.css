@@ -126,6 +126,7 @@
 .berlin-v2 .location-button,
 .berlin-v2 .sidebar-toggle,
 .berlin-v2 .route-planner-toggle,
+.berlin-v2 .station-search-restore,
 .berlin-v2 .selected-line-clear {
     display: inline-flex;
     align-items: center;
@@ -169,6 +170,7 @@
 .berlin-v2 .location-button:hover,
 .berlin-v2 .sidebar-toggle:hover,
 .berlin-v2 .route-planner-toggle:hover,
+.berlin-v2 .station-search-restore:hover,
 .berlin-v2 .selected-line-clear:hover {
     background: var(--panel);
     border-color: rgba(255, 255, 255, 0.24);
@@ -221,16 +223,18 @@
 }
 
 .berlin-v2 .top-search-controls {
+    --top-control-height: 2.85rem;
     top: clamp(0.75rem, 2vw, 1.45rem);
     z-index: 19000;
 }
 
 .berlin-v2 .search-box {
     width: min(29rem, calc(100vw - 31rem));
+    height: var(--top-control-height);
 }
 
 .berlin-v2 #searchInput {
-    height: 2.85rem;
+    height: var(--top-control-height);
     padding: 0 1rem;
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -241,6 +245,25 @@
     box-shadow: none;
     backdrop-filter: var(--glass-blur-soft);
     -webkit-backdrop-filter: var(--glass-blur-soft);
+}
+
+.berlin-v2 .route-planner-toggle,
+.berlin-v2 .station-search-restore {
+    width: var(--top-control-height);
+    height: var(--top-control-height);
+    min-height: var(--top-control-height);
+    flex-basis: var(--top-control-height);
+}
+
+.berlin-v2 .station-search-restore {
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.berlin-v2 .top-search-controls.route-mode .search-box {
+    width: var(--top-control-height);
+    flex-basis: var(--top-control-height);
 }
 
 .berlin-v2 #searchInput:focus {
@@ -617,6 +640,7 @@
     }
 
     .berlin-v2 .top-search-controls {
+        --top-control-height: 2.75rem;
         top: 4rem;
         width: calc(100vw - 1.7rem);
     }
@@ -624,10 +648,6 @@
     .berlin-v2 .search-box {
         width: auto;
         flex: 1 1 auto;
-    }
-
-    .berlin-v2 #searchInput {
-        height: 2.75rem;
     }
 
     .berlin-v2 #searchResults {
