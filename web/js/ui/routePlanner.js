@@ -3,6 +3,7 @@ import { createLineBadge } from "../lines/badges.js";
 import { showJourneyRoute } from "../map/routeLayer.js";
 import { getDisplayStationName } from "../stations/stationNames.js";
 import { getStations } from "../stations/stationStore.js";
+import { rankStations, stationLines } from "./stationRanking.js";
 
 let isOpen = false;
 
@@ -42,92 +43,6 @@ function parseDateTime(dateValue, clockValue) {
     }
 
     return date;
-}
-
-function lineName(line) {
-    if (typeof line === "string" || typeof line === "number") {
-        return String(line);
-    }
-
-    if (!line || typeof line !== "object") {
-        return "";
-    }
-
-    const value = line.name ?? line.label ?? line.symbol ?? line.product?.name;
-    return typeof value === "string" || typeof value === "number" ? String(value) : "";
-}
-
-function linePriority(line) {
-    const name = lineName(line).trim().toUpperCase();
-    const metadata = line && typeof line === "object"
-        ? [line.product, line.mode, line.type, line.productName, line.product?.name]
-            .filter(value => typeof value === "string")
-            .join(" ")
-            .toUpperCase()
-        : "";
-
-    if (/^S\s*\d/u.test(name) || /S-?BAHN|SUBURBAN/u.test(metadata)) return 0;
-    if (/^U\s*\d/u.test(name) || /U-?BAHN|SUBWAY/u.test(metadata)) return 1;
-    if (/^(RE|RB|IRE)\s*\d/u.test(name) || /REGIONAL/u.test(metadata)) return 2;
-    if (/^(M?\d+|TRAM)/u.test(name) || /TRAM/u.test(metadata)) return 3;
-    if (/^(BUS|N|X)\s*\d/u.test(name) || /BUS/u.test(metadata)) return 4;
-    return 5;
-}
-
-function stationLines(station) {
-    const lines = [
-        ...(station.lines || []),
-        ...(station.stops || []).flatMap(stop => stop.lines || [])
-    ];
-    const rankedLines = new Map();
-
-    lines.forEach((line, index) => {
-        const name = lineName(line);
-
-        if (!name) {
-            return;
-        }
-
-        const candidate = { name, priority: linePriority(line), index };
-        const current = rankedLines.get(name);
-
-        if (!current || candidate.priority < current.priority) {
-            rankedLines.set(name, candidate);
-        }
-    });
-
-    return [...rankedLines.values()]
-        .sort((a, b) => a.priority - b.priority || a.index - b.index)
-        .map(line => line.name);
-}
-
-function rankStations(stations, query) {
-    const search = query.trim().toLocaleLowerCase("de-DE");
-
-    if (search.length < 2) {
-        return [];
-    }
-
-    return stations
-        .map(station => {
-            const name = getDisplayStationName(station);
-            const normalizedName = name.toLocaleLowerCase("de-DE");
-            let score = 0;
-
-            if (normalizedName === search) score = 1000;
-            else if (normalizedName.startsWith(search)) score = 800;
-            else if (normalizedName.split(/\s+/u).some(word => word.startsWith(search))) score = 650;
-            else if (normalizedName.includes(search)) score = 500;
-
-            return { station, name, score };
-        })
-        .filter(result => result.score > 0)
-        .sort((a, b) => {
-            return b.score - a.score
-                || stationLines(b.station).length - stationLines(a.station).length
-                || a.name.localeCompare(b.name, "de-DE", { numeric: true });
-        })
-        .slice(0, 8);
 }
 
 async function findStations(query) {
