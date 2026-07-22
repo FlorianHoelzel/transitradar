@@ -163,11 +163,6 @@ export function setupSidebar() {
 
         <div id="sidebarContent" class="sidebar-content">
             <nav class="sidebar-nav">
-                <button id="routePlannerButton" class="sidebar-item sidebar-route-planner" type="button">
-                    <span class="sidebar-item-emoji">🧭</span>
-                    <span>Route planen</span>
-                </button>
-
                 <button id="nearbyButton" class="sidebar-item" type="button">
                     <span class="sidebar-item-emoji">📍</span>
                     <span>Haltestellen in der Nähe</span>
@@ -300,7 +295,6 @@ export function setupSidebar() {
     const nearbyList = document.getElementById("nearbyList");
 
     const favoritesButton = document.getElementById("favoritesButton");
-    const routePlannerButton = document.getElementById("routePlannerButton");
     const favoritesPanel = document.getElementById("favoritesPanel");
     const favoritesChevron = document.getElementById("favoritesChevron");
 
@@ -504,10 +498,6 @@ export function setupSidebar() {
 
     nearbyButton.addEventListener("click", toggleNearby);
     favoritesButton.addEventListener("click", toggleFavorites);
-    routePlannerButton.addEventListener("click", () => {
-        closeSidebar();
-        window.dispatchEvent(new CustomEvent("routePlanner:open"));
-    });
 
     favoritesList?.addEventListener("scroll", updateFavoritesFade);
     sidebarContent.addEventListener("scroll", updateFooterFade);

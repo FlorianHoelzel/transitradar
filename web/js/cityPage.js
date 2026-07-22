@@ -52,7 +52,6 @@ function replaceSidebarIcons() {
     replaceButtonIcon("#aboutClose", "x", "Info schließen");
 
     replaceInlineIcon("#nearbyButton .sidebar-item-emoji", "mapPin", "Haltestellen in der Nähe");
-    replaceInlineIcon("#routePlannerButton .sidebar-item-emoji", "route", "Route planen");
     replaceInlineIcon("#favoritesButton .sidebar-item-emoji", "star", "Favoriten");
     replaceInlineIcon("#settingsButton .sidebar-item-emoji", "settings", "Einstellungen");
     replaceInlineIcon("#aboutButton .sidebar-item-emoji", "info", "Über TransitRadar");

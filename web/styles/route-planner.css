@@ -647,16 +647,6 @@ body.route-planner-open #searchResults {
     z-index: 22500;
 }
 
-.sidebar-route-planner {
-    border-color: rgba(56, 189, 248, 0.2);
-    background: rgba(56, 189, 248, 0.08);
-    color: #e0f2fe;
-}
-
-.sidebar-route-planner .sidebar-item-emoji {
-    color: var(--accent);
-}
-
 @media (max-width: 600px) {
     body.berlin-v2 .journey-route-control {
         top: auto;
