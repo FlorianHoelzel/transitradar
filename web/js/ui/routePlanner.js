@@ -330,19 +330,28 @@ export function setupRoutePlanner() {
     dateInput.value = dateInputValue(initialDateTime);
     clockInput.value = clockInputValue(initialDateTime);
 
+    function hasValidRoute() {
+        return Boolean(
+            origin?.id &&
+            destination?.id &&
+            String(origin.id) !== String(destination.id)
+        );
+    }
+
     function clearResults() {
         resultsContainer.replaceChildren();
         resultsContainer.scrollTop = 0;
         resultsContainer.classList.remove("scrollable");
         status.classList.remove("error");
-        status.textContent = origin && destination
+        status.textContent = hasValidRoute()
             ? "Bereit zur Verbindungssuche."
-            : "Start und Ziel auswählen.";
+            : origin && destination
+                ? "Start und Ziel müssen verschieden sein."
+                : "Start und Ziel auswählen.";
     }
 
     function updateSubmitState() {
-        const valid = origin?.id && destination?.id && origin.id !== destination.id;
-        submitButton.disabled = loading || !valid;
+        submitButton.disabled = loading || !hasValidRoute();
     }
 
     function closeSuggestions() {

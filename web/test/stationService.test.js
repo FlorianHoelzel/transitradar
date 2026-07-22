@@ -76,6 +76,7 @@ test("groups Frankfurt Hauptbahnhof access stops under the aggregate station", (
     ]);
 
     assert.equal(stations.length, 1);
+    assert.equal(stations[0].id, "3000010");
     assert.equal(stations[0].name, "Frankfurt Hbf");
     assert.deepEqual(stations[0].coordinates, [50.107158, 8.663767]);
     assert.deepEqual(
@@ -91,5 +92,33 @@ test("groups Frankfurt Hauptbahnhof access stops under the aggregate station", (
     assert.equal(
         getSearchStationName(stations[0]).toLowerCase().includes("hauptbahnhof"),
         true
+    );
+});
+
+test("gives ordinary grouped stations a representative route-planner id", () => {
+    const stations = prepareStations([
+        createStop(
+            "stop-first",
+            "S Galluswarte",
+            50.1039,
+            8.6444,
+            { suburban: true },
+            ["S3"]
+        ),
+        createStop(
+            "stop-platform",
+            "Galluswarte Bf",
+            50.1038,
+            8.6445,
+            { bus: true },
+            ["Bus 52"]
+        )
+    ]);
+
+    assert.equal(stations.length, 1);
+    assert.equal(stations[0].id, "stop-first");
+    assert.deepEqual(
+        stations[0].stops.map(stop => stop.id),
+        ["stop-first", "stop-platform"]
     );
 });

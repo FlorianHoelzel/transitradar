@@ -171,6 +171,7 @@ function groupStationsByName(rawStations) {
 
         if (!groupedStations[stationGroupKey]) {
             groupedStations[stationGroupKey] = {
+                id: configuredGroup?.canonicalId || station.id,
                 name: displayName,
                 coordinates: station.coordinates,
                 products: createEmptyProducts(),
