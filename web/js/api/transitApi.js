@@ -468,28 +468,107 @@ export async function getDepartures(station) {
 }
 
 export async function getJourneys({ from, to, departure, arrival }) {
-    const parameters = new URLSearchParams({
-        from: getCleanStopId(from),
-        to: getCleanStopId(to),
-        results: String(JOURNEY_CONFIG.results),
-        stopovers: "true",
-        polylines: "true",
-        remarks: "true"
-    });
+    const getJourneyStopScore = stop => {
+        const products = stop?.products || {};
+        const weights = {
+            express: 800,
+            regional: 600,
+            suburban: 500,
+            subway: 450,
+            tram: 250,
+            ferry: 200,
+            bus: 100
+        };
 
-    if (arrival) {
-        parameters.set("arrival", arrival);
-    } else if (departure) {
-        parameters.set("departure", departure);
+        return Object.entries(weights).reduce((score, [product, weight]) => {
+            return score + (products[product] === true ? weight : 0);
+        }, 0) + Math.min(new Set(stop?.lines || []).size, 99);
+    };
+
+    const getCandidates = station => {
+        if (typeof station === "string" || typeof station === "number") {
+            return [getCleanStopId(station)];
+        }
+
+        return [...new Map(
+            [station, ...(station?.stops || [])]
+                .filter(stop => stop?.id)
+                .sort((a, b) => getJourneyStopScore(b) - getJourneyStopScore(a))
+                .map(stop => [getCleanStopId(stop.id), getCleanStopId(stop.id)])
+        ).values()].slice(0, 4);
+    };
+
+    const originIds = getCandidates(from);
+    const destinationIds = getCandidates(to);
+    const candidatePairs = originIds
+        .flatMap((originId, originIndex) => {
+            return destinationIds.map((destinationId, destinationIndex) => ({
+                originId,
+                destinationId,
+                priority: originIndex + destinationIndex
+            }));
+        })
+        .filter(pair => String(pair.originId) !== String(pair.destinationId))
+        .sort((a, b) => a.priority - b.priority)
+        .slice(0, 6);
+
+    const requestPair = async ({ originId, destinationId }) => {
+        const parameters = new URLSearchParams({
+            from: originId,
+            to: destinationId,
+            results: String(JOURNEY_CONFIG.results),
+            stopovers: "true",
+            polylines: "true",
+            remarks: "true"
+        });
+
+        if (arrival) {
+            parameters.set("arrival", arrival);
+        } else if (departure) {
+            parameters.set("departure", departure);
+        }
+
+        const data = await fetchJson(
+            createUrl(API_BASE_URL, `/journeys?${parameters}`),
+            "Verbindungen konnten nicht geladen werden.",
+            JOURNEY_CONFIG.requestTimeout
+        );
+
+        return Array.isArray(data) ? data : data.journeys ?? [];
+    };
+
+    if (candidatePairs.length === 0) {
+        return [];
     }
 
-    const data = await fetchJson(
-        createUrl(API_BASE_URL, `/journeys?${parameters}`),
-        "Verbindungen konnten nicht geladen werden.",
-        JOURNEY_CONFIG.requestTimeout
-    );
+    let firstError = null;
 
-    return Array.isArray(data) ? data : data.journeys ?? [];
+    try {
+        const journeys = await requestPair(candidatePairs[0]);
+
+        if (journeys.length > 0 || candidatePairs.length === 1) {
+            return journeys;
+        }
+    } catch (error) {
+        firstError = error;
+    }
+
+    const fallbackResults = await Promise.allSettled(
+        candidatePairs.slice(1).map(requestPair)
+    );
+    const successfulFallback = fallbackResults.find(result => {
+        return result.status === "fulfilled" && result.value.length > 0;
+    });
+
+    if (successfulFallback) {
+        return successfulFallback.value;
+    }
+
+    if (fallbackResults.some(result => result.status === "fulfilled")) {
+        return [];
+    }
+
+    throw firstError || fallbackResults[0]?.reason;
 }
 
 async function fetchVehicleMovements(boundsQuery, zoom) {

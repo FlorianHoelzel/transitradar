@@ -1,4 +1,5 @@
 import { getJourneys, searchStations } from "../api/transitApi.js";
+import { CITY_CONFIG } from "../config.js";
 import { createLineBadge } from "../lines/badges.js";
 import { showJourneyRoute } from "../map/routeLayer.js";
 import { getDisplayStationName } from "../stations/stationNames.js";
@@ -48,7 +49,10 @@ function parseDateTime(dateValue, clockValue) {
 async function findStations(query) {
     const localMatches = rankStations(getStations(), query);
 
-    if (localMatches.length >= 5) {
+    if (
+        localMatches.length >= 5 ||
+        CITY_CONFIG.routePlannerRemoteSearch === false
+    ) {
         return localMatches;
     }
 
@@ -461,8 +465,8 @@ export function setupRoutePlanner() {
 
             const selectedTime = requestedDate.toISOString();
             const journeys = await getJourneys({
-                from: origin.id,
-                to: destination.id,
+                from: origin,
+                to: destination,
                 departure: timeModeValue === "arrival" ? undefined : selectedTime,
                 arrival: timeModeValue === "arrival" ? selectedTime : undefined
             });

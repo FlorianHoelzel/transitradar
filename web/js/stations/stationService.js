@@ -77,6 +77,23 @@ function mergeProducts(targetProducts, sourceProducts) {
     });
 }
 
+function getRoutingStopScore(station) {
+    const products = station.products || {};
+    const weights = {
+        express: 800,
+        regional: 600,
+        suburban: 500,
+        subway: 450,
+        tram: 250,
+        ferry: 200,
+        bus: 100
+    };
+
+    return Object.entries(weights).reduce((score, [product, weight]) => {
+        return score + (products[product] === true ? weight : 0);
+    }, 0) + Math.min(new Set(station.lines || []).size, 99);
+}
+
 function removeStopDetails(name) {
     return name
         .replace(/\s*\[[^\]]+\]\s*$/u, "")
@@ -176,12 +193,22 @@ function groupStationsByName(rawStations) {
                 coordinates: station.coordinates,
                 products: createEmptyProducts(),
                 lines: [],
-                stops: []
+                stops: [],
+                routingStopScore: configuredGroup
+                    ? Number.POSITIVE_INFINITY
+                    : getRoutingStopScore(station)
             };
         }
 
         if (station.id === configuredGroup?.canonicalId) {
             groupedStations[stationGroupKey].coordinates = station.coordinates;
+        } else if (
+            !configuredGroup &&
+            getRoutingStopScore(station) > groupedStations[stationGroupKey].routingStopScore
+        ) {
+            groupedStations[stationGroupKey].id = station.id;
+            groupedStations[stationGroupKey].coordinates = station.coordinates;
+            groupedStations[stationGroupKey].routingStopScore = getRoutingStopScore(station);
         }
 
         groupedStations[stationGroupKey].name = chooseStationDisplayName(
@@ -204,8 +231,10 @@ function groupStationsByName(rawStations) {
 
     return Object.values(groupedStations)
         .map(station => {
+            const { routingStopScore, ...publicStation } = station;
+
             return {
-                ...station,
+                ...publicStation,
                 lines: sortLines(station.lines)
             };
         })

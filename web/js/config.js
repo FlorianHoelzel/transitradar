@@ -39,6 +39,7 @@ const CITY_CONFIGS = {
         supportsLiveVehicles: true,
         vehicleGridStrategy: "single-request",
         vehicleRequestTimeout: 15000,
+        routePlannerRemoteSearch: false,
         surfaceTransitLabel: "Bus / Fähre",
         bounds: {
             minLat: 53.35,
@@ -70,6 +71,7 @@ const CITY_CONFIGS = {
         departureFirstRenderTimeout: 6500,
         departureRefreshInterval: 20000,
         departureStopStrategy: "best",
+        routePlannerRemoteSearch: false,
         stationGroups: {
             "3000010": {
                 name: "Frankfurt Hbf",
