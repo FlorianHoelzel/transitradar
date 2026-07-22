@@ -5,11 +5,55 @@ import {
     filterStopsByBounds,
     normalizeDeparture,
     normalizeDepartures,
+    normalizeJourneys,
     normalizeJourneyDetail,
     normalizeLocations,
     normalizeProducts,
     normalizeStop
 } from "../src/normalizers.js";
+
+test("normalizes RMV trip results into journeys", () => {
+    const journeys = normalizeJourneys({
+        Trip: [{
+            ctxRecon: "journey-context",
+            LegList: {
+                Leg: [{
+                    Origin: {
+                        extId: "3000010",
+                        name: "Frankfurt Hbf",
+                        lon: 8.663767,
+                        lat: 50.107158,
+                        date: "2026-07-22",
+                        time: "12:00:00"
+                    },
+                    Destination: {
+                        extId: "3006907",
+                        name: "Konstablerwache",
+                        lon: 8.6874,
+                        lat: 50.1148,
+                        date: "2026-07-22",
+                        time: "12:08:00"
+                    },
+                    Product: [{ name: "S8", cls: "8" }],
+                    JourneyDetailRef: { ref: "trip-reference" },
+                    PolylineGroup: {
+                        polylineDesc: [{ crd: [8.663767, 50.107158, 8.6874, 50.1148] }]
+                    }
+                }]
+            }
+        }]
+    });
+
+    assert.equal(journeys.length, 1);
+    assert.equal(journeys[0].id, "journey-context");
+    assert.equal(journeys[0].duration, 8 * 60);
+    assert.equal(journeys[0].legs[0].tripId, "trip-reference");
+    assert.equal(journeys[0].legs[0].line.product, "suburban");
+    assert.deepEqual(
+        journeys[0].legs[0].polyline.geometry.coordinates,
+        [[8.663767, 50.107158], [8.6874, 50.1148]]
+    );
+});
 
 const frankfurtCentral = {
     extId: "3000010",

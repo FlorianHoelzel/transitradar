@@ -8,9 +8,50 @@ import {
     decodeTripContext,
     encodeTripContext,
     normalizeCourse,
+    normalizeJourneys,
     normalizeProducts,
     normalizeStop
 } from "../src/normalizers.js";
+
+test("normalizes Geofox route schedules into journeys", () => {
+    const journeys = normalizeJourneys({
+        realtimeSchedules: [{
+            routeId: 7,
+            time: 18,
+            scheduleElements: [{
+                from: {
+                    id: "Master:1",
+                    name: "Start",
+                    coordinate: { x: 9.99, y: 53.55 },
+                    depTime: { date: "22.07.2026", time: "12:00" }
+                },
+                to: {
+                    id: "Master:2",
+                    name: "Ziel",
+                    coordinate: { x: 10.01, y: 53.57 },
+                    arrTime: { date: "22.07.2026", time: "12:18" }
+                },
+                line: {
+                    id: "U3",
+                    name: "U3",
+                    direction: "Wandsbek-Gartenstadt",
+                    type: { simpleType: "U" }
+                },
+                paths: [{ track: [{ x: 9.99, y: 53.55 }, { x: 10.01, y: 53.57 }] }]
+            }]
+        }]
+    });
+
+    assert.equal(journeys.length, 1);
+    assert.equal(journeys[0].duration, 18 * 60);
+    assert.equal(journeys[0].transfers, 0);
+    assert.equal(journeys[0].legs[0].line.name, "U3");
+    assert.equal(journeys[0].legs[0].line.product, "subway");
+    assert.deepEqual(
+        journeys[0].legs[0].polyline.geometry.coordinates,
+        [[9.99, 53.55], [10.01, 53.57]]
+    );
+});
 
 test("normalizes Geofox station coordinates and products", () => {
     const stop = normalizeStop({

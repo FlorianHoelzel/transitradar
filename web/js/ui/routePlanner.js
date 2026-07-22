@@ -1,4 +1,175 @@
+import { getJourneys, searchStations } from "../api/transitApi.js";
+import { createLineBadge } from "../lines/badges.js";
+import { showJourneyRoute } from "../map/routeLayer.js";
+import { getDisplayStationName } from "../stations/stationNames.js";
+import { getStations } from "../stations/stationStore.js";
+
 let isOpen = false;
+
+function localDateTimeValue(date) {
+    const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return localTime.toISOString().slice(0, 16);
+}
+
+function stationLines(station) {
+    return [...new Set([
+        ...(station.lines || []),
+        ...(station.stops || []).flatMap(stop => stop.lines || [])
+    ])].filter(Boolean);
+}
+
+function rankStations(stations, query) {
+    const search = query.trim().toLocaleLowerCase("de-DE");
+
+    if (search.length < 2) {
+        return [];
+    }
+
+    return stations
+        .map(station => {
+            const name = getDisplayStationName(station);
+            const normalizedName = name.toLocaleLowerCase("de-DE");
+            let score = 0;
+
+            if (normalizedName === search) score = 1000;
+            else if (normalizedName.startsWith(search)) score = 800;
+            else if (normalizedName.split(/\s+/u).some(word => word.startsWith(search))) score = 650;
+            else if (normalizedName.includes(search)) score = 500;
+
+            return { station, name, score };
+        })
+        .filter(result => result.score > 0)
+        .sort((a, b) => {
+            return b.score - a.score
+                || stationLines(b.station).length - stationLines(a.station).length
+                || a.name.localeCompare(b.name, "de-DE", { numeric: true });
+        })
+        .slice(0, 8);
+}
+
+async function findStations(query) {
+    const localMatches = rankStations(getStations(), query);
+
+    if (localMatches.length >= 5) {
+        return localMatches;
+    }
+
+    try {
+        const remoteStations = await searchStations(query, 10);
+        const stations = [...new Map(
+            [...localMatches.map(result => result.station), ...remoteStations]
+                .filter(station => station?.id)
+                .map(station => [station.id, station])
+        ).values()];
+
+        return rankStations(stations, query);
+    } catch (error) {
+        console.warn("Haltestellenvorschläge konnten nicht geladen werden:", error);
+        return localMatches;
+    }
+}
+
+function formatTime(value) {
+    if (!value) {
+        return "–";
+    }
+
+    return new Date(value).toLocaleTimeString("de-DE", {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+function journeyTimes(journey) {
+    const firstLeg = journey.legs?.[0];
+    const lastLeg = journey.legs?.at(-1);
+    const departure = journey.departure || firstLeg?.departure || firstLeg?.plannedDeparture;
+    const arrival = journey.arrival || lastLeg?.arrival || lastLeg?.plannedArrival;
+    const plannedDeparture = journey.plannedDeparture || firstLeg?.plannedDeparture;
+    const durationSeconds = Number(journey.duration) || (
+        departure && arrival ? Math.max(0, (new Date(arrival) - new Date(departure)) / 1000) : 0
+    );
+
+    return { departure, arrival, plannedDeparture, durationSeconds };
+}
+
+function formatDuration(seconds) {
+    const minutes = Math.max(1, Math.round(Number(seconds || 0) / 60));
+
+    if (minutes < 60) {
+        return `${minutes} Min.`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes ? `${hours} Std. ${remainingMinutes} Min.` : `${hours} Std.`;
+}
+
+function uniqueJourneyLegs(journey) {
+    return (journey.legs || []).filter((leg, index, legs) => {
+        if (leg.walking || !leg.line?.name) {
+            return true;
+        }
+
+        return legs[index - 1]?.line?.name !== leg.line.name;
+    });
+}
+
+function createJourneyCard(journey, index, onSelect) {
+    const button = document.createElement("button");
+    const times = journeyTimes(journey);
+    const transitLegs = (journey.legs || []).filter(leg => !leg.walking && leg.line);
+    const transfers = Number.isFinite(Number(journey.transfers))
+        ? Number(journey.transfers)
+        : Math.max(0, transitLegs.length - 1);
+    const delaySeconds = times.departure && times.plannedDeparture
+        ? Math.max(0, (new Date(times.departure) - new Date(times.plannedDeparture)) / 1000)
+        : 0;
+
+    button.className = "journey-card";
+    button.type = "button";
+    button.dataset.journeyIndex = String(index);
+    button.setAttribute(
+        "aria-label",
+        `Verbindung ${formatTime(times.departure)} bis ${formatTime(times.arrival)}`
+    );
+
+    const timeRow = document.createElement("div");
+    timeRow.className = "journey-card-times";
+    timeRow.innerHTML = `
+        <span>${formatTime(times.departure)}</span>
+        <span class="journey-card-duration">${formatDuration(times.durationSeconds)}</span>
+        <span>${formatTime(times.arrival)}</span>
+    `;
+
+    const lineRow = document.createElement("div");
+    lineRow.className = "journey-card-lines";
+
+    uniqueJourneyLegs(journey).forEach(leg => {
+        if (leg.walking || !leg.line?.name) {
+            const walk = document.createElement("span");
+            walk.className = "journey-walk";
+            walk.textContent = "Zu Fuß";
+            lineRow.appendChild(walk);
+            return;
+        }
+
+        const badge = document.createElement("span");
+        badge.innerHTML = createLineBadge(leg.line.name);
+        lineRow.appendChild(badge);
+    });
+
+    const metaRow = document.createElement("div");
+    metaRow.className = "journey-card-meta";
+    metaRow.innerHTML = `
+        <span>${transfers === 0 ? "Direkt" : `${transfers} × umsteigen`}</span>
+        ${delaySeconds >= 60 ? `<span class="journey-card-delay">+${Math.round(delaySeconds / 60)} Min.</span>` : ""}
+    `;
+
+    button.append(timeRow, lineRow, metaRow);
+    button.addEventListener("click", () => onSelect(journey, button));
+    return button;
+}
 
 export function setupRoutePlanner() {
     const toggle = document.getElementById("routePlannerToggle");
@@ -10,9 +181,141 @@ export function setupRoutePlanner() {
     const swapButton = document.getElementById("routePlannerSwap");
     const originInput = document.getElementById("routePlannerOrigin");
     const destinationInput = document.getElementById("routePlannerDestination");
+    const originSuggestions = document.getElementById("routePlannerOriginSuggestions");
+    const destinationSuggestions = document.getElementById("routePlannerDestinationSuggestions");
+    const timeMode = document.getElementById("routePlannerTime");
+    const dateTimeInput = document.getElementById("routePlannerDateTime");
+    const submitButton = document.getElementById("routePlannerSubmit");
+    const status = document.getElementById("routePlannerStatus");
+    const resultsContainer = document.getElementById("routePlannerResults");
+    let origin = null;
+    let destination = null;
+    let loading = false;
+    let suggestionRequestId = 0;
+    let suggestionTimer = null;
 
     if (!toggle || !panel) {
         return;
+    }
+
+    dateTimeInput.value = localDateTimeValue(new Date(Date.now() + 10 * 60000));
+
+    function clearResults() {
+        resultsContainer.replaceChildren();
+        status.classList.remove("error");
+        status.textContent = origin && destination
+            ? "Bereit zur Verbindungssuche."
+            : "Start und Ziel auswählen.";
+    }
+
+    function updateSubmitState() {
+        const valid = origin?.id && destination?.id && origin.id !== destination.id;
+        submitButton.disabled = loading || !valid;
+    }
+
+    function closeSuggestions() {
+        originSuggestions.classList.remove("open");
+        destinationSuggestions.classList.remove("open");
+        originInput.setAttribute("aria-expanded", "false");
+        destinationInput.setAttribute("aria-expanded", "false");
+    }
+
+    function selectStation(kind, station) {
+        const input = kind === "origin" ? originInput : destinationInput;
+        const suggestions = kind === "origin" ? originSuggestions : destinationSuggestions;
+
+        if (kind === "origin") {
+            origin = station;
+        } else {
+            destination = station;
+        }
+
+        input.value = getDisplayStationName(station);
+        input.dataset.stationId = station.id;
+        suggestions.classList.remove("open");
+        input.setAttribute("aria-expanded", "false");
+        clearResults();
+        updateSubmitState();
+
+        if (kind === "origin" && !destination) {
+            destinationInput.focus();
+        }
+    }
+
+    async function renderSuggestions(kind) {
+        const input = kind === "origin" ? originInput : destinationInput;
+        const container = kind === "origin" ? originSuggestions : destinationSuggestions;
+        const requestId = ++suggestionRequestId;
+        const query = input.value;
+        const matches = await findStations(query);
+
+        if (requestId !== suggestionRequestId || input.value !== query) {
+            return;
+        }
+
+        container.replaceChildren();
+
+        matches.forEach(({ station, name }) => {
+            const button = document.createElement("button");
+            const lines = stationLines(station).slice(0, 6);
+
+            button.className = "route-planner-suggestion";
+            button.type = "button";
+            button.setAttribute("role", "option");
+            button.textContent = name;
+
+            if (lines.length > 0) {
+                const lineText = document.createElement("span");
+                lineText.className = "route-planner-suggestion-lines";
+                lineText.textContent = lines.join(" · ");
+                button.appendChild(lineText);
+            }
+
+            button.addEventListener("click", () => selectStation(kind, station));
+            container.appendChild(button);
+        });
+
+        const open = matches.length > 0;
+        container.classList.toggle("open", open);
+        input.setAttribute("aria-expanded", String(open));
+    }
+
+    function setupStationInput(kind, input) {
+        const suggestions = kind === "origin" ? originSuggestions : destinationSuggestions;
+
+        input.setAttribute("aria-autocomplete", "list");
+        input.setAttribute("aria-controls", suggestions.id);
+        input.setAttribute("aria-expanded", "false");
+
+        input.addEventListener("input", () => {
+            if (kind === "origin") origin = null;
+            else destination = null;
+
+            delete input.dataset.stationId;
+            clearResults();
+            updateSubmitState();
+            clearTimeout(suggestionTimer);
+            suggestionTimer = setTimeout(() => renderSuggestions(kind), 180);
+        });
+
+        input.addEventListener("focus", () => {
+            if (input.value.trim().length >= 2) {
+                renderSuggestions(kind);
+            }
+        });
+        input.addEventListener("keydown", event => {
+            if (event.key === "Enter" && suggestions.classList.contains("open")) {
+                const firstSuggestion = suggestions.querySelector(".route-planner-suggestion");
+
+                if (firstSuggestion) {
+                    event.preventDefault();
+                    firstSuggestion.click();
+                }
+            } else if (event.key === "Escape" && suggestions.classList.contains("open")) {
+                event.stopPropagation();
+                closeSuggestions();
+            }
+        });
     }
 
     function setOpen(nextOpen, focusDestination = true) {
@@ -27,12 +330,70 @@ export function setupRoutePlanner() {
         searchRestore.tabIndex = isOpen ? 0 : -1;
         document.body.classList.toggle("route-planner-open", isOpen);
 
+        if (!isOpen) {
+            closeSuggestions();
+        }
+
         if (isOpen && focusDestination) {
-            window.requestAnimationFrame(() => destinationInput?.focus());
+            window.requestAnimationFrame(() => (origin ? destinationInput : originInput).focus());
         } else if (!isOpen && panel.contains(document.activeElement)) {
             toggle.focus();
         }
     }
+
+    function selectJourney(journey, selectedCard) {
+        resultsContainer.querySelectorAll(".journey-card").forEach(card => {
+            card.classList.toggle("selected", card === selectedCard);
+        });
+        showJourneyRoute(journey);
+        status.textContent = "Verbindung auf der Karte ausgewählt.";
+    }
+
+    async function searchJourneys() {
+        if (submitButton.disabled || loading) {
+            return;
+        }
+
+        loading = true;
+        updateSubmitState();
+        submitButton.classList.add("loading");
+        submitButton.textContent = "Verbindungen werden geladen …";
+        resultsContainer.replaceChildren();
+        status.classList.remove("error");
+        status.textContent = "Echtzeit-Verbindungen werden gesucht …";
+
+        try {
+            const selectedTime = timeMode.value === "now"
+                ? new Date().toISOString()
+                : new Date(dateTimeInput.value).toISOString();
+            const journeys = await getJourneys({
+                from: origin.id,
+                to: destination.id,
+                departure: timeMode.value === "arrival" ? undefined : selectedTime,
+                arrival: timeMode.value === "arrival" ? selectedTime : undefined
+            });
+
+            journeys.forEach((journey, index) => {
+                resultsContainer.appendChild(createJourneyCard(journey, index, selectJourney));
+            });
+
+            status.textContent = journeys.length > 0
+                ? `${journeys.length} Verbindungen gefunden.`
+                : "Keine passenden Verbindungen gefunden.";
+        } catch (error) {
+            console.error("Verbindungssuche fehlgeschlagen:", error);
+            status.classList.add("error");
+            status.textContent = "Verbindungen konnten nicht geladen werden. Bitte erneut versuchen.";
+        } finally {
+            loading = false;
+            submitButton.classList.remove("loading");
+            submitButton.textContent = "Verbindungen suchen";
+            updateSubmitState();
+        }
+    }
+
+    setupStationInput("origin", originInput);
+    setupStationInput("destination", destinationInput);
 
     toggle.addEventListener("click", () => setOpen(!isOpen));
     closeButton?.addEventListener("click", () => setOpen(false));
@@ -42,15 +403,40 @@ export function setupRoutePlanner() {
     });
 
     swapButton?.addEventListener("click", () => {
-        const origin = originInput.value;
-
-        originInput.value = destinationInput.value;
-        destinationInput.value = origin;
+        [origin, destination] = [destination, origin];
+        [originInput.value, destinationInput.value] = [
+            destinationInput.value,
+            originInput.value
+        ];
+        originInput.dataset.stationId = origin?.id || "";
+        destinationInput.dataset.stationId = destination?.id || "";
+        clearResults();
+        updateSubmitState();
         destinationInput.focus();
     });
 
-    window.addEventListener("routePlanner:open", () => setOpen(true));
+    timeMode.addEventListener("change", () => {
+        dateTimeInput.hidden = timeMode.value === "now";
 
+        if (!dateTimeInput.hidden && !dateTimeInput.value) {
+            dateTimeInput.value = localDateTimeValue(new Date(Date.now() + 10 * 60000));
+        }
+    });
+
+    submitButton.addEventListener("click", searchJourneys);
+    destinationInput.addEventListener("keydown", event => {
+        if (event.key === "Enter" && !destinationSuggestions.classList.contains("open")) {
+            searchJourneys();
+        }
+    });
+
+    document.addEventListener("pointerdown", event => {
+        if (!event.target.closest(".route-planner-field")) {
+            closeSuggestions();
+        }
+    });
+
+    window.addEventListener("routePlanner:open", () => setOpen(true));
     document.addEventListener("keydown", event => {
         if (event.key === "Escape" && isOpen) {
             setOpen(false);

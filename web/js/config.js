@@ -188,6 +188,11 @@ export const DEPARTURE_CONFIG = {
     popupRefreshInterval: CITY_CONFIG.departureRefreshInterval ?? 15000
 };
 
+export const JOURNEY_CONFIG = {
+    results: 5,
+    requestTimeout: 20000
+};
+
 export const VEHICLE_CONFIG = {
     refreshInterval: 30000,
     minimumUpdateInterval: 15000,

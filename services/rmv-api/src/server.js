@@ -5,6 +5,7 @@ import { config } from "./config.js";
 import {
     filterStopsByBounds,
     normalizeDepartures,
+    normalizeJourneys,
     normalizeJourneyDetail,
     normalizeLocations
 } from "./normalizers.js";
@@ -111,6 +112,68 @@ async function getDepartures(url, stationId) {
     });
 }
 
+function rmvDateTime(value) {
+    const date = new Date(value);
+
+    if (!Number.isFinite(date.getTime())) {
+        const error = new Error("A valid journey time is required.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Europe/Berlin",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23"
+    }).formatToParts(date);
+    const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+
+    return {
+        date: `${values.year}-${values.month}-${values.day}`,
+        time: `${values.hour}:${values.minute}`
+    };
+}
+
+async function getJourneys(url) {
+    const originId = url.searchParams.get("from");
+    const destId = url.searchParams.get("to");
+
+    if (!originId || !destId) {
+        const error = new Error("Origin and destination are required.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const results = integerParameter(url, "results", 5, 8);
+    const arrival = url.searchParams.get("arrival");
+    const departure = url.searchParams.get("departure");
+    const requestedTime = rmvDateTime(arrival || departure || new Date());
+    const parameters = {
+        originId,
+        destId,
+        date: requestedTime.date,
+        time: requestedTime.time,
+        searchForArrival: arrival ? 1 : 0,
+        numF: arrival ? 0 : results,
+        numB: arrival ? results : 0,
+        passlist: 1,
+        showPassingPoints: 1,
+        rtMode: "FULL",
+        poly: 1,
+        polyEnc: "N"
+    };
+    const cacheKey = `journeys:${originId}:${destId}:${requestedTime.date}:${requestedTime.time}:${Boolean(arrival)}:${results}`;
+
+    return await cached(cacheKey, 15000, async () => {
+        const data = await rmvRequest("trip", parameters);
+        return { journeys: normalizeJourneys(data).slice(0, results) };
+    });
+}
+
 async function getTrip(url, journeyId) {
     return await cached(`trip:${journeyId}`, 30000, async () => {
         const data = await rmvRequest("journeyDetail", {
@@ -165,6 +228,11 @@ async function routeRequest(request, response) {
 
     if (url.pathname === "/locations/nearby") {
         sendJson(response, 200, await findLocations(url, true));
+        return;
+    }
+
+    if (url.pathname === "/journeys") {
+        sendJson(response, 200, await getJourneys(url));
         return;
     }
 

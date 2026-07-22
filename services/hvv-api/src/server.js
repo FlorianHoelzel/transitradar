@@ -8,6 +8,7 @@ import {
     normalizeDepartures,
     decodeTripContext,
     normalizeCourse,
+    normalizeJourneys,
     normalizeMovements,
     normalizeStop
 } from "./normalizers.js";
@@ -34,7 +35,15 @@ function integerParameter(url, name, fallback, maximum = Number.MAX_SAFE_INTEGER
     return Number.isFinite(value) ? Math.min(Math.max(value, 1), maximum) : fallback;
 }
 
-function currentGtiTime() {
+function toGtiTime(value = new Date()) {
+    const date = value instanceof Date ? value : new Date(value);
+
+    if (!Number.isFinite(date.getTime())) {
+        const error = new Error("A valid journey time is required.");
+        error.statusCode = 400;
+        throw error;
+    }
+
     const parts = new Intl.DateTimeFormat("de-DE", {
         timeZone: "Europe/Berlin",
         day: "2-digit",
@@ -43,7 +52,7 @@ function currentGtiTime() {
         hour: "2-digit",
         minute: "2-digit",
         hourCycle: "h23"
-    }).formatToParts(new Date());
+    }).formatToParts(date);
     const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
 
     return {
@@ -125,7 +134,7 @@ async function getDepartures(url, stationId) {
     const duration = integerParameter(url, "duration", 60, 360);
     const payload = {
         station: { id: stationId, type: "STATION" },
-        time: currentGtiTime(),
+        time: toGtiTime(),
         maxList: results,
         maxTimeOffset: duration,
         allStationsInChangingNode: true,
@@ -141,6 +150,38 @@ async function getDepartures(url, stationId) {
     return {
         departures: normalizeDepartures(data, { stationId })
     };
+}
+
+async function getJourneys(url) {
+    const from = url.searchParams.get("from");
+    const to = url.searchParams.get("to");
+
+    if (!from || !to) {
+        const error = new Error("Origin and destination are required.");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const results = integerParameter(url, "results", 5, 8);
+    const arrival = url.searchParams.get("arrival");
+    const departure = url.searchParams.get("departure");
+    const timeValue = arrival || departure || new Date();
+    const payload = {
+        start: { id: from, type: "STATION" },
+        dest: { id: to, type: "STATION" },
+        time: toGtiTime(timeValue),
+        timeIsDeparture: !arrival,
+        schedulesAfter: results > 1 ? results - 1 : undefined,
+        realtime: "REALTIME",
+        intermediateStops: true,
+        coordinateType: "EPSG_4326"
+    };
+    const cacheKey = `journeys:${from}:${to}:${JSON.stringify(payload.time)}:${payload.timeIsDeparture}:${results}`;
+    const data = await cached(cacheKey, 15000, () => {
+        return geofoxRequest("getRoute", payload);
+    });
+
+    return { journeys: normalizeJourneys(data).slice(0, results) };
 }
 
 async function getRadar(url) {
@@ -268,6 +309,11 @@ async function routeRequest(request, response) {
 
     if (url.pathname === "/locations/nearby") {
         sendJson(response, 200, await findLocations(url, true));
+        return;
+    }
+
+    if (url.pathname === "/journeys") {
+        sendJson(response, 200, await getJourneys(url));
         return;
     }
 

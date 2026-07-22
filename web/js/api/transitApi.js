@@ -4,6 +4,7 @@ import {
     CITY_CONFIG,
     STATION_CONFIG,
     DEPARTURE_CONFIG,
+    JOURNEY_CONFIG,
     VEHICLE_CONFIG
 } from "../config.js";
 import { fetchJson } from "./httpClient.js";
@@ -322,11 +323,11 @@ async function fetchDeparturesForStation(
     return prepareDepartureResults(collector.collectedDepartures);
 }
 
-async function searchStops(query) {
+async function searchStops(query, results = STATION_CONFIG.apiResultsLimit) {
     const pathAndQuery =
         `/locations` +
         `?query=${encodeURIComponent(query)}` +
-        `&results=${STATION_CONFIG.apiResultsLimit}` +
+        `&results=${results}` +
         `&stops=true` +
         `&addresses=false` +
         `&poi=false` +
@@ -339,6 +340,10 @@ async function searchStops(query) {
     );
 
     return normalizeStationsResponse(data);
+}
+
+export async function searchStations(query, results = 10) {
+    return await searchStops(query, results);
 }
 
 async function fetchNearbyStops(point) {
@@ -460,6 +465,31 @@ export async function getDepartures(station) {
     );
 
     return departures.slice(0, DEPARTURE_CONFIG.displayLimit);
+}
+
+export async function getJourneys({ from, to, departure, arrival }) {
+    const parameters = new URLSearchParams({
+        from: getCleanStopId(from),
+        to: getCleanStopId(to),
+        results: String(JOURNEY_CONFIG.results),
+        stopovers: "true",
+        polylines: "true",
+        remarks: "true"
+    });
+
+    if (arrival) {
+        parameters.set("arrival", arrival);
+    } else if (departure) {
+        parameters.set("departure", departure);
+    }
+
+    const data = await fetchJson(
+        createUrl(API_BASE_URL, `/journeys?${parameters}`),
+        "Verbindungen konnten nicht geladen werden.",
+        JOURNEY_CONFIG.requestTimeout
+    );
+
+    return Array.isArray(data) ? data : data.journeys ?? [];
 }
 
 async function fetchVehicleMovements(boundsQuery, zoom) {

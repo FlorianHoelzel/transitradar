@@ -5,6 +5,7 @@ import { createLineBadge } from "../lines/badges.js";
 
 let activeRouteLayer = null;
 let activeGlowLayer = null;
+let activeJourneyLayerGroup = null;
 let routePreviewControl = null;
 let routeRequestId = 0;
 
@@ -103,6 +104,11 @@ export function clearRouteLayer() {
         activeRouteLayer = null;
     }
 
+    if (activeJourneyLayerGroup) {
+        map.removeLayer(activeJourneyLayerGroup);
+        activeJourneyLayerGroup = null;
+    }
+
     hideRoutePreviewControl();
 }
 
@@ -166,5 +172,75 @@ export async function showRouteForTrip(tripId, lineName, options = {}) {
         }
     } catch (error) {
         console.error("Route konnte nicht angezeigt werden:", error);
+    }
+}
+
+function fallbackLegCoordinates(leg) {
+    return [leg?.origin, leg?.destination]
+        .map(stop => stop?.location)
+        .filter(location => {
+            return Number.isFinite(location?.latitude)
+                && Number.isFinite(location?.longitude);
+        })
+        .map(location => [location.latitude, location.longitude]);
+}
+
+export function showJourneyRoute(journey) {
+    clearRouteLayer();
+
+    if (!journey?.legs?.length) {
+        return;
+    }
+
+    const layers = [];
+
+    journey.legs.forEach(leg => {
+        const coordinates = extractRouteCoordinates(leg.polyline);
+        const routeCoordinates = coordinates.length >= 2
+            ? coordinates
+            : fallbackLegCoordinates(leg);
+
+        if (routeCoordinates.length < 2) {
+            return;
+        }
+
+        const walking = Boolean(leg.walking || !leg.line);
+        const color = walking ? "#94a3b8" : getLineColor(leg.line?.name || "");
+
+        if (!walking) {
+            layers.push(L.polyline(routeCoordinates, {
+                color,
+                weight: 12,
+                opacity: 0.15,
+                lineCap: "round",
+                lineJoin: "round",
+                interactive: false
+            }));
+        }
+
+        layers.push(L.polyline(routeCoordinates, {
+            color,
+            weight: walking ? 4 : 6,
+            opacity: walking ? 0.8 : 1,
+            dashArray: walking ? "6 7" : null,
+            lineCap: "round",
+            lineJoin: "round",
+            interactive: false
+        }));
+    });
+
+    if (layers.length === 0) {
+        return;
+    }
+
+    activeJourneyLayerGroup = L.featureGroup(layers).addTo(map);
+    const bounds = activeJourneyLayerGroup.getBounds();
+
+    if (bounds.isValid()) {
+        map.fitBounds(bounds, {
+            paddingTopLeft: [30, 110],
+            paddingBottomRight: [30, 50],
+            maxZoom: 15
+        });
     }
 }

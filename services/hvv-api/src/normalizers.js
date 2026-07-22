@@ -150,6 +150,103 @@ function parseGtiTime(time) {
     return zonedDate(year, month, day, hour, minute);
 }
 
+function gtiIso(value) {
+    if (!value) {
+        return null;
+    }
+
+    if (typeof value === "string") {
+        const parsed = new Date(value);
+        return Number.isFinite(parsed.getTime()) ? parsed.toISOString() : null;
+    }
+
+    return parseGtiTime(value).toISOString();
+}
+
+function journeyPath(paths = []) {
+    const coordinates = paths
+        .flatMap(path => path?.track || [])
+        .map(point => [Number(point?.x), Number(point?.y)])
+        .filter(([longitude, latitude]) => {
+            return Number.isFinite(longitude) && Number.isFinite(latitude);
+        });
+
+    if (coordinates.length < 2) {
+        return null;
+    }
+
+    return {
+        type: "Feature",
+        properties: {},
+        geometry: { type: "LineString", coordinates }
+    };
+}
+
+function journeyTime(stop, realtimeKey, plannedKey) {
+    return gtiIso(stop?.[realtimeKey] || stop?.[plannedKey]);
+}
+
+function normalizeScheduleElement(element) {
+    const simpleType = String(element?.line?.type?.simpleType || "").toUpperCase();
+    const walking = ["CHANGE", "FOOTPATH", "WALK"].includes(simpleType);
+    const plannedDeparture = gtiIso(element?.from?.depTime);
+    const plannedArrival = gtiIso(element?.to?.arrTime);
+    const departure = journeyTime(element?.from, "realDepTime", "depTime");
+    const arrival = journeyTime(element?.to, "realArrTime", "arrTime");
+
+    return {
+        tripId: element?.serviceId ? String(element.serviceId) : "",
+        walking,
+        origin: normalizeStop(element?.from || {}),
+        destination: normalizeStop(element?.to || {}),
+        departure,
+        plannedDeparture,
+        arrival,
+        plannedArrival,
+        departurePlatform: element?.from?.realtimePlatform || element?.from?.platform || null,
+        arrivalPlatform: element?.to?.realtimePlatform || element?.to?.platform || null,
+        direction: element?.line?.direction || "",
+        cancelled: Boolean(element?.cancelled),
+        line: walking ? null : {
+            type: "line",
+            id: element?.line?.id,
+            name: element?.line?.name || "",
+            product: productFromVehicleType(
+                element?.line?.type?.vehicleType || element?.line?.type?.shortInfo || simpleType
+            )
+        },
+        polyline: journeyPath(element?.paths)
+    };
+}
+
+export function normalizeJourneys(data) {
+    const schedules = data?.realtimeSchedules?.length
+        ? data.realtimeSchedules
+        : data?.schedules || [];
+
+    return schedules.map(schedule => {
+        const legs = (schedule.scheduleElements || []).map(normalizeScheduleElement);
+        const transitLegs = legs.filter(leg => !leg.walking);
+        const departure = gtiIso(schedule.realDepartureTime)
+            || legs[0]?.departure
+            || gtiIso(schedule.plannedDepartureTime);
+        const arrival = gtiIso(schedule.realArrivalTime)
+            || legs.at(-1)?.arrival
+            || gtiIso(schedule.plannedArrivalTime);
+
+        return {
+            id: String(schedule.routeId ?? `${departure}-${arrival}`),
+            departure,
+            plannedDeparture: gtiIso(schedule.plannedDepartureTime) || legs[0]?.plannedDeparture,
+            arrival,
+            plannedArrival: gtiIso(schedule.plannedArrivalTime) || legs.at(-1)?.plannedArrival,
+            duration: Number(schedule.time || 0) * 60,
+            transfers: Math.max(0, transitLegs.length - 1),
+            legs
+        };
+    }).filter(journey => journey.legs.length > 0);
+}
+
 export function normalizeDepartures(data, context) {
     const referenceTime = parseGtiTime(data.time);
 

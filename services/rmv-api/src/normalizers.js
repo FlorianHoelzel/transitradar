@@ -258,3 +258,74 @@ export function normalizeJourneyDetail(data, context = {}) {
         }
     };
 }
+
+function normalizeJourneyLeg(leg) {
+    const origin = leg?.Origin || leg?.origin || {};
+    const destination = leg?.Destination || leg?.destination || {};
+    const rawProduct = Array.isArray(leg?.Product) ? leg.Product[0] : leg?.Product || {};
+    const walking = /WALK|FOOT/u.test(String(leg?.type || rawProduct?.catOut || "").toUpperCase());
+    const plannedDeparture = zonedDate(origin.date, origin.time);
+    const plannedArrival = zonedDate(destination.date, destination.time);
+    const departure = zonedDate(
+        origin.rtDate || origin.date,
+        origin.rtTime || origin.time
+    ) || plannedDeparture;
+    const arrival = zonedDate(
+        destination.rtDate || destination.date,
+        destination.rtTime || destination.time
+    ) || plannedArrival;
+
+    return {
+        tripId: leg?.JourneyDetailRef?.ref || leg?.journeyId || "",
+        walking,
+        origin: normalizeStop(origin),
+        destination: normalizeStop(destination),
+        departure: departure?.toISOString() || null,
+        plannedDeparture: plannedDeparture?.toISOString() || null,
+        arrival: arrival?.toISOString() || null,
+        plannedArrival: plannedArrival?.toISOString() || null,
+        departurePlatform: platformText(origin.rtPlatform || origin.platform),
+        arrivalPlatform: platformText(destination.rtPlatform || destination.platform),
+        direction: leg?.direction || destination?.name || "",
+        cancelled: Boolean(leg?.cancelled),
+        line: walking ? null : {
+            type: "line",
+            id: rawProduct?.matchId || rawProduct?.lineId || rawProduct?.name,
+            name: rawProduct?.name || leg?.name || "",
+            product: productFromClass(rawProduct?.cls)
+        },
+        polyline: (() => {
+            const coordinates = coordinatesFromPolylineGroup(leg?.PolylineGroup);
+
+            return coordinates.length >= 2 ? {
+                type: "Feature",
+                properties: {},
+                geometry: { type: "LineString", coordinates }
+            } : null;
+        })()
+    };
+}
+
+export function normalizeJourneys(data) {
+    return (data?.Trip || []).map((trip, index) => {
+        const rawLegs = trip?.LegList?.Leg || trip?.legs || [];
+        const legs = rawLegs.map(normalizeJourneyLeg);
+        const transitLegs = legs.filter(leg => !leg.walking);
+        const departure = legs[0]?.departure;
+        const arrival = legs.at(-1)?.arrival;
+        const duration = departure && arrival
+            ? Math.max(0, (new Date(arrival) - new Date(departure)) / 1000)
+            : 0;
+
+        return {
+            id: trip?.ctxRecon || trip?.id || String(index),
+            departure,
+            plannedDeparture: legs[0]?.plannedDeparture,
+            arrival,
+            plannedArrival: legs.at(-1)?.plannedArrival,
+            duration,
+            transfers: Math.max(0, transitLegs.length - 1),
+            legs
+        };
+    }).filter(journey => journey.legs.length > 0);
+}

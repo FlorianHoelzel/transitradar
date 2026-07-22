@@ -155,6 +155,11 @@
                         placeholder="Standort oder Haltestelle"
                         autocomplete="off"
                     >
+                    <div
+                        id="routePlannerOriginSuggestions"
+                        class="route-planner-suggestions"
+                        role="listbox"
+                    ></div>
                 </label>
 
                 <label class="route-planner-field">
@@ -165,6 +170,11 @@
                         placeholder="Wohin möchtest du?"
                         autocomplete="off"
                     >
+                    <div
+                        id="routePlannerDestinationSuggestions"
+                        class="route-planner-suggestions"
+                        role="listbox"
+                    ></div>
                 </label>
             </div>
 
@@ -196,15 +206,25 @@
                     <option value="arrival">Ankunft bis</option>
                 </select>
             </label>
+
+            <input
+                id="routePlannerDateTime"
+                class="route-planner-datetime"
+                type="datetime-local"
+                aria-label="Datum und Uhrzeit"
+                hidden
+            >
         </div>
 
-        <button class="route-planner-submit" type="button" disabled>
+        <button id="routePlannerSubmit" class="route-planner-submit" type="button" disabled>
             Verbindungen suchen
         </button>
 
-        <p class="route-planner-note">
-            Die Verbindungssuche wird im nächsten Schritt angebunden.
+        <p id="routePlannerStatus" class="route-planner-note" aria-live="polite">
+            Start und Ziel auswählen.
         </p>
+
+        <div id="routePlannerResults" class="route-planner-results"></div>
         </section>
     </div>
 
