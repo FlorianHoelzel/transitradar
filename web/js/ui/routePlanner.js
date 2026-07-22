@@ -21,6 +21,7 @@ export function setupRoutePlanner() {
         controls.classList.toggle("route-mode", isOpen);
         toggle.classList.toggle("active", isOpen);
         toggle.setAttribute("aria-expanded", String(isOpen));
+        toggle.tabIndex = isOpen ? -1 : 0;
         panel.setAttribute("aria-hidden", String(!isOpen));
         panel.toggleAttribute("inert", !isOpen);
         searchRestore.tabIndex = isOpen ? 0 : -1;

@@ -12,7 +12,20 @@
     border-radius: 16px;
     color: #7dd3fc;
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        opacity 0.16s ease,
+        transform 0.2s ease;
+}
+
+.top-search-controls.route-mode .route-planner-toggle {
+    position: absolute;
+    left: 56px;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.86);
 }
 
 .route-planner-toggle svg,
