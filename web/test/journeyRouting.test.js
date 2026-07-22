@@ -23,7 +23,7 @@ globalThis.fetch = async url => {
     };
 };
 
-const { getJourneys } = await import("../js/api/transitApi.js");
+const { getJourneys, getStationServingLines } = await import("../js/api/transitApi.js");
 
 test("routes grouped stations through their strongest member stop", async () => {
     requestedUrls.length = 0;
@@ -138,4 +138,22 @@ test("preserves the numeric stop IDs used by Berlin and Frankfurt", async () => 
             ["3000001", "3000010"]
         ]
     );
+});
+
+test("discovers missing S-Bahn and U-Bahn lines from live departures", async () => {
+    requestedUrls.length = 0;
+    responseForUrl = () => ({
+        departures: [
+            { line: { name: "3", product: "bus" } },
+            { line: { name: "S1", product: "suburban" } },
+            { line: { name: "S3", product: "suburban" } },
+            { line: { name: "U1", product: "subway" } },
+            { line: { name: "S1", product: "suburban" } }
+        ]
+    });
+
+    const lines = await getStationServingLines({ id: "Master:9910950" });
+
+    assert.deepEqual(lines.map(line => line.name), ["3", "S1", "S3", "U1"]);
+    assert.match(requestedUrls[0], /\/stops\/Master:9910950\/departures/u);
 });

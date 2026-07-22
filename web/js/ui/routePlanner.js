@@ -1,4 +1,8 @@
-import { getJourneys, searchStations } from "../api/transitApi.js";
+import {
+    getJourneys,
+    getStationServingLines,
+    searchStations
+} from "../api/transitApi.js";
 import { CITY_CONFIG } from "../config.js";
 import { createLineBadge } from "../lines/badges.js";
 import { showJourneyRoute } from "../map/routeLayer.js";
@@ -7,6 +11,41 @@ import { getStations } from "../stations/stationStore.js";
 import { rankStations, stationLines } from "./stationRanking.js";
 
 let isOpen = false;
+const servingLinesByStationId = new Map();
+
+function needsRapidTransitLines(station) {
+    const lines = stationLines(station);
+    const products = station.products || {};
+
+    return (
+        (products.suburban === true && !lines.some(line => /^S\s*\d/iu.test(line))) ||
+        (products.subway === true && !lines.some(line => /^U\s*\d/iu.test(line)))
+    );
+}
+
+async function enrichRapidTransitLines(matches) {
+    await Promise.all(matches.map(async ({ station }) => {
+        if (!needsRapidTransitLines(station)) {
+            return;
+        }
+
+        const stationId = String(station.id);
+
+        if (!servingLinesByStationId.has(stationId)) {
+            servingLinesByStationId.set(
+                stationId,
+                getStationServingLines(station).catch(error => {
+                    console.warn("Linien der Haltestelle konnten nicht ergänzt werden:", error);
+                    return [];
+                })
+            );
+        }
+
+        const servingLines = await servingLinesByStationId.get(stationId);
+
+        station.lines = [...(station.lines || []), ...servingLines];
+    }));
+}
 
 function dateInputValue(date) {
     return [
@@ -312,6 +351,7 @@ export function setupRoutePlanner() {
         const requestId = ++suggestionRequestId;
         const query = input.value;
         const matches = await findStations(query);
+        await enrichRapidTransitLines(matches);
 
         if (requestId !== suggestionRequestId || input.value !== query) {
             return;

@@ -467,6 +467,29 @@ export async function getDepartures(station) {
     return departures.slice(0, DEPARTURE_CONFIG.displayLimit);
 }
 
+export async function getStationServingLines(station) {
+    if (!station?.id) {
+        return [];
+    }
+
+    const departures = await fetchDeparturesForStop(
+        station.id,
+        160,
+        180
+    );
+    const linesByName = new Map();
+
+    departures.forEach(departure => {
+        const name = departure.line?.name;
+
+        if (name && !linesByName.has(name)) {
+            linesByName.set(name, departure.line);
+        }
+    });
+
+    return [...linesByName.values()];
+}
+
 export async function getJourneys({ from, to, departure, arrival }) {
     const getJourneyStopScore = stop => {
         const products = stop?.products || {};

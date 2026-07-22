@@ -9,7 +9,7 @@ globalThis.window = {
     }
 };
 
-const { rankStations } = await import("../js/ui/stationRanking.js");
+const { rankStations, stationLines } = await import("../js/ui/stationRanking.js");
 
 function station(name, latitude, longitude, products, lines) {
     return {
@@ -49,4 +49,21 @@ test("keeps strong text relevance while using importance as a tie-breaker", () =
     ], "alexander");
 
     assert.equal(results[0].name, "S+U Alexanderplatz Bhf");
+});
+
+test("always lists S-Bahn and U-Bahn before regional and surface lines", () => {
+    const lines = stationLines({
+        lines: [
+            "RB81",
+            "RE8",
+            "3",
+            { name: "U4", product: "subway" },
+            "S5",
+            "U2",
+            { name: "S1", product: "suburban" },
+            "X35"
+        ]
+    });
+
+    assert.deepEqual(lines, ["S1", "S5", "U2", "U4", "RB81", "RE8", "3", "X35"]);
 });

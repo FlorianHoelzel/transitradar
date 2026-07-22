@@ -36,8 +36,8 @@ function linePriority(line) {
             .toUpperCase()
         : "";
 
-    if (/^S\s*\d/u.test(name) || /S-?BAHN|SUBURBAN/u.test(metadata)) return 0;
-    if (/^U\s*\d/u.test(name) || /U-?BAHN|SUBWAY/u.test(metadata)) return 1;
+    if (/^(?:S\s*\d|S-?BAHN\b)/u.test(name) || /S-?BAHN|SUBURBAN/u.test(metadata)) return 0;
+    if (/^(?:U\s*\d|U-?BAHN\b)/u.test(name) || /U-?BAHN|SUBWAY/u.test(metadata)) return 1;
     if (/^(RE|RB|IRE)\s*\d/u.test(name) || /REGIONAL/u.test(metadata)) return 2;
     if (/^(M?\d+|TRAM)/u.test(name) || /TRAM/u.test(metadata)) return 3;
     if (/^(BUS|N|X)\s*\d/u.test(name) || /BUS/u.test(metadata)) return 4;
@@ -67,7 +67,11 @@ export function stationLines(station) {
     });
 
     return [...rankedLines.values()]
-        .sort((a, b) => a.priority - b.priority || a.index - b.index)
+        .sort((a, b) => {
+            return a.priority - b.priority ||
+                a.name.localeCompare(b.name, "de-DE", { numeric: true }) ||
+                a.index - b.index;
+        })
         .map(line => line.name);
 }
 

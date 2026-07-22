@@ -110,6 +110,7 @@ function normalizeStationGroupKey(name) {
     return normalizeMainStationName(removeStopDetails(name))
         .replace(/\s*\([^)]*\)\s*/gu, " ")
         .replace(/^(?:S\+U|S|U)\s+/iu, "")
+        .replace(/\b(Hauptbahnhof|Hbf)\s+(?:Nord|Süd|Sued|Ost|West)\b/iu, "$1")
         .replace(new RegExp(`\\b${CITY_CONFIG.name}\\s+Hauptbahnhof\\b`, "iu"), "Hauptbahnhof")
         .replace(/\b(?:Bf|Bhf)\b\.?/giu, "")
         .replace(/\s+/gu, " ")

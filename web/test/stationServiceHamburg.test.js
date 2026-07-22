@@ -10,6 +10,7 @@ globalThis.window = {
 };
 
 const { prepareStations } = await import("../js/stations/stationService.js");
+const { stationLines } = await import("../js/ui/stationRanking.js");
 
 function stop(id, name, latitude, longitude, products, lines) {
     return {
@@ -43,7 +44,23 @@ test("uses the multimodal Hamburg Hauptbahnhof stop for journey routing", () => 
                 subway: true,
                 bus: true
             },
-            ["RE8", "S1", "U1", "2"]
+            ["RB71", "RB81", "RE8", "RE80"]
+        ),
+        stop(
+            "Master:10905",
+            "Hauptbahnhof Nord",
+            53.554113,
+            10.005936,
+            { subway: true },
+            ["U2", "U4"]
+        ),
+        stop(
+            "Master:10906",
+            "Hauptbahnhof Süd",
+            53.551979,
+            10.009583,
+            { subway: true },
+            ["U1", "U3"]
         )
     ]);
 
@@ -53,6 +70,10 @@ test("uses the multimodal Hamburg Hauptbahnhof stop for journey routing", () => 
     assert.deepEqual(stations[0].coordinates, [53.552483, 10.007407]);
     assert.deepEqual(
         stations[0].stops.map(candidate => candidate.id),
-        ["Master:10002", "Master:9910950"]
+        ["Master:10002", "Master:9910950", "Master:10905", "Master:10906"]
+    );
+    assert.deepEqual(
+        stationLines(stations[0]).slice(0, 4),
+        ["U1", "U2", "U3", "U4"]
     );
 });
