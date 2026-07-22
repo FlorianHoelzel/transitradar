@@ -77,3 +77,20 @@ test("uses the multimodal Hamburg Hauptbahnhof stop for journey routing", () => 
         ["U1", "U2", "U3", "U4"]
     );
 });
+
+test("keeps S-Bahn stations on the western HVV corridor through Stade", () => {
+    const stations = prepareStations([
+        stop(
+            "Master:8000089",
+            "Stade",
+            53.5962,
+            9.4761,
+            { suburban: true, regional: true },
+            ["S5", "RE5"]
+        )
+    ]);
+
+    assert.equal(stations.length, 1);
+    assert.equal(stations[0].name, "Stade");
+    assert.deepEqual(stations[0].lines, ["RE5", "S5"]);
+});

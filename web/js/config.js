@@ -44,7 +44,7 @@ const CITY_CONFIGS = {
         bounds: {
             minLat: 53.35,
             maxLat: 53.75,
-            minLng: 9.65,
+            minLng: 9.45,
             maxLng: 10.35
         },
         stationSearchQueries: ["Hamburg", "S", "U", "Bus", "Fähre", "Bahnhof"],
