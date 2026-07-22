@@ -91,11 +91,12 @@ function hideRoutePreviewControl() {
     routePreviewControl.classList.remove("visible");
 }
 
-function showJourneyRouteControl() {
+function showJourneyRouteControl(summaryElement) {
     if (!journeyRouteControl) {
         journeyRouteControl = document.createElement("div");
         journeyRouteControl.className = "selected-line-control journey-route-control";
         journeyRouteControl.innerHTML = `
+            <div class="journey-route-card" aria-hidden="true"></div>
             <button class="selected-line-clear" type="button">Route entfernen</button>
         `;
         journeyRouteControl
@@ -103,6 +104,9 @@ function showJourneyRouteControl() {
             .addEventListener("click", () => clearRouteLayer());
         document.body.appendChild(journeyRouteControl);
     }
+
+    const summary = journeyRouteControl.querySelector(".journey-route-card");
+    summary.replaceChildren(...[...summaryElement.children].map(child => child.cloneNode(true)));
 
     journeyRouteControl.classList.add("visible");
 }
@@ -212,7 +216,7 @@ function fallbackLegCoordinates(leg) {
         .map(location => [location.latitude, location.longitude]);
 }
 
-export function showJourneyRoute(journey) {
+export function showJourneyRoute(journey, { summaryElement } = {}) {
     clearRouteLayer({ notify: false });
 
     if (!journey?.legs?.length) {
@@ -261,13 +265,17 @@ export function showJourneyRoute(journey) {
     }
 
     activeJourneyLayerGroup = L.featureGroup(layers).addTo(map);
-    showJourneyRouteControl();
+    if (summaryElement) {
+        showJourneyRouteControl(summaryElement);
+    }
     const bounds = activeJourneyLayerGroup.getBounds();
 
     if (bounds.isValid()) {
+        const compactLayout = window.matchMedia("(max-width: 600px)").matches;
+
         map.fitBounds(bounds, {
-            paddingTopLeft: [30, 110],
-            paddingBottomRight: [30, 50],
+            paddingTopLeft: compactLayout ? [30, 110] : [420, 50],
+            paddingBottomRight: compactLayout ? [30, 120] : [30, 50],
             maxZoom: 15
         });
     }

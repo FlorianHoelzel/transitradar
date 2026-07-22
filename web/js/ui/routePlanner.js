@@ -413,8 +413,9 @@ export function setupRoutePlanner() {
         resultsContainer.querySelectorAll(".journey-card").forEach(card => {
             card.classList.toggle("selected", card === selectedCard);
         });
-        showJourneyRoute(journey);
+        showJourneyRoute(journey, { summaryElement: selectedCard });
         status.textContent = "Verbindung auf der Karte ausgewählt.";
+        setOpen(false, false);
     }
 
     function closeTimeMenu() {
