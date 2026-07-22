@@ -198,6 +198,41 @@ function uniqueJourneyLegs(journey) {
     });
 }
 
+function legDurationSeconds(leg) {
+    const suppliedDuration = Number(leg.duration);
+
+    if (Number.isFinite(suppliedDuration) && suppliedDuration > 0) {
+        return suppliedDuration;
+    }
+
+    const departure = leg.departure || leg.plannedDeparture;
+    const arrival = leg.arrival || leg.plannedArrival;
+
+    if (!departure || !arrival) {
+        return 0;
+    }
+
+    return Math.max(0, (new Date(arrival) - new Date(departure)) / 1000);
+}
+
+function createWalkingNode(leg) {
+    const walk = document.createElement("span");
+    const minutes = Math.max(1, Math.round(legDurationSeconds(leg) / 60));
+
+    walk.className = "journey-walk-node";
+    walk.innerHTML = `
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+            <circle cx="9" cy="4" r="2"></circle>
+            <path d="m10 22 1-5-2-2 1-4 3 3 2 1"></path>
+            <path d="m6 12 2-3 2-1 3 1 2 3"></path>
+            <path d="m4 16 3-3"></path>
+            <path d="m15 22-4-5"></path>
+        </svg>
+        <span>${minutes} Min.</span>
+    `;
+    return walk;
+}
+
 function createJourneyCard(journey, index, onSelect) {
     const button = document.createElement("button");
     const times = journeyTimes(journey);
@@ -228,16 +263,21 @@ function createJourneyCard(journey, index, onSelect) {
     const lineRow = document.createElement("div");
     lineRow.className = "journey-card-lines";
 
-    uniqueJourneyLegs(journey).forEach(leg => {
+    uniqueJourneyLegs(journey).forEach((leg, legIndex) => {
+        if (legIndex > 0) {
+            const connector = document.createElement("span");
+            connector.className = "journey-leg-connector";
+            connector.setAttribute("aria-hidden", "true");
+            lineRow.appendChild(connector);
+        }
+
         if (leg.walking || !leg.line?.name) {
-            const walk = document.createElement("span");
-            walk.className = "journey-walk";
-            walk.textContent = "Zu Fuß";
-            lineRow.appendChild(walk);
+            lineRow.appendChild(createWalkingNode(leg));
             return;
         }
 
         const badge = document.createElement("span");
+        badge.className = "journey-line-node";
         badge.innerHTML = createLineBadge(leg.line.name);
         lineRow.appendChild(badge);
     });
