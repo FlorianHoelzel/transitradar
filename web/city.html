@@ -194,26 +194,55 @@
         </div>
 
         <div class="route-planner-options">
-            <label class="route-planner-time">
+            <div class="route-planner-time">
                 <svg aria-hidden="true" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="9"></circle>
                     <path d="M12 7v5l3 2"></path>
                 </svg>
                 <span class="route-planner-option-label">Zeit</span>
-                <select id="routePlannerTime" aria-label="Abfahrts- oder Ankunftszeit">
-                    <option value="now">Jetzt</option>
-                    <option value="departure">Abfahrt später</option>
-                    <option value="arrival">Ankunft bis</option>
-                </select>
-            </label>
+                <div class="route-time-picker">
+                    <button
+                        id="routePlannerTime"
+                        class="route-time-trigger"
+                        type="button"
+                        aria-label="Abfahrts- oder Ankunftszeit"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-controls="routePlannerTimeMenu"
+                        data-value="now"
+                    >
+                        <span>Jetzt</span>
+                        <svg aria-hidden="true" viewBox="0 0 24 24">
+                            <path d="m7 10 5 5 5-5"></path>
+                        </svg>
+                    </button>
+                    <div id="routePlannerTimeMenu" class="route-time-menu" role="listbox" hidden>
+                        <button type="button" role="option" aria-selected="true" data-value="now">Jetzt</button>
+                        <button type="button" role="option" aria-selected="false" data-value="departure">Abfahrtszeit</button>
+                        <button type="button" role="option" aria-selected="false" data-value="arrival">Ankunftszeit</button>
+                    </div>
+                </div>
+            </div>
 
-            <input
-                id="routePlannerDateTime"
-                class="route-planner-datetime"
-                type="datetime-local"
-                aria-label="Datum und Uhrzeit"
-                hidden
-            >
+            <div id="routePlannerDateTime" class="route-planner-datetime" hidden>
+                <input
+                    id="routePlannerDate"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="10"
+                    placeholder="DD.MM.YYYY"
+                    aria-label="Datum im Format Tag Punkt Monat Punkt Jahr"
+                >
+                <span aria-hidden="true">·</span>
+                <input
+                    id="routePlannerClock"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="5"
+                    placeholder="HH:MM"
+                    aria-label="Uhrzeit im Format Stunde Doppelpunkt Minute"
+                >
+            </div>
         </div>
 
         <button id="routePlannerSubmit" class="route-planner-submit" type="button" disabled>

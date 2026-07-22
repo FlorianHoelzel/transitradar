@@ -7,6 +7,7 @@ let activeRouteLayer = null;
 let activeGlowLayer = null;
 let activeJourneyLayerGroup = null;
 let routePreviewControl = null;
+let journeyRouteControl = null;
 let routeRequestId = 0;
 
 export let activeTripDetails = null;
@@ -90,9 +91,30 @@ function hideRoutePreviewControl() {
     routePreviewControl.classList.remove("visible");
 }
 
-export function clearRouteLayer() {
+function showJourneyRouteControl() {
+    if (!journeyRouteControl) {
+        journeyRouteControl = document.createElement("div");
+        journeyRouteControl.className = "selected-line-control journey-route-control";
+        journeyRouteControl.innerHTML = `
+            <button class="selected-line-clear" type="button">Route entfernen</button>
+        `;
+        journeyRouteControl
+            .querySelector("button")
+            .addEventListener("click", () => clearRouteLayer());
+        document.body.appendChild(journeyRouteControl);
+    }
+
+    journeyRouteControl.classList.add("visible");
+}
+
+function hideJourneyRouteControl() {
+    journeyRouteControl?.classList.remove("visible");
+}
+
+export function clearRouteLayer({ notify = true } = {}) {
     routeRequestId += 1;
     activeTripDetails = null;
+    const clearedJourney = Boolean(activeJourneyLayerGroup);
 
     if (activeGlowLayer) {
         map.removeLayer(activeGlowLayer);
@@ -110,6 +132,11 @@ export function clearRouteLayer() {
     }
 
     hideRoutePreviewControl();
+    hideJourneyRouteControl();
+
+    if (notify && clearedJourney) {
+        window.dispatchEvent(new CustomEvent("journeyRoute:cleared"));
+    }
 }
 
 export async function showRouteForTrip(tripId, lineName, options = {}) {
@@ -186,7 +213,7 @@ function fallbackLegCoordinates(leg) {
 }
 
 export function showJourneyRoute(journey) {
-    clearRouteLayer();
+    clearRouteLayer({ notify: false });
 
     if (!journey?.legs?.length) {
         return;
@@ -234,6 +261,7 @@ export function showJourneyRoute(journey) {
     }
 
     activeJourneyLayerGroup = L.featureGroup(layers).addTo(map);
+    showJourneyRouteControl();
     const bounds = activeJourneyLayerGroup.getBounds();
 
     if (bounds.isValid()) {

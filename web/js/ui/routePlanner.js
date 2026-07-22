@@ -6,16 +6,62 @@ import { getStations } from "../stations/stationStore.js";
 
 let isOpen = false;
 
-function localDateTimeValue(date) {
-    const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-    return localTime.toISOString().slice(0, 16);
+function dateInputValue(date) {
+    return [
+        String(date.getDate()).padStart(2, "0"),
+        String(date.getMonth() + 1).padStart(2, "0"),
+        date.getFullYear()
+    ].join(".");
+}
+
+function clockInputValue(date) {
+    return [date.getHours(), date.getMinutes()]
+        .map(value => String(value).padStart(2, "0"))
+        .join(":");
+}
+
+function parseDateTime(dateValue, clockValue) {
+    const match = dateValue.trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/u);
+
+    if (!match || !/^\d{2}:\d{2}$/u.test(clockValue)) {
+        return null;
+    }
+
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+    const [hours, minutes] = clockValue.split(":").map(Number);
+    const date = new Date(year, month - 1, day, hours, minutes);
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null;
+    }
+
+    return date;
+}
+
+function lineName(line) {
+    if (typeof line === "string" || typeof line === "number") {
+        return String(line);
+    }
+
+    if (!line || typeof line !== "object") {
+        return "";
+    }
+
+    const value = line.name ?? line.label ?? line.symbol ?? line.product?.name;
+    return typeof value === "string" || typeof value === "number" ? String(value) : "";
 }
 
 function stationLines(station) {
     return [...new Set([
         ...(station.lines || []),
         ...(station.stops || []).flatMap(stop => stop.lines || [])
-    ])].filter(Boolean);
+    ].map(lineName))].filter(Boolean);
 }
 
 function rankStations(stations, query) {
@@ -184,7 +230,11 @@ export function setupRoutePlanner() {
     const originSuggestions = document.getElementById("routePlannerOriginSuggestions");
     const destinationSuggestions = document.getElementById("routePlannerDestinationSuggestions");
     const timeMode = document.getElementById("routePlannerTime");
+    const timeModeLabel = timeMode.querySelector("span");
+    const timeMenu = document.getElementById("routePlannerTimeMenu");
     const dateTimeInput = document.getElementById("routePlannerDateTime");
+    const dateInput = document.getElementById("routePlannerDate");
+    const clockInput = document.getElementById("routePlannerClock");
     const submitButton = document.getElementById("routePlannerSubmit");
     const status = document.getElementById("routePlannerStatus");
     const resultsContainer = document.getElementById("routePlannerResults");
@@ -193,15 +243,20 @@ export function setupRoutePlanner() {
     let loading = false;
     let suggestionRequestId = 0;
     let suggestionTimer = null;
+    let openTimer = null;
 
     if (!toggle || !panel) {
         return;
     }
 
-    dateTimeInput.value = localDateTimeValue(new Date(Date.now() + 10 * 60000));
+    const initialDateTime = new Date(Date.now() + 10 * 60000);
+    dateInput.value = dateInputValue(initialDateTime);
+    clockInput.value = clockInputValue(initialDateTime);
 
     function clearResults() {
         resultsContainer.replaceChildren();
+        resultsContainer.scrollTop = 0;
+        resultsContainer.classList.remove("scrollable");
         status.classList.remove("error");
         status.textContent = origin && destination
             ? "Bereit zur Verbindungssuche."
@@ -319,7 +374,9 @@ export function setupRoutePlanner() {
     }
 
     function setOpen(nextOpen, focusDestination = true) {
+        clearTimeout(openTimer);
         isOpen = nextOpen;
+        panel.classList.remove("ready");
         panel.classList.toggle("open", isOpen);
         controls.classList.toggle("route-mode", isOpen);
         toggle.classList.toggle("active", isOpen);
@@ -334,8 +391,14 @@ export function setupRoutePlanner() {
             closeSuggestions();
         }
 
-        if (isOpen && focusDestination) {
-            window.requestAnimationFrame(() => (origin ? destinationInput : originInput).focus());
+        if (isOpen) {
+            openTimer = setTimeout(() => {
+                panel.classList.add("ready");
+
+                if (focusDestination) {
+                    (origin ? destinationInput : originInput).focus();
+                }
+            }, 310);
         } else if (!isOpen && panel.contains(document.activeElement)) {
             toggle.focus();
         }
@@ -347,6 +410,22 @@ export function setupRoutePlanner() {
         });
         showJourneyRoute(journey);
         status.textContent = "Verbindung auf der Karte ausgewählt.";
+    }
+
+    function closeTimeMenu() {
+        timeMenu.hidden = true;
+        timeMode.classList.remove("open");
+        timeMode.setAttribute("aria-expanded", "false");
+    }
+
+    function setTimeMode(value, label) {
+        timeMode.dataset.value = value;
+        timeModeLabel.textContent = label;
+        dateTimeInput.hidden = value === "now";
+        timeMenu.querySelectorAll("[role='option']").forEach(option => {
+            option.setAttribute("aria-selected", String(option.dataset.value === value));
+        });
+        closeTimeMenu();
     }
 
     async function searchJourneys() {
@@ -363,18 +442,34 @@ export function setupRoutePlanner() {
         status.textContent = "Echtzeit-Verbindungen werden gesucht …";
 
         try {
-            const selectedTime = timeMode.value === "now"
-                ? new Date().toISOString()
-                : new Date(dateTimeInput.value).toISOString();
+            const timeModeValue = timeMode.dataset.value;
+            const requestedDate = timeModeValue === "now"
+                ? new Date()
+                : parseDateTime(dateInput.value, clockInput.value);
+
+            if (!requestedDate) {
+                status.classList.add("error");
+                status.textContent = "Bitte Datum als DD.MM.YYYY und eine Uhrzeit eingeben.";
+                return;
+            }
+
+            const selectedTime = requestedDate.toISOString();
             const journeys = await getJourneys({
                 from: origin.id,
                 to: destination.id,
-                departure: timeMode.value === "arrival" ? undefined : selectedTime,
-                arrival: timeMode.value === "arrival" ? selectedTime : undefined
+                departure: timeModeValue === "arrival" ? undefined : selectedTime,
+                arrival: timeModeValue === "arrival" ? selectedTime : undefined
             });
 
             journeys.forEach((journey, index) => {
                 resultsContainer.appendChild(createJourneyCard(journey, index, selectJourney));
+            });
+            resultsContainer.scrollTop = 0;
+            window.requestAnimationFrame(() => {
+                resultsContainer.classList.toggle(
+                    "scrollable",
+                    resultsContainer.scrollHeight > resultsContainer.clientHeight + 1
+                );
             });
 
             status.textContent = journeys.length > 0
@@ -415,11 +510,31 @@ export function setupRoutePlanner() {
         destinationInput.focus();
     });
 
-    timeMode.addEventListener("change", () => {
-        dateTimeInput.hidden = timeMode.value === "now";
+    timeMode.addEventListener("click", () => {
+        const shouldOpen = timeMenu.hidden;
+        timeMenu.hidden = !shouldOpen;
+        timeMode.classList.toggle("open", shouldOpen);
+        timeMode.setAttribute("aria-expanded", String(shouldOpen));
+    });
+    timeMenu.addEventListener("click", event => {
+        const option = event.target.closest("[data-value]");
 
-        if (!dateTimeInput.hidden && !dateTimeInput.value) {
-            dateTimeInput.value = localDateTimeValue(new Date(Date.now() + 10 * 60000));
+        if (option) {
+            setTimeMode(option.dataset.value, option.textContent.trim());
+        }
+    });
+    dateInput.addEventListener("blur", () => {
+        const digits = dateInput.value.replace(/\D/gu, "").slice(0, 8);
+
+        if (digits.length === 8) {
+            dateInput.value = `${digits.slice(0, 2)}.${digits.slice(2, 4)}.${digits.slice(4)}`;
+        }
+    });
+    clockInput.addEventListener("blur", () => {
+        const digits = clockInput.value.replace(/\D/gu, "").slice(0, 4);
+
+        if (digits.length === 4) {
+            clockInput.value = `${digits.slice(0, 2)}:${digits.slice(2)}`;
         }
     });
 
@@ -434,6 +549,17 @@ export function setupRoutePlanner() {
         if (!event.target.closest(".route-planner-field")) {
             closeSuggestions();
         }
+
+        if (!event.target.closest(".route-planner-time")) {
+            closeTimeMenu();
+        }
+    });
+
+    window.addEventListener("journeyRoute:cleared", () => {
+        resultsContainer.querySelectorAll(".journey-card.selected").forEach(card => {
+            card.classList.remove("selected");
+        });
+        status.textContent = "Route von der Karte entfernt.";
     });
 
     window.addEventListener("routePlanner:open", () => setOpen(true));
