@@ -612,9 +612,12 @@ body.berlin-v2 .journey-route-control {
     top: 50%;
     right: auto;
     bottom: auto;
-    left: 20px;
-    z-index: 23000 !important;
-    width: min(392px, calc(100vw - 40px));
+    left: calc(clamp(1rem, 2.8vw, 2.5rem) + 0.85rem);
+    z-index: 20500 !important;
+    width: min(
+        392px,
+        calc(100vw - clamp(1rem, 2.8vw, 2.5rem) - 0.85rem - clamp(1rem, 2.8vw, 2.5rem) - 0.85rem)
+    );
     padding: 10px !important;
     flex-direction: column;
     align-items: stretch;
@@ -657,9 +660,9 @@ body.route-planner-open #searchResults {
 @media (max-width: 600px) {
     body.berlin-v2 .journey-route-control {
         top: auto;
-        right: 14px;
+        right: calc(0.85rem + 0.85rem);
         bottom: 84px;
-        left: 14px;
+        left: calc(0.85rem + 0.85rem);
         width: auto;
         transform: none;
     }

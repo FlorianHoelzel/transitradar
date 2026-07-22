@@ -272,9 +272,10 @@ export function showJourneyRoute(journey, { summaryElement } = {}) {
 
     if (bounds.isValid()) {
         const compactLayout = window.matchMedia("(max-width: 600px)").matches;
+        const pinnedCardRight = journeyRouteControl?.getBoundingClientRect().right || 420;
 
         map.fitBounds(bounds, {
-            paddingTopLeft: compactLayout ? [30, 110] : [420, 50],
+            paddingTopLeft: compactLayout ? [30, 110] : [Math.ceil(pinnedCardRight + 20), 50],
             paddingBottomRight: compactLayout ? [30, 120] : [30, 50],
             maxZoom: 15
         });
