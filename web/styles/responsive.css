@@ -1,8 +1,13 @@
 /* Mobile */
 
 @media (max-width: 600px) {
-    .search-box {
+    .top-search-controls {
         width: calc(100vw - 24px);
+    }
+
+    .search-box {
+        width: auto;
+        flex: 1 1 auto;
     }
 
     .filter-control {

@@ -14,6 +14,7 @@ import { createLocationButton } from "./ui/locationButton.js";
 import { vehicleState } from "./vehicles/vehicleState.js";
 import { CITY_CONFIG } from "./config.js";
 import { setupSettings } from "./settings/settingsController.js";
+import { setupRoutePlanner } from "./ui/routePlanner.js";
 
 function applyCityMetadata() {
     if (document.title === "TransitRadar – Live-ÖPNV-Karte") {
@@ -67,6 +68,7 @@ async function setupStations() {
 
 function setupUi() {
     setupSidebar();
+    setupRoutePlanner();
     setupSettings();
     createLocationButton();
 

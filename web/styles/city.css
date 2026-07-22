@@ -125,6 +125,7 @@
 .berlin-v2 .filter-toggle,
 .berlin-v2 .location-button,
 .berlin-v2 .sidebar-toggle,
+.berlin-v2 .route-planner-toggle,
 .berlin-v2 .selected-line-clear {
     display: inline-flex;
     align-items: center;
@@ -167,11 +168,24 @@
 .berlin-v2 .filter-toggle:hover,
 .berlin-v2 .location-button:hover,
 .berlin-v2 .sidebar-toggle:hover,
+.berlin-v2 .route-planner-toggle:hover,
 .berlin-v2 .selected-line-clear:hover {
     background: var(--panel);
     border-color: rgba(255, 255, 255, 0.24);
     color: var(--ink);
     transform: translateY(-1px);
+}
+
+.berlin-v2 .route-planner-toggle.active {
+    background: rgba(255, 255, 255, 0.045);
+    border-color: var(--line);
+    color: var(--muted);
+}
+
+.berlin-v2 .route-planner-toggle.active:hover {
+    background: var(--panel);
+    border-color: rgba(255, 255, 255, 0.24);
+    color: var(--ink);
 }
 
 .berlin-v2-map-shell {
@@ -206,9 +220,12 @@
     filter: saturate(0.8) contrast(1.06) brightness(var(--map-tile-brightness, 0.82));
 }
 
-.berlin-v2 .search-box {
+.berlin-v2 .top-search-controls {
     top: clamp(0.75rem, 2vw, 1.45rem);
     z-index: 19000;
+}
+
+.berlin-v2 .search-box {
     width: min(29rem, calc(100vw - 31rem));
 }
 
@@ -556,8 +573,11 @@
 }
 
 @media (max-width: 980px) {
-    .berlin-v2 .search-box {
+    .berlin-v2 .top-search-controls {
         top: calc(clamp(0.75rem, 2vw, 1.45rem) + 3.45rem);
+    }
+
+    .berlin-v2 .search-box {
         width: min(25rem, calc(100vw - 8rem));
     }
 
@@ -596,9 +616,14 @@
         font-size: 0.78rem;
     }
 
-    .berlin-v2 .search-box {
+    .berlin-v2 .top-search-controls {
         top: 4rem;
         width: calc(100vw - 1.7rem);
+    }
+
+    .berlin-v2 .search-box {
+        width: auto;
+        flex: 1 1 auto;
     }
 
     .berlin-v2 #searchInput {

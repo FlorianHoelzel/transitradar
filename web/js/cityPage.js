@@ -5,6 +5,7 @@ const iconPaths = {
     mapPin: '<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
     menu: '<path d="M4 12h16"/><path d="M4 18h16"/><path d="M4 6h16"/>',
     radio: '<path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2a6 6 0 0 1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.5"/><path d="M19.1 4.9c3.9 3.9 3.9 10.2 0 14.1"/>',
+    route: '<circle cx="6" cy="19" r="3"/><path d="M9 19h5.5a3.5 3.5 0 0 0 0-7h-5a3.5 3.5 0 0 1 0-7H18"/><circle cx="18" cy="5" r="3"/>',
     settings: '<path d="M9.7 3.4c.6-1.7 4-1.7 4.6 0l.2.6a2 2 0 0 0 2.3 1.3l.6-.1c1.8-.3 3.5 2.6 2.3 4l-.4.5a2 2 0 0 0 0 2.6l.4.5c1.2 1.4-.5 4.3-2.3 4l-.6-.1a2 2 0 0 0-2.3 1.3l-.2.6c-.6 1.7-4 1.7-4.6 0l-.2-.6a2 2 0 0 0-2.3-1.3l-.6.1c-1.8.3-3.5-2.6-2.3-4l.4-.5a2 2 0 0 0 0-2.6l-.4-.5c-1.2-1.4.5-4.3 2.3-4l.6.1A2 2 0 0 0 9.5 4Z"/><circle cx="12" cy="12" r="3"/>',
     slidersHorizontal: '<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
     star: '<path d="M11.5 2.9a.6.6 0 0 1 1 0l2.6 5.2 5.8.8a.6.6 0 0 1 .3 1l-4.2 4.1 1 5.8a.6.6 0 0 1-.9.6L12 17.7l-5.1 2.7a.6.6 0 0 1-.9-.6l1-5.8-4.2-4.1a.6.6 0 0 1 .3-1l5.8-.8Z"/>',
@@ -51,6 +52,7 @@ function replaceSidebarIcons() {
     replaceButtonIcon("#aboutClose", "x", "Info schließen");
 
     replaceInlineIcon("#nearbyButton .sidebar-item-emoji", "mapPin", "Haltestellen in der Nähe");
+    replaceInlineIcon("#routePlannerButton .sidebar-item-emoji", "route", "Route planen");
     replaceInlineIcon("#favoritesButton .sidebar-item-emoji", "star", "Favoriten");
     replaceInlineIcon("#settingsButton .sidebar-item-emoji", "settings", "Einstellungen");
     replaceInlineIcon("#aboutButton .sidebar-item-emoji", "info", "Über TransitRadar");

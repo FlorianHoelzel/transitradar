@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="./styles/fonts.css">
     <link rel="stylesheet" href="./styles/base.css">
     <link rel="stylesheet" href="./styles/search.css">
+    <link rel="stylesheet" href="./styles/route-planner.css">
     <link rel="stylesheet" href="./styles/filters.css">
     <link rel="stylesheet" href="./styles/stations.css">
     <link rel="stylesheet" href="./styles/vehicles.css">
@@ -65,17 +66,146 @@
         </nav>
     </header>
 
-    <div class="search-box">
-        <input
-            id="searchInput"
-            type="text"
-            placeholder="Haltestelle suchen …"
-            autocomplete="new-password"
-            name="transitradar-search"
-            spellcheck="false"
-        >
+    <div id="topSearchControls" class="top-search-controls">
+        <div class="search-box">
+            <input
+                id="searchInput"
+                type="text"
+                placeholder="Haltestelle suchen …"
+                autocomplete="new-password"
+                name="transitradar-search"
+                spellcheck="false"
+            >
 
-        <div id="searchResults"></div>
+            <button
+                id="stationSearchRestore"
+                class="station-search-restore"
+                type="button"
+                aria-label="Haltestellensuche öffnen"
+                title="Haltestelle suchen"
+                tabindex="-1"
+            >
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="m20 20-4-4"></path>
+                </svg>
+            </button>
+
+            <div id="searchResults"></div>
+        </div>
+
+        <button
+            id="routePlannerToggle"
+            class="route-planner-toggle liquid-button"
+            type="button"
+            aria-label="Route planen"
+            aria-controls="routePlannerPanel"
+            aria-expanded="false"
+            title="Route planen"
+        >
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+                <circle cx="6" cy="19" r="3"></circle>
+                <path d="M9 19h5.5a3.5 3.5 0 0 0 0-7h-5a3.5 3.5 0 0 1 0-7H18"></path>
+                <circle cx="18" cy="5" r="3"></circle>
+            </svg>
+        </button>
+
+        <section
+            id="routePlannerPanel"
+            class="route-planner-panel liquid-glass"
+            aria-labelledby="routePlannerTitle"
+            aria-hidden="true"
+            inert
+        >
+        <div class="route-planner-handle" aria-hidden="true"></div>
+
+        <header class="route-planner-header">
+            <div>
+                <div class="route-planner-kicker">Unterwegs mit TransitRadar</div>
+                <h2 id="routePlannerTitle">Route planen</h2>
+            </div>
+
+            <button
+                id="routePlannerClose"
+                class="route-planner-close"
+                type="button"
+                aria-label="Routenplaner schließen"
+                title="Schließen"
+            >
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="M18 6 6 18"></path>
+                    <path d="m6 6 12 12"></path>
+                </svg>
+            </button>
+        </header>
+
+        <div class="route-planner-fields">
+            <div class="route-planner-points" aria-hidden="true">
+                <span class="route-point route-point-origin"></span>
+                <span class="route-point-line"></span>
+                <span class="route-point route-point-destination"></span>
+            </div>
+
+            <div class="route-planner-inputs">
+                <label class="route-planner-field">
+                    <span>Start</span>
+                    <input
+                        id="routePlannerOrigin"
+                        type="text"
+                        placeholder="Standort oder Haltestelle"
+                        autocomplete="off"
+                    >
+                </label>
+
+                <label class="route-planner-field">
+                    <span>Ziel</span>
+                    <input
+                        id="routePlannerDestination"
+                        type="text"
+                        placeholder="Wohin möchtest du?"
+                        autocomplete="off"
+                    >
+                </label>
+            </div>
+
+            <button
+                id="routePlannerSwap"
+                class="route-planner-swap"
+                type="button"
+                aria-label="Start und Ziel tauschen"
+                title="Start und Ziel tauschen"
+            >
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m7 16-4-4 4-4"></path>
+                    <path d="M3 12h18"></path>
+                    <path d="m17 8 4 4-4 4"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="route-planner-options">
+            <label class="route-planner-time">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M12 7v5l3 2"></path>
+                </svg>
+                <span class="route-planner-option-label">Zeit</span>
+                <select id="routePlannerTime" aria-label="Abfahrts- oder Ankunftszeit">
+                    <option value="now">Jetzt</option>
+                    <option value="departure">Abfahrt später</option>
+                    <option value="arrival">Ankunft bis</option>
+                </select>
+            </label>
+        </div>
+
+        <button class="route-planner-submit" type="button" disabled>
+            Verbindungen suchen
+        </button>
+
+        <p class="route-planner-note">
+            Die Verbindungssuche wird im nächsten Schritt angebunden.
+        </p>
+        </section>
     </div>
 
     <div class="filter-control">
