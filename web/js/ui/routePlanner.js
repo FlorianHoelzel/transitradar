@@ -136,12 +136,11 @@ function createWalkingNode(leg) {
 
     walk.className = "journey-walk-node";
     walk.innerHTML = `
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-            <circle cx="9" cy="4" r="2"></circle>
-            <path d="m10 22 1-5-2-2 1-4 3 3 2 1"></path>
-            <path d="m6 12 2-3 2-1 3 1 2 3"></path>
-            <path d="m4 16 3-3"></path>
-            <path d="m15 22-4-5"></path>
+        <svg class="lucide-icon lucide-footprints" aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"></path>
+            <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"></path>
+            <path d="M16 17h4"></path>
+            <path d="M4 13h4"></path>
         </svg>
         <span>${minutes} Min.</span>
     `;
@@ -179,22 +178,27 @@ function createJourneyCard(journey, index, onSelect) {
     lineRow.className = "journey-card-lines";
 
     uniqueJourneyLegs(journey).forEach((leg, legIndex) => {
+        const step = document.createElement("span");
+        step.className = "journey-leg-step";
+
         if (legIndex > 0) {
             const connector = document.createElement("span");
             connector.className = "journey-leg-connector";
             connector.setAttribute("aria-hidden", "true");
-            lineRow.appendChild(connector);
+            step.appendChild(connector);
         }
 
         if (leg.walking || !leg.line?.name) {
-            lineRow.appendChild(createWalkingNode(leg));
+            step.appendChild(createWalkingNode(leg));
+            lineRow.appendChild(step);
             return;
         }
 
         const badge = document.createElement("span");
         badge.className = "journey-line-node";
         badge.innerHTML = createLineBadge(leg.line.name);
-        lineRow.appendChild(badge);
+        step.appendChild(badge);
+        lineRow.appendChild(step);
     });
 
     const metaRow = document.createElement("div");
