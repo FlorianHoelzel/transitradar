@@ -223,13 +223,6 @@ export function normalizeJourneyDetail(data, context = {}) {
     const directionEntry = Array.isArray(directions) ? directions.at(-1) : directions;
     const stopovers = rawStops.map(normalizeStopover);
     const polylineCoordinates = coordinatesFromPolylineGroup(data?.PolylineGroup);
-    const fallbackCoordinates = stopovers
-        .map(stopover => stopover.stop.location)
-        .filter(location => {
-            return Number.isFinite(location?.longitude)
-                && Number.isFinite(location?.latitude);
-        })
-        .map(location => [location.longitude, location.latitude]);
 
     return {
         trip: {
@@ -245,16 +238,14 @@ export function normalizeJourneyDetail(data, context = {}) {
                 product: productFromClass(product?.cls)
             },
             stopovers,
-            polyline: {
+            polyline: polylineCoordinates.length >= 2 ? {
                 type: "Feature",
                 properties: {},
                 geometry: {
                     type: "LineString",
-                    coordinates: polylineCoordinates.length >= 2
-                        ? polylineCoordinates
-                        : fallbackCoordinates
+                    coordinates: polylineCoordinates
                 }
-            }
+            } : null
         }
     };
 }

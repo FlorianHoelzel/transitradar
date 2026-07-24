@@ -223,7 +223,7 @@ test("normalizes RMV journey stopovers and polyline geometry", () => {
     );
 });
 
-test("uses stop coordinates when RMV omits journey geometry", () => {
+test("does not invent RMV track geometry from stop coordinates", () => {
     const result = normalizeJourneyDetail({
         Stops: {
             Stop: [
@@ -235,10 +235,7 @@ test("uses stop coordinates when RMV omits journey geometry", () => {
     }, { journeyId: "fallback" });
 
     assert.equal(result.trip.id, "fallback");
-    assert.deepEqual(
-        result.trip.polyline.geometry.coordinates,
-        [[8.6, 50.1], [8.7, 50.2]]
-    );
+    assert.equal(result.trip.polyline, null);
 });
 
 test("returns null for an empty journey response", () => {

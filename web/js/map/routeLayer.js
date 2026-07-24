@@ -197,8 +197,9 @@ export function showJourneyRoute(journey, { summaryElement } = {}) {
     const layers = [];
 
     journey.legs.forEach(leg => {
+        const walking = Boolean(leg.walking || !leg.line);
         const segments = extractRouteCoordinateSegments(leg.polyline);
-        const fallbackCoordinates = fallbackLegCoordinates(leg);
+        const fallbackCoordinates = walking ? fallbackLegCoordinates(leg) : [];
         const routeCoordinates = segments.length > 0
             ? leafletRouteCoordinates(segments)
             : fallbackCoordinates;
@@ -207,7 +208,6 @@ export function showJourneyRoute(journey, { summaryElement } = {}) {
             return;
         }
 
-        const walking = Boolean(leg.walking || !leg.line);
         const color = walking ? "#94a3b8" : getLineColor(leg.line?.name || "");
 
         if (!walking) {

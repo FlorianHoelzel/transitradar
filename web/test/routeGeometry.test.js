@@ -110,6 +110,39 @@ test("does not connect point runs across an explicit line segment", () => {
     assert.equal(segments.length, 3);
 });
 
+test("does not connect VBB point runs across an invalid coordinate", () => {
+    const segments = extractRouteCoordinateSegments({
+        type: "FeatureCollection",
+        features: [
+            {
+                type: "Feature",
+                geometry: { type: "Point", coordinates: [13.1, 52.1] }
+            },
+            {
+                type: "Feature",
+                geometry: { type: "Point", coordinates: [13.2, 52.2] }
+            },
+            {
+                type: "Feature",
+                geometry: { type: "Point", coordinates: [null, null] }
+            },
+            {
+                type: "Feature",
+                geometry: { type: "Point", coordinates: [14.1, 53.1] }
+            },
+            {
+                type: "Feature",
+                geometry: { type: "Point", coordinates: [14.2, 53.2] }
+            }
+        ]
+    });
+
+    assert.deepEqual(segments, [
+        [[52.1, 13.1], [52.2, 13.2]],
+        [[53.1, 14.1], [53.2, 14.2]]
+    ]);
+});
+
 test("returns a flat Leaflet path for one LineString", () => {
     const segments = extractRouteCoordinateSegments({
         type: "LineString",
@@ -122,29 +155,40 @@ test("returns a flat Leaflet path for one LineString", () => {
     );
 });
 
-test("removes a short narrow hairpin that returns to the same track", () => {
+test("removes the VBB double backtrack seen at Potsdamer Platz", () => {
     const segments = extractRouteCoordinateSegments({
-        type: "LineString",
-        coordinates: [
-            [10, 53.5520],
-            [10.0002, 53.5516],
-            [10.0004, 53.5512],
-            [10.00032, 53.55122],
-            [10.00010, 53.55162],
-            [10.00022, 53.55158],
-            [10.0006, 53.5508]
+        type: "FeatureCollection",
+        features: [
+            {
+                type: "Feature",
+                properties: {},
+                geometry: { type: "Point", coordinates: [13.37644, 52.50963] }
+            },
+            {
+                type: "Feature",
+                properties: {
+                    type: "stop",
+                    name: "Varian-Fry-Str./Potsdamer Platz (Berlin)"
+                },
+                geometry: { type: "Point", coordinates: [13.37417, 52.50944] }
+            },
+            {
+                type: "Feature",
+                properties: {},
+                geometry: { type: "Point", coordinates: [13.37465, 52.50947] }
+            },
+            {
+                type: "Feature",
+                properties: {},
+                geometry: { type: "Point", coordinates: [13.37091, 52.50918] }
+            }
         ]
     });
 
-    assert.equal(
-        segments[0].some(point => point[0] === 53.5512),
-        false
-    );
-    assert.equal(
-        segments[0].some(point => point[0] === 53.55122),
-        false
-    );
-    assert.deepEqual(segments[0].at(-1), [53.5508, 10.0006]);
+    assert.deepEqual(segments, [[
+        [52.50963, 13.37644],
+        [52.50918, 13.37091]
+    ]]);
 });
 
 test("preserves a real turn that does not return along the same corridor", () => {

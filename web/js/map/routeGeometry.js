@@ -1,20 +1,30 @@
 function leafletPoint(coordinate) {
+    const longitude = coordinate?.[0];
+    const latitude = coordinate?.[1];
+
     if (
         !Array.isArray(coordinate)
-        || !Number.isFinite(Number(coordinate[0]))
-        || !Number.isFinite(Number(coordinate[1]))
+        || longitude === null
+        || longitude === undefined
+        || latitude === null
+        || latitude === undefined
+        || !Number.isFinite(Number(longitude))
+        || !Number.isFinite(Number(latitude))
+        || Number(longitude) < -180
+        || Number(longitude) > 180
+        || Number(latitude) < -90
+        || Number(latitude) > 90
     ) {
         return null;
     }
 
-    return [Number(coordinate[1]), Number(coordinate[0])];
+    return [Number(latitude), Number(longitude)];
 }
 
 const METERS_PER_LATITUDE_DEGREE = 110540;
-const HAIRPIN_RETURN_DISTANCE_METERS = 14;
-const HAIRPIN_MIN_LENGTH_METERS = 45;
-const HAIRPIN_MAX_LENGTH_METERS = 350;
-const HAIRPIN_MAX_WIDTH_METERS = 18;
+const DOUBLE_BACKTRACK_MAX_ANGLE_DEGREES = 15;
+const DOUBLE_BACKTRACK_MAX_BRIDGE_METERS = 100;
+const DOUBLE_BACKTRACK_MIN_SAVING_METERS = 20;
 
 function localPoint(point, referenceLatitude) {
     return {
@@ -31,140 +41,101 @@ function distanceMeters(first, second) {
     return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-function closestPointOnSegment(point, start, end) {
-    const referenceLatitude = (point[0] + start[0] + end[0]) / 3;
-    const local = localPoint(point, referenceLatitude);
-    const localStart = localPoint(start, referenceLatitude);
-    const localEnd = localPoint(end, referenceLatitude);
-    const dx = localEnd.x - localStart.x;
-    const dy = localEnd.y - localStart.y;
-    const lengthSquared = dx * dx + dy * dy;
-    const fraction = lengthSquared === 0
-        ? 0
-        : Math.min(Math.max(
-            ((local.x - localStart.x) * dx + (local.y - localStart.y) * dy)
-                / lengthSquared,
-            0
-        ), 1);
-    const projected = [
-        start[0] + (end[0] - start[0]) * fraction,
-        start[1] + (end[1] - start[1]) * fraction
-    ];
+function interiorAngleDegrees(previous, point, next) {
+    const referenceLatitude = (previous[0] + point[0] + next[0]) / 3;
+    const a = localPoint(previous, referenceLatitude);
+    const b = localPoint(point, referenceLatitude);
+    const c = localPoint(next, referenceLatitude);
+    const incoming = { x: a.x - b.x, y: a.y - b.y };
+    const outgoing = { x: c.x - b.x, y: c.y - b.y };
+    const denominator = Math.hypot(incoming.x, incoming.y)
+        * Math.hypot(outgoing.x, outgoing.y);
 
-    return {
-        point: projected,
-        distance: distanceMeters(point, projected)
-    };
-}
-
-function pathLengthMeters(points) {
-    let length = 0;
-
-    for (let index = 1; index < points.length; index += 1) {
-        length += distanceMeters(points[index - 1], points[index]);
+    if (denominator === 0) {
+        return 180;
     }
 
-    return length;
+    const cosine = (
+        incoming.x * outgoing.x + incoming.y * outgoing.y
+    ) / denominator;
+
+    return Math.acos(Math.max(-1, Math.min(1, cosine))) * 180 / Math.PI;
 }
 
-function isNarrowDetour(points) {
-    const referenceLatitude = points.reduce((sum, point) => sum + point[0], 0)
-        / points.length;
-    const local = points.map(point => localPoint(point, referenceLatitude));
-    const center = local.reduce((value, point) => {
-        return { x: value.x + point.x, y: value.y + point.y };
-    }, { x: 0, y: 0 });
+function isDoubleBacktrack(entries, index) {
+    const [first, second, third, fourth] = entries.slice(index, index + 4);
 
-    center.x /= local.length;
-    center.y /= local.length;
+    if (!(second.isStop || third.isStop)) {
+        return false;
+    }
 
-    let xx = 0;
-    let xy = 0;
-    let yy = 0;
+    if (
+        interiorAngleDegrees(first.point, second.point, third.point)
+            > DOUBLE_BACKTRACK_MAX_ANGLE_DEGREES
+        || interiorAngleDegrees(second.point, third.point, fourth.point)
+            > DOUBLE_BACKTRACK_MAX_ANGLE_DEGREES
+        || distanceMeters(second.point, third.point)
+            > DOUBLE_BACKTRACK_MAX_BRIDGE_METERS
+    ) {
+        return false;
+    }
 
-    local.forEach(point => {
-        const dx = point.x - center.x;
-        const dy = point.y - center.y;
+    const suppliedLength = distanceMeters(first.point, second.point)
+        + distanceMeters(second.point, third.point)
+        + distanceMeters(third.point, fourth.point);
+    const directLength = distanceMeters(first.point, fourth.point);
 
-        xx += dx * dx;
-        xy += dx * dy;
-        yy += dy * dy;
-    });
-
-    const angle = 0.5 * Math.atan2(2 * xy, xx - yy);
-    const perpendicular = { x: -Math.sin(angle), y: Math.cos(angle) };
-    const offsets = local.map(point => {
-        return point.x * perpendicular.x + point.y * perpendicular.y;
-    });
-    const width = Math.max(...offsets) - Math.min(...offsets);
-
-    return width <= HAIRPIN_MAX_WIDTH_METERS;
+    return suppliedLength - directLength >= DOUBLE_BACKTRACK_MIN_SAVING_METERS;
 }
 
-function removeNarrowHairpins(points) {
-    const cleaned = [];
+function removeVbbDoubleBacktracks(entries) {
+    const cleaned = [...entries];
+    let index = 0;
 
-    points.forEach(point => {
-        if (cleaned.length > 0 && distanceMeters(cleaned.at(-1), point) < 0.25) {
-            return;
+    while (index + 3 < cleaned.length) {
+        if (isDoubleBacktrack(cleaned, index)) {
+            cleaned.splice(index + 1, 2);
+            index = Math.max(0, index - 2);
+        } else {
+            index += 1;
         }
-
-        let hairpin = null;
-
-        for (let index = cleaned.length - 3; index >= 0; index -= 1) {
-            const closest = closestPointOnSegment(
-                point,
-                cleaned[index],
-                cleaned[index + 1]
-            );
-
-            if (closest.distance > HAIRPIN_RETURN_DISTANCE_METERS) {
-                continue;
-            }
-
-            const detour = [
-                closest.point,
-                ...cleaned.slice(index + 1),
-                point
-            ];
-            const length = pathLengthMeters(detour);
-
-            if (
-                length >= HAIRPIN_MIN_LENGTH_METERS
-                && length <= HAIRPIN_MAX_LENGTH_METERS
-                && isNarrowDetour(detour)
-            ) {
-                hairpin = { index, closest };
-                break;
-            }
-        }
-
-        if (hairpin) {
-            cleaned.splice(hairpin.index + 1);
-
-            if (distanceMeters(cleaned.at(-1), hairpin.closest.point) >= 0.25) {
-                cleaned.push(hairpin.closest.point);
-            }
-
-            return;
-        }
-
-        if (cleaned.length === 0 || distanceMeters(cleaned.at(-1), point) >= 0.25) {
-            cleaned.push(point);
-        }
-    });
+    }
 
     return cleaned;
 }
 
-function lineStringSegments(coordinates) {
-    const points = (coordinates || [])
-        .map(leafletPoint)
-        .filter(Boolean);
-    const cleaned = removeNarrowHairpins(points);
-    const drawable = cleaned.length >= 2 ? cleaned : points;
+function drawableSegment(points) {
+    const deduplicated = [];
 
-    return drawable.length >= 2 ? [drawable] : [];
+    points.forEach(point => {
+        if (
+            deduplicated.length === 0
+            || distanceMeters(deduplicated.at(-1), point) >= 0.25
+        ) {
+            deduplicated.push(point);
+        }
+    });
+
+    return deduplicated.length >= 2 ? [deduplicated] : [];
+}
+
+function lineStringSegments(coordinates) {
+    return drawableSegment(
+        (coordinates || []).map(leafletPoint).filter(Boolean)
+    );
+}
+
+function pointFeatureSegments(features) {
+    const entries = features
+        .map(feature => ({
+            point: leafletPoint(feature.geometry?.coordinates),
+            isStop: feature.properties?.type === "stop"
+        }))
+        .filter(entry => entry.point);
+    const cleaned = removeVbbDoubleBacktracks(entries);
+    const drawable = cleaned.length >= 2 ? cleaned : entries;
+
+    return drawableSegment(drawable.map(entry => entry.point));
 }
 
 function featureCollectionSegments(features) {
@@ -173,14 +144,19 @@ function featureCollectionSegments(features) {
 
     const flushPointRun = () => {
         if (pointRun.length > 0) {
-            segments.push(...lineStringSegments(pointRun));
+            segments.push(...pointFeatureSegments(pointRun));
             pointRun = [];
         }
     };
 
     (features || []).forEach(feature => {
         if (feature?.type === "Feature" && feature.geometry?.type === "Point") {
-            pointRun.push(feature.geometry.coordinates);
+            if (leafletPoint(feature.geometry.coordinates)) {
+                pointRun.push(feature);
+            } else {
+                flushPointRun();
+            }
+
             return;
         }
 
