@@ -1,12 +1,19 @@
+import {
+    loadStatusHistory,
+    saveStatusHistory
+} from "./statusHistory.js";
+
 const statusText = document.getElementById("overallStatusText");
 const statusDot = document.getElementById("overallStatusDot");
 const refreshButton = document.getElementById("refreshStatus");
 const previewMode = new URLSearchParams(window.location.search).get("preview");
 const maxLatencySamples = 12;
 const previewLatencyHistory = [132, 164, 151, 208, 184, 171, 226, 193, 177, 184];
-const liveRefreshInterval = 60000;
+const liveRefreshInterval = 30000;
 const previewRefreshInterval = 2000;
+const cachedLatencyHistory = loadStatusHistory(localStorage);
 let isChecking = false;
+let refreshTimer = null;
 
 const providers = [
     {
@@ -49,7 +56,7 @@ const providers = [
     latency: document.querySelector(`[data-provider-latency="${provider.id}"]`),
     message: document.querySelector(`[data-provider-message="${provider.id}"]`),
     graph: document.querySelector(`[data-provider-graph="${provider.id}"]`),
-    latencyHistory: [],
+    latencyHistory: cachedLatencyHistory[provider.id] || [],
     state: "checking"
 }));
 
@@ -103,8 +110,8 @@ function renderLatencyGraph(provider) {
         .map(sample => {
             const state = getLatencyState(sample);
             const height = Number.isFinite(sample)
-                ? Math.min(Math.max(sample / 55, 1.1), 5.25)
-                : 0.55;
+                ? Math.min(Math.max(sample / 85, 0.7), 3.1)
+                : 0.4;
 
             return `<span class="${state}" style="height: ${height.toFixed(2)}rem"></span>`;
         })
@@ -234,26 +241,56 @@ async function checkAllProviders({ showChecking = false } = {}) {
     try {
         await Promise.all(providers.map(checkProvider));
         updateOverallStatus();
+
+        if (previewMode !== "online") {
+            saveStatusHistory(localStorage, providers);
+        }
     } finally {
         isChecking = false;
     }
 }
 
 refreshButton.addEventListener("click", () => {
-    checkAllProviders({ showChecking: true });
+    runStatusCheck({ showChecking: true });
 });
 
-function startRealtimeStatusWatcher() {
+function isPageHidden() {
+    return document.visibilityState === "hidden";
+}
+
+function scheduleNextCheck() {
+    clearTimeout(refreshTimer);
+
+    if (isPageHidden()) {
+        return;
+    }
+
     const refreshInterval = previewMode === "online"
         ? previewRefreshInterval
         : liveRefreshInterval;
 
-    async function tick(options = {}) {
-        await checkAllProviders(options);
-        setTimeout(tick, refreshInterval);
-    }
-
-    tick({ showChecking: true });
+    refreshTimer = setTimeout(() => {
+        runStatusCheck();
+    }, refreshInterval);
 }
 
-startRealtimeStatusWatcher();
+async function runStatusCheck(options = {}) {
+    clearTimeout(refreshTimer);
+
+    if (isPageHidden()) {
+        return;
+    }
+
+    await checkAllProviders(options);
+    scheduleNextCheck();
+}
+
+document.addEventListener("visibilitychange", () => {
+    clearTimeout(refreshTimer);
+
+    if (!isPageHidden()) {
+        runStatusCheck();
+    }
+});
+
+runStatusCheck({ showChecking: true });
