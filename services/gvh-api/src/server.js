@@ -8,6 +8,7 @@ import {
     normalizeStopEvents
 } from "./normalizers.js";
 import {
+    deliveryPayload,
     locationInformationRequest,
     stopEventRequest,
     tripRequest
@@ -21,10 +22,8 @@ const HANNOVER_BOUNDS = {
     minLng: 9.45,
     maxLng: 10.05
 };
-const HANNOVER_CENTER = {
-    latitude: 52.3759,
-    longitude: 9.732
-};
+const STATION_PAGE_SIZE = 500;
+const MAX_STATION_PAGES = 5;
 
 function sendJson(response, status, value) {
     response.writeHead(status, { "content-type": "application/json; charset=utf-8" });
@@ -71,6 +70,34 @@ function filterHannover(stops) {
     });
 }
 
+function mergeStops(stops) {
+    const stopsById = new Map();
+
+    for (const stop of stops) {
+        const existing = stopsById.get(stop.id);
+
+        if (!existing) {
+            stopsById.set(stop.id, stop);
+            continue;
+        }
+
+        for (const product of Object.keys(existing.products)) {
+            existing.products[product] =
+                existing.products[product] || stop.products[product] === true;
+        }
+    }
+
+    return [...stopsById.values()];
+}
+
+function getContinueAt(document) {
+    const value = Number(
+        deliveryPayload(document).LocationInformationResponse?.ContinueAt
+    );
+
+    return Number.isInteger(value) && value >= 0 ? value : null;
+}
+
 async function findLocations(url, nearby = false) {
     const results = integerParameter(url, "results", 10, 100);
 
@@ -100,11 +127,30 @@ async function findLocations(url, nearby = false) {
 
 async function getStations() {
     return await cached("stations:hannover", 6 * 60 * 60 * 1000, async () => {
-        const document = await triasRequest(locationInformationRequest({
-            ...HANNOVER_CENTER,
-            results: 100
-        }));
-        return filterHannover(normalizeLocations(document));
+        const stops = [];
+        const visitedOffsets = new Set();
+        let continueAt;
+
+        for (let page = 0; page < MAX_STATION_PAGES; page += 1) {
+            const document = await triasRequest(locationInformationRequest({
+                bounds: HANNOVER_BOUNDS,
+                results: STATION_PAGE_SIZE,
+                continueAt
+            }));
+
+            stops.push(...normalizeLocations(document));
+
+            const nextOffset = getContinueAt(document);
+
+            if (nextOffset === null || visitedOffsets.has(nextOffset)) {
+                break;
+            }
+
+            visitedOffsets.add(nextOffset);
+            continueAt = nextOffset;
+        }
+
+        return mergeStops(filterHannover(stops));
     });
 }
 

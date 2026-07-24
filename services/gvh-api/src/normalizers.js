@@ -107,10 +107,10 @@ function productFromService(service = {}) {
     return "bus";
 }
 
-function productsFromMode(mode) {
+function productsFromModes(modes) {
     const products = emptyProducts();
 
-    if (mode) {
+    for (const mode of asArray(modes)) {
         products[productFromMode(mode)] = true;
     }
 
@@ -147,14 +147,17 @@ function callStop(value = {}) {
 export function normalizeLocationResult(result = {}) {
     const location = result.Location || result;
     const rawStop = location.StopPoint || location.StopPlace || location;
-    const mode = rawStop.Mode || result.Mode;
+    const modes = [
+        ...asArray(rawStop.Mode),
+        ...asArray(result.Mode)
+    ];
     const stop = callStop({
         ...rawStop,
         GeoPosition: rawStop.GeoPosition || location.GeoPosition,
         LocationName: rawStop.LocationName || location.LocationName
     });
 
-    stop.products = productsFromMode(mode);
+    stop.products = productsFromModes(modes);
     return stop;
 }
 

@@ -117,6 +117,7 @@ const CITY_CONFIGS = {
         departureStopStrategy: "best",
         preserveQualifiedStopIds: true,
         discoverStationLinesFromDepartures: true,
+        tramUsesSubwayMarker: true,
         surfaceTransitLabel: "Bus / Stadtbahn",
         bounds: {
             minLat: 52.20,

@@ -50,11 +50,29 @@ export function locationInformationRequest({
     query,
     latitude,
     longitude,
-    results = 10
+    bounds,
+    results = 10,
+    continueAt,
+    includePtModes = true
 }) {
     const initialInput = query
         ? `<LocationName>${escapeXml(query)}</LocationName>`
-        : [
+        : bounds
+            ? [
+                "<GeoRestriction>",
+                "<Rectangle>",
+                "<UpperLeft>",
+                `<Longitude>${escapeXml(bounds.minLng)}</Longitude>`,
+                `<Latitude>${escapeXml(bounds.maxLat)}</Latitude>`,
+                "</UpperLeft>",
+                "<LowerRight>",
+                `<Longitude>${escapeXml(bounds.maxLng)}</Longitude>`,
+                `<Latitude>${escapeXml(bounds.minLat)}</Latitude>`,
+                "</LowerRight>",
+                "</Rectangle>",
+                "</GeoRestriction>"
+            ].join("")
+            : [
             "<GeoPosition>",
             `<Longitude>${escapeXml(longitude)}</Longitude>`,
             `<Latitude>${escapeXml(latitude)}</Latitude>`,
@@ -67,6 +85,10 @@ export function locationInformationRequest({
         "<Restrictions>",
         "<Type>stop</Type>",
         `<NumberOfResults>${escapeXml(results)}</NumberOfResults>`,
+        Number.isFinite(continueAt)
+            ? `<ContinueAt>${escapeXml(continueAt)}</ContinueAt>`
+            : "",
+        `<IncludePtModes>${includePtModes ? "true" : "false"}</IncludePtModes>`,
         "</Restrictions>",
         "</LocationInformationRequest>"
     ].join("");

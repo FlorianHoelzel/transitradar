@@ -2,6 +2,7 @@ import {
     isSuburbanLine,
     isSubwayLine
 } from "./stationLineTypes.js";
+import { CITY_CONFIG } from "../config.js";
 
 const subwayIcon = L.divIcon({
     className: "station-marker subway-marker",
@@ -47,6 +48,8 @@ export function getStationIcon(station) {
         name.startsWith("s+u ") ||
         name.startsWith("s ") ||
         station.products?.suburban ||
+        station.products?.regional ||
+        station.products?.express ||
         hasLineType(station, isSuburbanLine)
     ) {
         return suburbanIcon;
@@ -55,6 +58,7 @@ export function getStationIcon(station) {
     if (
         name.startsWith("u ") ||
         station.products?.subway ||
+        (CITY_CONFIG.tramUsesSubwayMarker && station.products?.tram) ||
         hasLineType(station, isSubwayLine)
     ) {
         return subwayIcon;

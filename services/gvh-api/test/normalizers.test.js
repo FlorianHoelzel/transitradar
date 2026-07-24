@@ -59,6 +59,31 @@ test("filters location results that do not contain coordinates", () => {
     assert.deepEqual(stops, []);
 });
 
+test("combines every transport mode returned for a station", () => {
+    const stops = normalizeLocations(documentWith(`
+        <LocationInformationResponse>
+            <LocationResult>
+                <Location>
+                    <StopPoint>
+                        <StopPointRef>de:03241:11</StopPointRef>
+                        <StopPointName><Text>Kröpcke</Text></StopPointName>
+                    </StopPoint>
+                    <GeoPosition>
+                        <Longitude>9.738</Longitude>
+                        <Latitude>52.374</Latitude>
+                    </GeoPosition>
+                </Location>
+                <Mode><PtMode>tram</PtMode></Mode>
+                <Mode><PtMode>bus</PtMode></Mode>
+            </LocationResult>
+        </LocationInformationResponse>
+    `));
+
+    assert.equal(stops[0].products.tram, true);
+    assert.equal(stops[0].products.bus, true);
+    assert.equal(stops[0].products.suburban, false);
+});
+
 test("normalizes realtime departures and retains trip calls", () => {
     const normalized = normalizeStopEvents(documentWith(`
         <StopEventResponse>

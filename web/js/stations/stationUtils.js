@@ -26,6 +26,8 @@ export function isTrainStation(station) {
         name.startsWith("u ") ||
         hasProduct(station, "suburban") ||
         hasProduct(station, "subway") ||
+        hasProduct(station, "regional") ||
+        hasProduct(station, "express") ||
         hasLineType(station, isSuburbanLine) ||
         hasLineType(station, isSubwayLine)
     );
