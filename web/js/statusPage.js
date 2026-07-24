@@ -30,7 +30,8 @@ const providers = [
         name: "HVV",
         timeout: 15000,
         urls: [
-            "https://api-hamburg.transitradar.de/healthz"
+            "https://api-hamburg.transitradar.de/locations?query=Hamburg&results=1",
+            "https://api-hamburg.transitradar.de/radar?north=53.58&south=53.52&east=10.05&west=9.93&results=1"
         ]
     },
     {
@@ -38,7 +39,8 @@ const providers = [
         name: "RMV",
         timeout: 15000,
         urls: [
-            "https://api-frankfurt.transitradar.de/healthz"
+            "https://api-frankfurt.transitradar.de/locations?query=Frankfurt&results=1",
+            "https://api-frankfurt.transitradar.de/stops/3000010/departures?results=1&duration=60"
         ]
     },
     {
@@ -46,7 +48,8 @@ const providers = [
         name: "GVH",
         timeout: 15000,
         urls: [
-            "https://api-gvh.transitradar.de/healthz"
+            "https://api-gvh.transitradar.de/locations?query=Hannover&results=1",
+            "https://api-gvh.transitradar.de/stops/de%3A03241%3A31/departures?results=1"
         ]
     }
 ].map(provider => ({
@@ -211,9 +214,7 @@ async function checkProvider(provider) {
     const successfulCount = results.filter(result => result.ok).length;
     const state = successfulCount === results.length
         ? "online"
-        : successfulCount > 0
-            ? "issues"
-            : "offline";
+        : "offline";
     const successfulLatencies = results
         .map(result => result.latency)
         .filter(Number.isFinite);
@@ -224,7 +225,11 @@ async function checkProvider(provider) {
         )
         : null;
 
-    renderProviderStatus(provider, state, averageLatency);
+    renderProviderStatus(
+        provider,
+        state,
+        state === "online" ? averageLatency : null
+    );
 }
 
 async function checkAllProviders({ showChecking = false } = {}) {
