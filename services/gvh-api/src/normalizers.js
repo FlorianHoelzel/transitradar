@@ -96,6 +96,10 @@ function productFromService(service = {}) {
         return "suburban";
     }
 
+    if (/^ddb:9[01]H/iu.test(reference)) {
+        return "regional";
+    }
+
     if (/^ddb:98X/iu.test(reference)) {
         return "express";
     }
@@ -178,13 +182,19 @@ function plannedAndEstimated(call, type) {
 function lineFromService(service = {}) {
     const reference = text(service.JourneyRef);
     const gvhLine = reference.match(/^gvh:0\d(\d{3})(?=:|$)/iu);
+    const regionalExpressLine = reference.match(/^ddb:90H0?(\d{1,2})(?=:|$)/iu);
+    const regionalLine = reference.match(/^ddb:91H0?(\d{1,2})(?=:|$)/iu);
     const suburbanLine = reference.match(/^ddb:92H0?(\d{1,2})(?=:|$)/iu);
     const isExpressReference = /^ddb:98X/iu.test(reference);
     const inferredName = gvhLine
         ? String(Number(gvhLine[1]))
-        : suburbanLine
-            ? `S${Number(suburbanLine[1])}`
-            : "";
+        : regionalExpressLine
+            ? `RE${Number(regionalExpressLine[1])}`
+            : regionalLine
+                ? `RB${Number(regionalLine[1])}`
+                : suburbanLine
+                    ? `S${Number(suburbanLine[1])}`
+                    : "";
     const modeName = text(service.Mode?.Name);
     const trainNumber = text(service.TrainNumber);
     const namedTrain = [modeName, trainNumber].filter(Boolean).join(" ");
