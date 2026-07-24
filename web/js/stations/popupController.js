@@ -1,5 +1,5 @@
 import { showRouteForTrip } from "../map/routeLayer.js";
-import { DEPARTURE_CONFIG } from "../config.js";
+import { CITY_CONFIG, DEPARTURE_CONFIG } from "../config.js";
 import {
     createDeparturesHtml,
     getStationLinesHtml,
@@ -164,7 +164,11 @@ function updateReplacementServiceLines(popupElement, station, departures) {
         ...new Set(
             departures
                 .map(departure => departure.line?.name)
-                .filter(line => REPLACEMENT_SERVICE_PATTERN.test(line || ""))
+                .filter(line => {
+                    return CITY_CONFIG.discoverStationLinesFromDepartures
+                        ? Boolean(line)
+                        : REPLACEMENT_SERVICE_PATTERN.test(line || "");
+                })
         )
     ].sort((a, b) => a.localeCompare(b, "de-DE", { numeric: true }));
     const replacementLinesKey = replacementLines.join("\n");

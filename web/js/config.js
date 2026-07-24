@@ -116,6 +116,7 @@ const CITY_CONFIGS = {
         departureRefreshInterval: 20000,
         departureStopStrategy: "best",
         preserveQualifiedStopIds: true,
+        discoverStationLinesFromDepartures: true,
         surfaceTransitLabel: "Bus / Stadtbahn",
         bounds: {
             minLat: 52.20,

@@ -137,6 +137,27 @@ test("derives public GVH Stadtbahn and S-Bahn labels from journey references", (
     assert.equal(normalized.departures[1].line.product, "suburban");
 });
 
+test("hides opaque DB journey references behind a public express label", () => {
+    const normalized = normalizeStopEvents(documentWith(`
+        <StopEventResponse>
+            <StopEventResult>
+                <StopEvent>
+                    <ThisCall><CallAtStop>
+                        <ServiceDeparture><TimetabledTime>2026-07-24T12:00:00Z</TimetabledTime></ServiceDeparture>
+                    </CallAtStop></ThisCall>
+                    <Service>
+                        <JourneyRef>ddb:98X19:P:R:j26:87</JourneyRef>
+                        <DestinationText><Text>Berlin Südkreuz</Text></DestinationText>
+                    </Service>
+                </StopEvent>
+            </StopEventResult>
+        </StopEventResponse>
+    `));
+
+    assert.equal(normalized.departures[0].line.name, "Fernverkehr");
+    assert.equal(normalized.departures[0].line.product, "express");
+});
+
 test("normalizes TRIAS trip legs and projections", () => {
     const normalized = normalizeJourneys(documentWith(`
         <TripResponse>
