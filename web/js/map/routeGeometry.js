@@ -162,8 +162,34 @@ function lineStringSegments(coordinates) {
         .map(leafletPoint)
         .filter(Boolean);
     const cleaned = removeNarrowHairpins(points);
+    const drawable = cleaned.length >= 2 ? cleaned : points;
 
-    return cleaned.length >= 2 ? [cleaned] : [];
+    return drawable.length >= 2 ? [drawable] : [];
+}
+
+function featureCollectionSegments(features) {
+    const segments = [];
+    let pointRun = [];
+
+    const flushPointRun = () => {
+        if (pointRun.length > 0) {
+            segments.push(...lineStringSegments(pointRun));
+            pointRun = [];
+        }
+    };
+
+    (features || []).forEach(feature => {
+        if (feature?.type === "Feature" && feature.geometry?.type === "Point") {
+            pointRun.push(feature.geometry.coordinates);
+            return;
+        }
+
+        flushPointRun();
+        segments.push(...extractRouteCoordinateSegments(feature));
+    });
+
+    flushPointRun();
+    return segments;
 }
 
 export function extractRouteCoordinateSegments(polyline) {
@@ -172,8 +198,7 @@ export function extractRouteCoordinateSegments(polyline) {
     }
 
     if (polyline.type === "FeatureCollection") {
-        return (polyline.features || [])
-            .flatMap(feature => extractRouteCoordinateSegments(feature));
+        return featureCollectionSegments(polyline.features);
     }
 
     if (polyline.type === "Feature") {

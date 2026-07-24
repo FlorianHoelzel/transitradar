@@ -48,6 +48,68 @@ test("keeps valid FeatureCollection lines separate and rejects invalid points", 
     ]);
 });
 
+test("connects an ordered VBB FeatureCollection of route points", () => {
+    const segments = extractRouteCoordinateSegments({
+        type: "FeatureCollection",
+        features: [
+            {
+                type: "Feature",
+                properties: { type: "stop", name: "U Britz-Süd" },
+                geometry: { type: "Point", coordinates: [13.44683, 52.43688] }
+            },
+            {
+                type: "Feature",
+                properties: {},
+                geometry: { type: "Point", coordinates: [13.44969, 52.43695] }
+            },
+            {
+                type: "Feature",
+                properties: { type: "stop", name: "Otto-Wels-Ring" },
+                geometry: { type: "Point", coordinates: [13.45292, 52.43533] }
+            }
+        ]
+    });
+
+    assert.deepEqual(segments, [[
+        [52.43688, 13.44683],
+        [52.43695, 13.44969],
+        [52.43533, 13.45292]
+    ]]);
+});
+
+test("does not connect point runs across an explicit line segment", () => {
+    const segments = extractRouteCoordinateSegments({
+        type: "FeatureCollection",
+        features: [
+            {
+                type: "Feature",
+                geometry: { type: "Point", coordinates: [10, 53.5] }
+            },
+            {
+                type: "Feature",
+                geometry: { type: "Point", coordinates: [10.01, 53.51] }
+            },
+            {
+                type: "Feature",
+                geometry: {
+                    type: "LineString",
+                    coordinates: [[11, 54], [11.01, 54.01]]
+                }
+            },
+            {
+                type: "Feature",
+                geometry: { type: "Point", coordinates: [12, 55] }
+            },
+            {
+                type: "Feature",
+                geometry: { type: "Point", coordinates: [12.01, 55.01] }
+            }
+        ]
+    });
+
+    assert.equal(segments.length, 3);
+});
+
 test("returns a flat Leaflet path for one LineString", () => {
     const segments = extractRouteCoordinateSegments({
         type: "LineString",
