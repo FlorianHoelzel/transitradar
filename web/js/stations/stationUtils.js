@@ -1,4 +1,4 @@
-import { STATION_CONFIG } from "../config.js";
+import { CITY_CONFIG, STATION_CONFIG } from "../config.js";
 import { activeFilters } from "../ui/filters.js";
 import {
     getImportantStationScoreOffset,
@@ -26,8 +26,17 @@ export function isTrainStation(station) {
         name.startsWith("u ") ||
         hasProduct(station, "suburban") ||
         hasProduct(station, "subway") ||
-        hasProduct(station, "regional") ||
-        hasProduct(station, "express") ||
+        (
+            CITY_CONFIG.tramCountsAsTrainStation &&
+            hasProduct(station, "tram")
+        ) ||
+        (
+            CITY_CONFIG.regionalCountsAsTrainStation &&
+            (
+                hasProduct(station, "regional") ||
+                hasProduct(station, "express")
+            )
+        ) ||
         hasLineType(station, isSuburbanLine) ||
         hasLineType(station, isSubwayLine)
     );
@@ -51,16 +60,6 @@ export function isImportantTrainStation(station) {
 
 export function shouldShowStation(station, zoom) {
     const effectiveZoom = zoom + getStationDensityZoomOffset();
-    const isUnclassified =
-        !isTrainStation(station) &&
-        !isSurfaceStation(station);
-
-    if (
-        isUnclassified &&
-        Number.isFinite(STATION_CONFIG.unclassifiedStationsMinZoom)
-    ) {
-        return effectiveZoom >= STATION_CONFIG.unclassifiedStationsMinZoom;
-    }
 
     if (effectiveZoom < STATION_CONFIG.zoomLevels.rapidTransit) {
         return isImportantTrainStation(station);

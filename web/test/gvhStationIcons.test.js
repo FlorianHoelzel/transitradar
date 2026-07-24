@@ -15,7 +15,18 @@ globalThis.L = {
     }
 };
 
+globalThis.localStorage = {
+    getItem() {
+        return null;
+    },
+    setItem() {}
+};
+
 const { getStationIcon } = await import("../js/stations/stationIcons.js");
+const {
+    isImportantTrainStation,
+    shouldShowStation
+} = await import("../js/stations/stationUtils.js");
 
 function station(products) {
     return {
@@ -45,4 +56,27 @@ test("uses rail and bus marker colors for the remaining GVH modes", () => {
         getStationIcon(station({ bus: true })).className,
         /bus-marker/u
     );
+});
+
+test("uses Berlin-style zoom tiers for Hannover stations", () => {
+    const importantInterchange = station({
+        suburban: true,
+        regional: true
+    });
+    const suburbanStop = station({ suburban: true });
+    const stadtbahnStop = station({ tram: true });
+    const busStop = station({ bus: true });
+
+    assert.equal(isImportantTrainStation(importantInterchange), true);
+    assert.equal(isImportantTrainStation(suburbanStop), false);
+
+    assert.equal(shouldShowStation(importantInterchange, 12), true);
+    assert.equal(shouldShowStation(suburbanStop, 12), false);
+    assert.equal(shouldShowStation(stadtbahnStop, 12), false);
+    assert.equal(shouldShowStation(busStop, 12), false);
+
+    assert.equal(shouldShowStation(suburbanStop, 13), true);
+    assert.equal(shouldShowStation(stadtbahnStop, 13), true);
+    assert.equal(shouldShowStation(busStop, 14), false);
+    assert.equal(shouldShowStation(busStop, 15), true);
 });

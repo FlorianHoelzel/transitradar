@@ -48,8 +48,13 @@ export function getStationIcon(station) {
         name.startsWith("s+u ") ||
         name.startsWith("s ") ||
         station.products?.suburban ||
-        station.products?.regional ||
-        station.products?.express ||
+        (
+            CITY_CONFIG.regionalUsesSuburbanMarker &&
+            (
+                station.products?.regional ||
+                station.products?.express
+            )
+        ) ||
         hasLineType(station, isSuburbanLine)
     ) {
         return suburbanIcon;
