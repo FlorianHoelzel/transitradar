@@ -60,6 +60,30 @@ const HAMBURG_LINE_COLORS = {
     A3: "#F7931D"
 };
 
+const HANNOVER_LINE_COLORS = {
+    // A-Strecke
+    3: "#0072BC",
+    7: "#0072BC",
+    9: "#0072BC",
+    13: "#0072BC",
+
+    // B-Strecke
+    1: "#EF3E22",
+    2: "#EF3E22",
+    8: "#EF3E22",
+
+    // C-Strecke
+    4: "#F9A51B",
+    5: "#F9A51B",
+    6: "#F9A51B",
+    11: "#F9A51B",
+
+    // D-Strecke
+    10: "#71BF44",
+    12: "#71BF44",
+    17: "#71BF44"
+};
+
 const FRANKFURT_MODE_COLORS = {
     suburban: "#008754",
     subway: "#0069B4",
@@ -74,7 +98,8 @@ const FRANKFURT_TRAM_LINES = new Set([
 const CITY_LINE_COLORS = {
     berlin: BERLIN_LINE_COLORS,
     hamburg: HAMBURG_LINE_COLORS,
-    frankfurt: {}
+    frankfurt: {},
+    hannover: HANNOVER_LINE_COLORS
 };
 
 const DARK_TEXT_LINES = {
@@ -116,6 +141,30 @@ function getFrankfurtBadgeStyle(name, colorKey) {
         : null;
 }
 
+function getHannoverBadgeStyle(colorKey) {
+    if (CITY_CONFIG.id !== "hannover") {
+        return null;
+    }
+
+    if (/^(?:S\d+|RE\d+|RB\d+)$/u.test(colorKey)) {
+        return {
+            background: "#808285",
+            color: "#fff",
+            border: "none"
+        };
+    }
+
+    if (colorKey.startsWith("FLX")) {
+        return {
+            background: "#73D700",
+            color: "#111",
+            border: "none"
+        };
+    }
+
+    return null;
+}
+
 export function getBadgeStyle(line) {
     if (!line) {
         return {
@@ -130,9 +179,14 @@ export function getBadgeStyle(line) {
         .replace(/^([USA])\s*(\d+)$/i, "$1$2")
         .toUpperCase();
     const frankfurtStyle = getFrankfurtBadgeStyle(name, colorKey);
+    const hannoverStyle = getHannoverBadgeStyle(colorKey);
 
     if (frankfurtStyle) {
         return frankfurtStyle;
+    }
+
+    if (hannoverStyle) {
+        return hannoverStyle;
     }
 
     if (LINE_COLORS[colorKey]) {

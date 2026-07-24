@@ -234,6 +234,40 @@ test("hides opaque DB journey references behind a public express label", () => {
     assert.equal(normalized.departures[0].line.product, "express");
 });
 
+test("normalizes additional intercity and FlixTrain references", () => {
+    const normalized = normalizeStopEvents(documentWith(`
+        <StopEventResponse>
+            <StopEventResult>
+                <StopEvent>
+                    <ThisCall><CallAtStop>
+                        <ServiceDeparture><TimetabledTime>2026-07-24T12:00:00Z</TimetabledTime></ServiceDeparture>
+                    </CallAtStop></ThisCall>
+                    <Service>
+                        <JourneyRef>ddb:96X56::H:j26:3</JourneyRef>
+                        <DestinationText><Text>Berlin Südkreuz</Text></DestinationText>
+                    </Service>
+                </StopEvent>
+            </StopEventResult>
+            <StopEventResult>
+                <StopEvent>
+                    <ThisCall><CallAtStop>
+                        <ServiceDeparture><TimetabledTime>2026-07-24T12:05:00Z</TimetabledTime></ServiceDeparture>
+                    </CallAtStop></ThisCall>
+                    <Service>
+                        <JourneyRef>ddb:91030:F:R:j26:69</JourneyRef>
+                        <DestinationText><Text>Leipzig Hbf</Text></DestinationText>
+                    </Service>
+                </StopEvent>
+            </StopEventResult>
+        </StopEventResponse>
+    `));
+
+    assert.equal(normalized.departures[0].line.name, "ICE/IC");
+    assert.equal(normalized.departures[0].line.product, "express");
+    assert.equal(normalized.departures[1].line.name, "FLX 30");
+    assert.equal(normalized.departures[1].line.product, "express");
+});
+
 test("normalizes TRIAS trip legs and projections", () => {
     const normalized = normalizeJourneys(documentWith(`
         <TripResponse>

@@ -100,7 +100,7 @@ function productFromService(service = {}) {
         return "regional";
     }
 
-    if (/^ddb:98X/iu.test(reference)) {
+    if (/^ddb:(?:9[68]X|91\d{3}(?=:))/iu.test(reference)) {
         return "express";
     }
 
@@ -188,7 +188,8 @@ function lineFromService(service = {}) {
     const regionalExpressLine = reference.match(/^ddb:90H0?(\d{1,2})(?=:|$)/iu);
     const regionalLine = reference.match(/^ddb:91H0?(\d{1,2})(?=:|$)/iu);
     const suburbanLine = reference.match(/^ddb:92H0?(\d{1,2})(?=:|$)/iu);
-    const isExpressReference = /^ddb:98X/iu.test(reference);
+    const flixTrainLine = reference.match(/^ddb:91(\d{3})(?=:|$)/iu);
+    const isExpressReference = /^ddb:9[68]X/iu.test(reference);
     const inferredName = gvhLine
         ? String(Number(gvhLine[1]))
         : regionalExpressLine
@@ -197,6 +198,8 @@ function lineFromService(service = {}) {
                 ? `RB${Number(regionalLine[1])}`
                 : suburbanLine
                     ? `S${Number(suburbanLine[1])}`
+                    : flixTrainLine
+                        ? `FLX ${Number(flixTrainLine[1])}`
                     : "";
     const modeName = text(service.Mode?.Name);
     const trainNumber = text(service.TrainNumber);

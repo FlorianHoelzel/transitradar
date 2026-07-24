@@ -478,7 +478,7 @@ export async function getStationServingLines(station) {
 
     const departures = await fetchDeparturesForStop(
         station.id,
-        160,
+        500,
         180
     );
     const linesByName = new Map();

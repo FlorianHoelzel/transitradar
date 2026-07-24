@@ -43,7 +43,10 @@ async function enrichRapidTransitLines(matches) {
 
         const servingLines = await servingLinesByStationId.get(stationId);
 
-        station.lines = [...(station.lines || []), ...servingLines];
+        station.lines = [
+            ...(station.lines || []),
+            ...servingLines.map(line => line?.name).filter(Boolean)
+        ];
     }));
 }
 

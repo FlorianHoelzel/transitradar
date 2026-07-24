@@ -1,4 +1,5 @@
 import { createLineBadge } from "../lines/badges.js";
+import { CITY_CONFIG } from "../config.js";
 import { isFavoriteStation } from "../favorites/favoriteService.js";
 import { getDisplayStationName } from "./stationNames.js";
 import {
@@ -7,6 +8,10 @@ import {
 } from "../settings/departureTime.js";
 
 const MAX_VISIBLE_LINES = 8;
+const HANNOVER_STADTBAHN_LINES = new Set([
+    "1", "2", "3", "4", "5", "6", "7",
+    "8", "9", "10", "11", "12", "13", "17"
+]);
 
 const LINE_PRIORITY = [
     /^U\d+/,
@@ -28,6 +33,13 @@ function createSkeletonHtml() {
 }
 
 function getLinePriority(lineName) {
+    if (
+        CITY_CONFIG.id === "hannover"
+        && HANNOVER_STADTBAHN_LINES.has(lineName)
+    ) {
+        return -1;
+    }
+
     const index = LINE_PRIORITY.findIndex(pattern => pattern.test(lineName));
 
     return index === -1 ? 999 : index;

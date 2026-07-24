@@ -155,7 +155,7 @@ async function getStations() {
 }
 
 async function getDepartures(url, stationId) {
-    const results = integerParameter(url, "results", 20, 100);
+    const results = integerParameter(url, "results", 20, 500);
     const cacheKey = `departures:${stationId}:${results}`;
 
     return await cached(cacheKey, 30000, async () => {

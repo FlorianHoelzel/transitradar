@@ -36,4 +36,5 @@ test("preserves qualified GVH stop references in departure requests", async () =
         requestedUrls[0],
         /\/stops\/de:03241:31\/departures/u
     );
+    assert.match(requestedUrls[0], /results=500/u);
 });

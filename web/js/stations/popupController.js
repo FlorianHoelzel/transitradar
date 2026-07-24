@@ -7,6 +7,7 @@ import {
     hasFallbackDepartures
 } from "./stationPopup.js";
 import { loadDeparturesForStation } from "./departureService.js";
+import { getStationServingLines } from "../api/transitApi.js";
 import { waitForPopupElement } from "./popupLifecycle.js";
 import {
     toggleFavorite,
@@ -18,6 +19,7 @@ import {
 let popupRefreshInterval = null;
 let favoriteChangeHandler = null;
 const pendingPopupRefreshes = new WeakSet();
+const servingLinesByStationId = new Map();
 
 function updateFade(departures) {
     if (!departures) {
@@ -153,37 +155,82 @@ function updateFallbackNotice(popupElement, departures) {
 
 const REPLACEMENT_SERVICE_PATTERN = /(?:^|[-\s])SEV(?:$|[-\s])/iu;
 
-function updateReplacementServiceLines(popupElement, station, departures) {
+function getLineName(line) {
+    if (typeof line === "string" || typeof line === "number") {
+        return String(line);
+    }
+
+    return line?.name ? String(line.name) : "";
+}
+
+function updateDiscoveredStationLines(popupElement, station, lines) {
     const linesContainer = popupElement?.querySelector(".station-lines");
 
     if (!linesContainer) {
         return;
     }
 
-    const replacementLines = [
+    const discoveredLines = [
         ...new Set(
-            departures
-                .map(departure => departure.line?.name)
+            lines
+                .map(getLineName)
                 .filter(line => {
                     return CITY_CONFIG.discoverStationLinesFromDepartures
                         ? Boolean(line)
                         : REPLACEMENT_SERVICE_PATTERN.test(line || "");
-                })
+            })
         )
     ].sort((a, b) => a.localeCompare(b, "de-DE", { numeric: true }));
-    const replacementLinesKey = replacementLines.join("\n");
+    const mergedLines = [
+        ...new Set(
+            [...(station.lines || []), ...discoveredLines]
+                .map(getLineName)
+                .filter(Boolean)
+        )
+    ];
+    const replacementLinesKey = mergedLines
+        .sort((a, b) => a.localeCompare(b, "de-DE", { numeric: true }))
+        .join("\n");
 
     if (linesContainer.dataset.replacementLines === replacementLinesKey) {
         return;
     }
 
+    station.lines = mergedLines;
     linesContainer.dataset.replacementLines = replacementLinesKey;
     linesContainer.classList.remove("expanded");
-    linesContainer.innerHTML = getStationLinesHtml({
-        ...station,
-        lines: [...(station.lines || []), ...replacementLines]
-    });
+    linesContainer.innerHTML = getStationLinesHtml(station);
     setupStationLinesToggle(popupElement);
+}
+
+function updateReplacementServiceLines(popupElement, station, departures) {
+    updateDiscoveredStationLines(
+        popupElement,
+        station,
+        departures.map(departure => departure.line)
+    );
+}
+
+async function enrichStationLines(popupElement, station) {
+    if (!CITY_CONFIG.discoverStationLinesFromDepartures || !station?.id) {
+        return;
+    }
+
+    const stationId = String(station.id);
+
+    if (!servingLinesByStationId.has(stationId)) {
+        servingLinesByStationId.set(
+            stationId,
+            getStationServingLines(station).catch(error => {
+                console.warn("Linien der Haltestelle konnten nicht ergänzt werden:", error);
+                return [];
+            })
+        );
+    }
+
+    const servingLines = await servingLinesByStationId.get(stationId);
+
+    updateDiscoveredStationLines(popupElement, station, servingLines);
 }
 
 export function stopPopupRefresh() {
@@ -248,6 +295,10 @@ export async function handleStationPopupOpen(marker, station) {
     setupPopupInteractions(popupElement, station);
 
     await refreshPopupDepartures(marker, station);
+
+    if (marker.isPopupOpen()) {
+        await enrichStationLines(popupElement, station);
+    }
 
     if (marker.isPopupOpen()) {
         startPopupRefresh(marker, station);
