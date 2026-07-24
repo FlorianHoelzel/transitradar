@@ -24,12 +24,12 @@ test("normalizes TRIAS stop locations", () => {
                     <StopPoint>
                         <StopPointRef>de:03241:1</StopPointRef>
                         <StopPointName><Text>Hannover Hauptbahnhof</Text></StopPointName>
-                        <GeoPosition>
-                            <Longitude>9.741</Longitude>
-                            <Latitude>52.377</Latitude>
-                        </GeoPosition>
                         <Mode><PtMode>rail</PtMode><RailSubmode>suburbanRail</RailSubmode></Mode>
                     </StopPoint>
+                    <GeoPosition>
+                        <Longitude>9.741</Longitude>
+                        <Latitude>52.377</Latitude>
+                    </GeoPosition>
                 </Location>
             </LocationResult>
         </LocationInformationResponse>
@@ -40,6 +40,23 @@ test("normalizes TRIAS stop locations", () => {
     assert.equal(stops[0].name, "Hannover Hauptbahnhof");
     assert.equal(stops[0].location.longitude, 9.741);
     assert.equal(stops[0].products.suburban, true);
+});
+
+test("filters location results that do not contain coordinates", () => {
+    const stops = normalizeLocations(documentWith(`
+        <LocationInformationResponse>
+            <LocationResult>
+                <Location>
+                    <StopPoint>
+                        <StopPointRef>missing-position</StopPointRef>
+                        <StopPointName><Text>Unknown</Text></StopPointName>
+                    </StopPoint>
+                </Location>
+            </LocationResult>
+        </LocationInformationResponse>
+    `));
+
+    assert.deepEqual(stops, []);
 });
 
 test("normalizes realtime departures and retains trip calls", () => {

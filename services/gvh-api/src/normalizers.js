@@ -89,8 +89,10 @@ function productsFromMode(mode) {
 }
 
 function geoPosition(value = {}) {
-    const latitude = Number(text(value.Latitude));
-    const longitude = Number(text(value.Longitude));
+    const rawLatitude = text(value.Latitude);
+    const rawLongitude = text(value.Longitude);
+    const latitude = rawLatitude === "" ? Number.NaN : Number(rawLatitude);
+    const longitude = rawLongitude === "" ? Number.NaN : Number(rawLongitude);
 
     return {
         type: "location",
@@ -117,7 +119,11 @@ export function normalizeLocationResult(result = {}) {
     const location = result.Location || result;
     const rawStop = location.StopPoint || location.StopPlace || location;
     const mode = rawStop.Mode || result.Mode;
-    const stop = callStop(rawStop);
+    const stop = callStop({
+        ...rawStop,
+        GeoPosition: rawStop.GeoPosition || location.GeoPosition,
+        LocationName: rawStop.LocationName || location.LocationName
+    });
 
     stop.products = productsFromMode(mode);
     return stop;
