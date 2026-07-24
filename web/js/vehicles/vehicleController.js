@@ -91,7 +91,9 @@ function selectLineFromMovement(movement) {
         lineName
     );
 
-    showRouteForTrip(movement.routeId || movement.tripId, lineName).then(() => {
+    showRouteForTrip(movement.routeId || movement.tripId, lineName, {
+        fallbackPolyline: movement.polyline
+    }).then(() => {
         updateVehicleMarkerStyles();
     });
 

@@ -2,6 +2,10 @@ import { loadTripDetails } from "./routeService.js";
 import { map } from "./map.js";
 import { getLineColor } from "../vehicles/vehicleUtils.js";
 import { createLineBadge } from "../lines/badges.js";
+import {
+    extractRouteCoordinateSegments,
+    leafletRouteCoordinates
+} from "./routeGeometry.js";
 
 let activeRouteLayer = null;
 let activeGlowLayer = null;
@@ -11,42 +15,6 @@ let journeyRouteControl = null;
 let routeRequestId = 0;
 
 export let activeTripDetails = null;
-
-function extractRouteCoordinates(polyline) {
-    if (!polyline) {
-        return [];
-    }
-
-    if (polyline.type === "FeatureCollection") {
-        return polyline.features
-            .flatMap(feature => extractRouteCoordinates(feature))
-            .filter(Boolean);
-    }
-
-    if (polyline.type === "Feature") {
-        return extractRouteCoordinates(polyline.geometry);
-    }
-
-    if (polyline.type === "LineString") {
-        return polyline.coordinates.map(coordinate => {
-            return [coordinate[1], coordinate[0]];
-        });
-    }
-
-    if (polyline.type === "MultiLineString") {
-        return polyline.coordinates
-            .flat()
-            .map(coordinate => {
-                return [coordinate[1], coordinate[0]];
-            });
-    }
-
-    if (polyline.type === "Point") {
-        return [[polyline.coordinates[1], polyline.coordinates[0]]];
-    }
-
-    return [];
-}
 
 function createRoutePreviewControl() {
     if (routePreviewControl) {
@@ -167,14 +135,17 @@ export async function showRouteForTrip(tripId, lineName, options = {}) {
 
         activeTripDetails = data;
 
-        const polyline = data.trip?.polyline || data.polyline;
-        const coordinates = extractRouteCoordinates(polyline);
+        const polyline = data.trip?.polyline
+            || data.polyline
+            || options.fallbackPolyline;
+        const segments = extractRouteCoordinateSegments(polyline);
 
-        if (coordinates.length < 2) {
+        if (segments.length === 0) {
             console.warn("Keine Routenkoordinaten gefunden.");
             return;
         }
 
+        const coordinates = leafletRouteCoordinates(segments);
         const lineColor = getLineColor(lineName);
 
         activeGlowLayer = L.polyline(coordinates, {
@@ -226,12 +197,13 @@ export function showJourneyRoute(journey, { summaryElement } = {}) {
     const layers = [];
 
     journey.legs.forEach(leg => {
-        const coordinates = extractRouteCoordinates(leg.polyline);
-        const routeCoordinates = coordinates.length >= 2
-            ? coordinates
-            : fallbackLegCoordinates(leg);
+        const segments = extractRouteCoordinateSegments(leg.polyline);
+        const fallbackCoordinates = fallbackLegCoordinates(leg);
+        const routeCoordinates = segments.length > 0
+            ? leafletRouteCoordinates(segments)
+            : fallbackCoordinates;
 
-        if (routeCoordinates.length < 2) {
+        if (segments.length === 0 && fallbackCoordinates.length < 2) {
             return;
         }
 

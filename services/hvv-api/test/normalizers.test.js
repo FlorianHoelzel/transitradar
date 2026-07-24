@@ -9,6 +9,7 @@ import {
     encodeTripContext,
     normalizeCourse,
     normalizeJourneys,
+    normalizeMovements,
     normalizeProducts,
     normalizeStop
 } from "../src/normalizers.js";
@@ -144,7 +145,7 @@ test("round-trips opaque trip context tokens", () => {
     assert.deepEqual(decodeTripContext(encodeTripContext(context)), context);
 });
 
-test("builds trip stopovers and fallback geometry from a course", () => {
+test("builds trip stopovers without inventing track geometry from station centroids", () => {
     const result = normalizeCourse({
         courseElements: [{
             fromStation: {
@@ -169,8 +170,30 @@ test("builds trip stopovers and fallback geometry from a course", () => {
 
     assert.equal(result.trip.id, "journey-1");
     assert.equal(result.trip.stopovers.length, 2);
+    assert.equal(result.trip.polyline, null);
+});
+
+test("keeps the live vehicle's precise track segment as route geometry", () => {
+    const movements = normalizeMovements({
+        journeys: [{
+            journeyID: "ice-2558",
+            line: { id: "ICE", name: "ICE 2558" },
+            vehicleType: "LONG_DISTANCE_TRAIN",
+            segments: [{
+                startDateTime: 1000,
+                endDateTime: 1100,
+                startStationKey: "ZVU-DB:8002549:1",
+                destination: "Hamburg-Altona",
+                track: {
+                    track: [10, 53.55, 10.01, 53.56, 10.02, 53.57]
+                }
+            }]
+        }]
+    }, 1050);
+
+    assert.equal(movements.length, 1);
     assert.deepEqual(
-        result.trip.polyline.geometry.coordinates,
-        [[9.9, 53.5], [10, 53.6]]
+        movements[0].polyline.geometry.coordinates,
+        [[10, 53.55], [10.01, 53.56], [10.02, 53.57]]
     );
 });

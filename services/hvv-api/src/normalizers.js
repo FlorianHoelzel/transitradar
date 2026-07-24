@@ -346,13 +346,6 @@ export function normalizeCourse(data, context) {
             cancelled: element.toCancelled
         }))
     ];
-    const coordinates = stopovers
-        .map(entry => entry.stop.location)
-        .filter(location => {
-            return Number.isFinite(location?.latitude)
-                && Number.isFinite(location?.longitude);
-        })
-        .map(location => [location.longitude, location.latitude]);
     const id = context.journeyId || encodeTripContext(context);
 
     return {
@@ -366,14 +359,10 @@ export function normalizeCourse(data, context) {
                 product: context.product || "bus"
             },
             stopovers,
-            polyline: {
-                type: "Feature",
-                properties: {},
-                geometry: {
-                    type: "LineString",
-                    coordinates
-                }
-            }
+            // Geofox currently does not provide departureCourse path geometry.
+            // Station centroids are not a safe substitute for the actual track:
+            // connecting them creates large, sharp detours around complex stations.
+            polyline: null
         }
     };
 }
@@ -397,6 +386,25 @@ function interpolateTrack(track, progress) {
         longitude: startLng + (endLng - startLng) * fraction,
         latitude: startLat + (endLat - startLat) * fraction
     };
+}
+
+function polylineFromTrack(track) {
+    const coordinates = [];
+
+    for (let index = 0; index + 1 < (track || []).length; index += 2) {
+        const longitude = Number(track[index]);
+        const latitude = Number(track[index + 1]);
+
+        if (Number.isFinite(longitude) && Number.isFinite(latitude)) {
+            coordinates.push([longitude, latitude]);
+        }
+    }
+
+    return coordinates.length >= 2 ? {
+        type: "Feature",
+        properties: {},
+        geometry: { type: "LineString", coordinates }
+    } : null;
 }
 
 export function normalizeMovements(data, nowSeconds = Date.now() / 1000) {
@@ -437,6 +445,7 @@ export function normalizeMovements(data, nowSeconds = Date.now() / 1000) {
             routeId: encodeTripContext(routeContext),
             direction: segment.destination || journey.line?.direction || "",
             location,
+            polyline: polylineFromTrack(segment.track.track),
             line: {
                 type: "line",
                 id: journey.line?.id,
