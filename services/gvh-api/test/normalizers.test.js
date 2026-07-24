@@ -103,6 +103,40 @@ test("normalizes realtime departures and retains trip calls", () => {
     assert.equal(normalized.trips[0].trip.stopovers.length, 2);
 });
 
+test("derives public GVH Stadtbahn and S-Bahn labels from journey references", () => {
+    const normalized = normalizeStopEvents(documentWith(`
+        <StopEventResponse>
+            <StopEventResult>
+                <StopEvent>
+                    <ThisCall><CallAtStop>
+                        <ServiceDeparture><TimetabledTime>2026-07-24T12:00:00Z</TimetabledTime></ServiceDeparture>
+                    </CallAtStop></ThisCall>
+                    <Service>
+                        <JourneyRef>gvh:02013::H:j26:51</JourneyRef>
+                        <DestinationText><Text>Hemmingen</Text></DestinationText>
+                    </Service>
+                </StopEvent>
+            </StopEventResult>
+            <StopEventResult>
+                <StopEvent>
+                    <ThisCall><CallAtStop>
+                        <ServiceDeparture><TimetabledTime>2026-07-24T12:05:00Z</TimetabledTime></ServiceDeparture>
+                    </CallAtStop></ThisCall>
+                    <Service>
+                        <JourneyRef>ddb:92H04::H:j26:68</JourneyRef>
+                        <DestinationText><Text>Bennemühlen</Text></DestinationText>
+                    </Service>
+                </StopEvent>
+            </StopEventResult>
+        </StopEventResponse>
+    `));
+
+    assert.equal(normalized.departures[0].line.name, "13");
+    assert.equal(normalized.departures[0].line.product, "subway");
+    assert.equal(normalized.departures[1].line.name, "S4");
+    assert.equal(normalized.departures[1].line.product, "suburban");
+});
+
 test("normalizes TRIAS trip legs and projections", () => {
     const normalized = normalizeJourneys(documentWith(`
         <TripResponse>

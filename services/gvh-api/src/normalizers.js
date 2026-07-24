@@ -78,6 +78,31 @@ function productFromMode(mode = {}) {
     return "bus";
 }
 
+function productFromService(service = {}) {
+    const mode = service.Mode;
+    const modeValue = text(mode?.PtMode || mode);
+
+    if (modeValue) {
+        return productFromMode(mode);
+    }
+
+    const reference = text(service.JourneyRef);
+
+    if (/^gvh:02/iu.test(reference)) {
+        return "subway";
+    }
+
+    if (/^ddb:92H/iu.test(reference)) {
+        return "suburban";
+    }
+
+    if (/^ddb:98X/iu.test(reference)) {
+        return "express";
+    }
+
+    return "bus";
+}
+
 function productsFromMode(mode) {
     const products = emptyProducts();
 
@@ -151,15 +176,30 @@ function plannedAndEstimated(call, type) {
 }
 
 function lineFromService(service = {}) {
+    const reference = text(service.JourneyRef);
+    const gvhLine = reference.match(/^gvh:02(\d{3})(?:::|$)/iu);
+    const suburbanLine = reference.match(/^ddb:92H0?(\d{1,2})(?:::|$)/iu);
+    const inferredName = gvhLine
+        ? String(Number(gvhLine[1]))
+        : suburbanLine
+            ? `S${Number(suburbanLine[1])}`
+            : "";
+    const modeName = text(service.Mode?.Name);
+    const trainNumber = text(service.TrainNumber);
+    const namedTrain = [modeName, trainNumber].filter(Boolean).join(" ");
     const name = text(service.PublishedLineName)
+        || text(service.PublishedServiceName)
+        || text(service.PublicCode)
+        || namedTrain
+        || inferredName
         || text(service.LineRef)
-        || text(service.JourneyRef);
+        || reference;
 
     return {
         type: "line",
-        id: text(service.LineRef) || name,
+        id: text(service.LineRef) || reference || name,
         name,
-        product: productFromMode(service.Mode)
+        product: productFromService(service)
     };
 }
 
