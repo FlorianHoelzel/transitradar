@@ -68,11 +68,12 @@ test("uses Berlin-style zoom tiers for Hannover stations", () => {
     const busStop = station({ bus: true });
 
     assert.equal(isImportantTrainStation(importantInterchange), true);
-    assert.equal(isImportantTrainStation(suburbanStop), false);
+    assert.equal(isImportantTrainStation(suburbanStop), true);
+    assert.equal(isImportantTrainStation(stadtbahnStop), true);
 
     assert.equal(shouldShowStation(importantInterchange, 12), true);
-    assert.equal(shouldShowStation(suburbanStop, 12), false);
-    assert.equal(shouldShowStation(stadtbahnStop, 12), false);
+    assert.equal(shouldShowStation(suburbanStop, 12), true);
+    assert.equal(shouldShowStation(stadtbahnStop, 12), true);
     assert.equal(shouldShowStation(busStop, 12), false);
 
     assert.equal(shouldShowStation(suburbanStop, 13), true);

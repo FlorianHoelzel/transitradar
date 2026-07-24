@@ -106,7 +106,7 @@ const CITY_CONFIGS = {
         apiHealthCheckPath: "/healthz",
         mapCenter: [52.3759, 9.732],
         mapZoom: 12,
-        importantStationMinScore: 6,
+        importantStationMinScore: 3,
         supportsLiveVehicles: false,
         vehicleGridStrategy: "single-request",
         vehicleRequestTimeout: 15000,

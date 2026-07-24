@@ -91,6 +91,12 @@ export function getStationImportanceScore(station) {
 
     if (hasProduct(station, "suburban")) score += 3;
     if (hasProduct(station, "subway")) score += 3;
+    if (
+        CITY_CONFIG.tramCountsAsTrainStation &&
+        hasProduct(station, "tram")
+    ) {
+        score += 3;
+    }
     if (hasProduct(station, "regional")) score += 3;
     if (hasProduct(station, "express")) score += 2;
 
