@@ -45,6 +45,18 @@ const cities = [
         image: "https://transitradar.de/assets/landing/frankfurt-rmv.png",
         imageAlt: "TransitRadar ÖPNV-Karte für Frankfurt am Main",
         featureText: "Haltestellen, aktuelle Abfahrten, Verspätungen und Fahrtverläufe"
+    },
+    {
+        id: "hannover",
+        name: "Hannover",
+        network: "GVH",
+        hostname: "hannover.transitradar.de",
+        title: "GVH Karte Hannover – Live-Abfahrten &amp; Verspätungen | TransitRadar",
+        description:
+            "Interaktive ÖPNV-Karte für Hannover mit Haltestellen, aktuellen Abfahrten, Verspätungen und Fahrtverläufen im GVH-Netz.",
+        image: "https://transitradar.de/assets/landing/hannover-gvh.png",
+        imageAlt: "TransitRadar ÖPNV-Karte für Hannover",
+        featureText: "Haltestellen, aktuelle Abfahrten, Verspätungen und Fahrtverläufe"
     }
 ];
 
@@ -86,6 +98,7 @@ function createUmamiTracker() {
                 "berlin.transitradar.de": "berlin",
                 "hamburg.transitradar.de": "hamburg",
                 "frankfurt.transitradar.de": "frankfurt",
+                "hannover.transitradar.de": "hannover",
                 "status.transitradar.de": "status"
             };
             const pageName = pageNames[payload?.hostname];

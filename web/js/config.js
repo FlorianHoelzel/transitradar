@@ -96,6 +96,38 @@ const CITY_CONFIGS = {
         ],
         dataSourceText: "RMV-HAFAS-Daten für das Frankfurter Verkehrsnetz",
         affiliationText: "dem RMV, traffiQ oder den beteiligten Verkehrsunternehmen"
+    },
+    hannover: {
+        id: "hannover",
+        name: "Hannover",
+        network: "GVH",
+        hostname: "hannover.transitradar.de",
+        apiBaseUrl: "https://api-gvh.transitradar.de",
+        apiHealthCheckPath: "/healthz",
+        mapCenter: [52.3759, 9.732],
+        mapZoom: 12,
+        importantStationMinScore: 0,
+        unclassifiedStationsMinZoom: 12,
+        supportsLiveVehicles: false,
+        vehicleGridStrategy: "single-request",
+        vehicleRequestTimeout: 15000,
+        departureRequestTimeout: 20000,
+        departureFirstRenderTimeout: 6500,
+        departureRefreshInterval: 20000,
+        departureStopStrategy: "best",
+        surfaceTransitLabel: "Bus / Stadtbahn",
+        bounds: {
+            minLat: 52.20,
+            maxLat: 52.60,
+            minLng: 9.45,
+            maxLng: 10.05
+        },
+        stationSearchQueries: ["Hannover", "S", "Stadtbahn", "Bus", "Bahnhof"],
+        officialSources: [
+            { label: "gvh.de", url: "https://www.gvh.de" }
+        ],
+        dataSourceText: "TRIAS-Fahrplandaten für das GVH-Netz",
+        affiliationText: "dem GVH, der ÜSTRA oder den beteiligten Verkehrsunternehmen"
     }
 };
 
@@ -152,6 +184,7 @@ export const STATION_CONFIG = {
     apiResultsLimit: 1000,
     requestTimeout: 15000,
     importantStationMinScore: CITY_CONFIG.importantStationMinScore,
+    unclassifiedStationsMinZoom: CITY_CONFIG.unclassifiedStationsMinZoom,
     nearbyGridSize: 8,
     nearbyDistance: 4500,
     searchQueries: CITY_CONFIG.stationSearchQueries,

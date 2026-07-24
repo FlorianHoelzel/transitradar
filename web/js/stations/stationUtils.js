@@ -49,6 +49,16 @@ export function isImportantTrainStation(station) {
 
 export function shouldShowStation(station, zoom) {
     const effectiveZoom = zoom + getStationDensityZoomOffset();
+    const isUnclassified =
+        !isTrainStation(station) &&
+        !isSurfaceStation(station);
+
+    if (
+        isUnclassified &&
+        Number.isFinite(STATION_CONFIG.unclassifiedStationsMinZoom)
+    ) {
+        return effectiveZoom >= STATION_CONFIG.unclassifiedStationsMinZoom;
+    }
 
     if (effectiveZoom < STATION_CONFIG.zoomLevels.rapidTransit) {
         return isImportantTrainStation(station);

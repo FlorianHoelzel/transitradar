@@ -53,7 +53,7 @@
                     </span>
 
                     <span>
-                        <strong>3</strong>
+                        <strong>4</strong>
                         <span class="metric-label">Live-Anbieter</span>
                     </span>
 
@@ -172,6 +172,43 @@
 
                 <footer class="provider-footer">
                     <span>HAFAS REST API</span>
+                    <span>Status-Endpunkt</span>
+                </footer>
+            </article>
+
+            <article
+                id="gvhProvider"
+                class="provider-card checking"
+                data-provider-card="gvh"
+            >
+                <header class="provider-header">
+                    <div>
+                        <span class="provider-kicker">Region Hannover</span>
+                        <h2>GVH</h2>
+                    </div>
+
+                    <span class="status-pill checking" data-provider-status="gvh">
+                        Wird geprüft
+                    </span>
+                </header>
+
+                <div class="provider-metric">
+                    <span>Antwortzeit</span>
+                    <strong data-provider-latency="gvh">--</strong>
+                </div>
+
+                <div
+                    class="latency-graph"
+                    data-provider-graph="gvh"
+                    aria-label="Verlauf der GVH-Antwortzeit"
+                ></div>
+
+                <p data-provider-message="gvh">
+                    Die Verfügbarkeit der GVH-API wird aktuell geprüft.
+                </p>
+
+                <footer class="provider-footer">
+                    <span>TRIAS OpenService</span>
                     <span>Status-Endpunkt</span>
                 </footer>
             </article>

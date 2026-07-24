@@ -52,7 +52,8 @@ test("injects the configured Umami tracker into every deployed page", async () =
             "status.html",
             "city-berlin.html",
             "city-hamburg.html",
-            "city-frankfurt.html"
+            "city-frankfurt.html",
+            "city-hannover.html"
         ]) {
             const html = await readFile(resolve(outputRoot, filename), "utf8");
             assert.equal((html.match(/data-website-id=/g) || []).length, 1);
@@ -104,7 +105,8 @@ test("ships crawlable landing-page content without JavaScript rendering", async 
         assert.match(html, /href="https:\/\/berlin\.transitradar\.de\/"/);
         assert.match(html, /href="https:\/\/hamburg\.transitradar\.de\/"/);
         assert.match(html, /href="https:\/\/frankfurt\.transitradar\.de\/"/);
-        assert.match(html, /aria-label="Hannover: Coming soon"/);
+        assert.match(html, /href="https:\/\/hannover\.transitradar\.de\/"/);
+        assert.match(html, /aria-label="Hannover: Live"/);
         assert.match(html, /<span class="city-network">GVH<\/span>/);
         assert.match(html, /--accent: #1B325F/);
         assert.match(html, /aria-label="Köln: Coming soon"/);

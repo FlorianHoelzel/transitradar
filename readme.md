@@ -4,7 +4,7 @@
 
 TransitRadar is a fast, interactive web application for exploring public transport in real time. It brings live departures, vehicle positions, route information, and an intuitive map together in one clean experience.
 
-TransitRadar currently serves Berlin, Hamburg, and Frankfurt, with support for more cities planned.
+TransitRadar currently serves Berlin, Hamburg, Frankfurt, and Hannover, with support for more cities planned.
 
 > ⚠️ TransitRadar is currently under active development.
 
@@ -54,9 +54,9 @@ TransitRadar currently serves Berlin, Hamburg, and Frankfurt, with support for m
 | 🇩🇪 Berlin (VBB) | ✅ Live |
 | 🚇 Hamburg (HVV) | ✅ Live |
 | 🚈 Frankfurt (RMV) | ✅ Live |
+| 🚊 Hannover (GVH) | ✅ Live |
 | 🚋 Cologne (VRS) | 📅 Planned |
 | 🚉 Rhine-Ruhr (VRR) | 📅 Planned |
-| 🚊 Hanover (GVH) | 📅 Planned |
 | 🚇 Stuttgart (VVS) | 📅 Planned |
 | 🚌 Bremen (VBN) | 📅 Planned |
 | 🚇 Munich (MVV) | ⏳ Planned, pending data availability |

@@ -33,6 +33,14 @@ const providers = [
         urls: [
             "https://api-frankfurt.transitradar.de/healthz"
         ]
+    },
+    {
+        id: "gvh",
+        name: "GVH",
+        timeout: 15000,
+        urls: [
+            "https://api-gvh.transitradar.de/healthz"
+        ]
     }
 ].map(provider => ({
     ...provider,
