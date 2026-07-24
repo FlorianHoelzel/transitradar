@@ -177,8 +177,8 @@ function plannedAndEstimated(call, type) {
 
 function lineFromService(service = {}) {
     const reference = text(service.JourneyRef);
-    const gvhLine = reference.match(/^gvh:02(\d{3})(?:::|$)/iu);
-    const suburbanLine = reference.match(/^ddb:92H0?(\d{1,2})(?:::|$)/iu);
+    const gvhLine = reference.match(/^gvh:0\d(\d{3})(?=:|$)/iu);
+    const suburbanLine = reference.match(/^ddb:92H0?(\d{1,2})(?=:|$)/iu);
     const isExpressReference = /^ddb:98X/iu.test(reference);
     const inferredName = gvhLine
         ? String(Number(gvhLine[1]))
@@ -198,7 +198,7 @@ function lineFromService(service = {}) {
         || namedTrain
         || inferredName
         || publicLineReference
-        || (isExpressReference ? "Fernverkehr" : "")
+        || (isExpressReference ? "ICE/IC" : "")
         || reference;
 
     return {

@@ -103,7 +103,7 @@ test("normalizes realtime departures and retains trip calls", () => {
     assert.equal(normalized.trips[0].trip.stopovers.length, 2);
 });
 
-test("derives public GVH Stadtbahn and S-Bahn labels from journey references", () => {
+test("derives public GVH Stadtbahn, bus and S-Bahn labels from journey references", () => {
     const normalized = normalizeStopEvents(documentWith(`
         <StopEventResponse>
             <StopEventResult>
@@ -128,6 +128,28 @@ test("derives public GVH Stadtbahn and S-Bahn labels from journey references", (
                     </Service>
                 </StopEvent>
             </StopEventResult>
+            <StopEventResult>
+                <StopEvent>
+                    <ThisCall><CallAtStop>
+                        <ServiceDeparture><TimetabledTime>2026-07-24T12:10:00Z</TimetabledTime></ServiceDeparture>
+                    </CallAtStop></ThisCall>
+                    <Service>
+                        <JourneyRef>gvh:04500::H:j26:35</JourneyRef>
+                        <DestinationText><Text>Hauptbahnhof</Text></DestinationText>
+                    </Service>
+                </StopEvent>
+            </StopEventResult>
+            <StopEventResult>
+                <StopEvent>
+                    <ThisCall><CallAtStop>
+                        <ServiceDeparture><TimetabledTime>2026-07-24T12:15:00Z</TimetabledTime></ServiceDeparture>
+                    </CallAtStop></ThisCall>
+                    <Service>
+                        <JourneyRef>ddb:92H01:S:H:j26:31</JourneyRef>
+                        <DestinationText><Text>Minden</Text></DestinationText>
+                    </Service>
+                </StopEvent>
+            </StopEventResult>
         </StopEventResponse>
     `));
 
@@ -135,6 +157,9 @@ test("derives public GVH Stadtbahn and S-Bahn labels from journey references", (
     assert.equal(normalized.departures[0].line.product, "subway");
     assert.equal(normalized.departures[1].line.name, "S4");
     assert.equal(normalized.departures[1].line.product, "suburban");
+    assert.equal(normalized.departures[2].line.name, "500");
+    assert.equal(normalized.departures[3].line.name, "S1");
+    assert.equal(normalized.departures[3].line.product, "suburban");
 });
 
 test("hides opaque DB journey references behind a public express label", () => {
@@ -154,7 +179,7 @@ test("hides opaque DB journey references behind a public express label", () => {
         </StopEventResponse>
     `));
 
-    assert.equal(normalized.departures[0].line.name, "Fernverkehr");
+    assert.equal(normalized.departures[0].line.name, "ICE/IC");
     assert.equal(normalized.departures[0].line.product, "express");
 });
 
