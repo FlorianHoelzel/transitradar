@@ -18,6 +18,10 @@ function createUrl(baseUrl, pathAndQuery) {
 }
 
 function getCleanStopId(stopId) {
+    if (CITY_CONFIG.preserveQualifiedStopIds) {
+        return String(stopId);
+    }
+
     const parts = String(stopId).split(":");
 
     if (parts.length >= 3) {
