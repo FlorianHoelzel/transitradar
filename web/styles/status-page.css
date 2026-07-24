@@ -250,8 +250,9 @@ h1 {
 
 .provider-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: clamp(1rem, 2.2vw, 1.65rem);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.7rem, 1.4vw, 1rem);
     min-height: 0;
 }
 
@@ -259,11 +260,11 @@ h1 {
     --accent: var(--blue);
     position: relative;
     display: grid;
-    grid-template-rows: auto auto minmax(3rem, 1fr) auto auto;
-    gap: clamp(0.75rem, 1.7vh, 1.1rem);
+    grid-template-rows: auto auto minmax(2.4rem, 1fr) auto auto;
+    gap: clamp(0.45rem, 1vh, 0.7rem);
     min-height: 0;
     overflow: hidden;
-    padding: clamp(1rem, 2.3vw, 1.45rem);
+    padding: clamp(0.85rem, 1.5vw, 1.1rem);
     border: 1px solid var(--line);
     border-radius: 8px;
     background: #12151c;
@@ -300,12 +301,14 @@ h1 {
     --accent: var(--red);
 }
 
-.provider-card.planned:nth-child(2) {
-    --accent: var(--red);
+.provider-card--planned {
+    opacity: 0.72;
+    filter: saturate(0.68);
 }
 
-.provider-card.planned:nth-child(3) {
-    --accent: #5EB130;
+.provider-card--planned:hover {
+    border-color: var(--line);
+    transform: none;
 }
 
 .provider-card > * {
@@ -330,7 +333,7 @@ h1 {
 .provider-header h2 {
     margin: 0.35rem 0 0;
     color: #ffffff;
-    font-size: clamp(2.1rem, 4vw, 3rem);
+    font-size: clamp(1.65rem, 2.8vw, 2.25rem);
     font-weight: 800;
     line-height: 1;
 }
@@ -348,6 +351,11 @@ h1 {
     font-size: 0.72rem;
     font-weight: 780;
     text-transform: uppercase;
+}
+
+.status-pill.planned {
+    border-color: rgba(250, 204, 21, 0.54);
+    color: #facc15;
 }
 
 .provider-metric {
@@ -376,13 +384,19 @@ h1 {
 
 .latency-graph {
     align-self: stretch;
-    min-height: 5.35rem;
+    min-height: 3.35rem;
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     align-items: end;
     gap: 0.24rem;
     padding: 0.55rem 0 0.2rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.latency-graph.latency-graph--planned span {
+    height: 18%;
+    background: rgba(255, 255, 255, 0.09);
+    box-shadow: none;
 }
 
 .latency-graph span {
@@ -478,7 +492,14 @@ h1 {
 }
 
 @media (max-width: 940px) {
+    html,
+    body {
+        height: auto;
+        overflow: auto;
+    }
+
     .status-page {
+        height: auto;
         min-height: 0;
         gap: 0.7rem;
     }
@@ -506,6 +527,7 @@ h1 {
 
     .provider-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: none;
         gap: 0.75rem;
     }
 }

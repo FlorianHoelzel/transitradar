@@ -121,6 +121,27 @@ test("ships crawlable landing-page content without JavaScript rendering", async 
     }
 });
 
+test("ships the status page as a compact two-row city grid", async () => {
+    const outputRoot = await mkdtemp(resolve(tmpdir(), "transitradar-build-"));
+
+    try {
+        const result = await runBuild(outputRoot);
+        assert.equal(result.code, 0, result.stderr);
+
+        const html = await readFile(resolve(outputRoot, "status.html"), "utf8");
+        const cities = ["Berlin", "Hamburg", "Frankfurt", "Hannover", "Köln", "Düsseldorf"];
+        const positions = cities.map(city => html.indexOf(`<h2>${city}</h2>`));
+
+        assert.ok(positions.every(position => position >= 0));
+        assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
+        assert.equal((html.match(/class="provider-card/g) || []).length, 6);
+        assert.match(html, /aria-label="Köln: Coming soon"/);
+        assert.match(html, /aria-label="Düsseldorf: Coming soon"/);
+    } finally {
+        await rm(outputRoot, { recursive: true, force: true });
+    }
+});
+
 test("fails the build when the Umami configuration is incomplete", async () => {
     const outputRoot = await mkdtemp(resolve(tmpdir(), "transitradar-build-"));
 
