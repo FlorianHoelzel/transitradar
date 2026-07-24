@@ -22,6 +22,20 @@ test("escapes credentials and location input in TRIAS requests", () => {
     assert.match(request, /<NumberOfResults>5<\/NumberOfResults>/u);
 });
 
+test("builds a nearby-stop request from geographic coordinates", () => {
+    const request = locationInformationRequest({
+        latitude: 52.3759,
+        longitude: 9.732,
+        results: 100
+    });
+
+    assert.match(request, /<GeoPosition>/u);
+    assert.match(request, /<Longitude>9\.732<\/Longitude>/u);
+    assert.match(request, /<Latitude>52\.3759<\/Latitude>/u);
+    assert.match(request, /<NumberOfResults>100<\/NumberOfResults>/u);
+    assert.doesNotMatch(request, /<LocationName>/u);
+});
+
 test("builds departure and trip payloads with the required times", () => {
     const departure = stopEventRequest({
         stopPointRef: "de:03241:1",

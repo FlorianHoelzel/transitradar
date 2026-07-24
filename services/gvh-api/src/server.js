@@ -21,6 +21,10 @@ const HANNOVER_BOUNDS = {
     minLng: 9.45,
     maxLng: 10.05
 };
+const HANNOVER_CENTER = {
+    latitude: 52.3759,
+    longitude: 9.732
+};
 
 function sendJson(response, status, value) {
     response.writeHead(status, { "content-type": "application/json; charset=utf-8" });
@@ -97,7 +101,7 @@ async function findLocations(url, nearby = false) {
 async function getStations() {
     return await cached("stations:hannover", 6 * 60 * 60 * 1000, async () => {
         const document = await triasRequest(locationInformationRequest({
-            query: "Hannover",
+            ...HANNOVER_CENTER,
             results: 100
         }));
         return filterHannover(normalizeLocations(document));
