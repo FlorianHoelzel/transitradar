@@ -30,7 +30,7 @@ const providers = [
         name: "HVV",
         timeout: 15000,
         urls: [
-            "https://api-hamburg.transitradar.de/locations?query=Hamburg&results=1",
+            "https://api-hamburg.transitradar.de/stops/Master%3A9910950/departures?results=1&duration=60",
             "https://api-hamburg.transitradar.de/radar?north=53.58&south=53.52&east=10.05&west=9.93&results=1"
         ]
     },
