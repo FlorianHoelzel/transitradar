@@ -30,9 +30,25 @@ export function setupFilters(onFilterChange) {
         return;
     }
 
+    filterToggle.setAttribute("aria-controls", filterPanel.id);
+    filterToggle.setAttribute("aria-expanded", "false");
+    filterPanel.setAttribute("aria-hidden", "true");
+    filterPanel.inert = true;
+
+    function setPanelOpen(isOpen, { restoreFocus = false } = {}) {
+        filterPanel.classList.toggle("open", isOpen);
+        filterPanel.setAttribute("aria-hidden", String(!isOpen));
+        filterPanel.inert = !isOpen;
+        filterToggle.setAttribute("aria-expanded", String(isOpen));
+
+        if (restoreFocus) {
+            filterToggle.focus();
+        }
+    }
+
     filterToggle.addEventListener("click", event => {
         event.stopPropagation();
-        filterPanel.classList.toggle("open");
+        setPanelOpen(!filterPanel.classList.contains("open"));
     });
 
     filterPanel.addEventListener("click", event => {
@@ -40,7 +56,13 @@ export function setupFilters(onFilterChange) {
     });
 
     document.addEventListener("click", () => {
-        filterPanel.classList.remove("open");
+        setPanelOpen(false);
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && filterPanel.classList.contains("open")) {
+            setPanelOpen(false, { restoreFocus: true });
+        }
     });
 
     filterOptions.forEach(option => {

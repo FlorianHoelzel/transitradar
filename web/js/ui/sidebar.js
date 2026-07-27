@@ -139,6 +139,9 @@ export function setupSidebar() {
     sidebarToggle.id = "sidebarToggle";
     sidebarToggle.className = "sidebar-toggle liquid-button";
     sidebarToggle.type = "button";
+    sidebarToggle.setAttribute("aria-label", "Menü öffnen");
+    sidebarToggle.setAttribute("aria-controls", "sidebar");
+    sidebarToggle.setAttribute("aria-expanded", "false");
     sidebarToggle.innerHTML = "☰";
 
     const sidebarOverlay = document.createElement("div");
@@ -148,6 +151,9 @@ export function setupSidebar() {
     const sidebar = document.createElement("aside");
     sidebar.id = "sidebar";
     sidebar.className = "sidebar liquid-glass";
+    sidebar.setAttribute("aria-label", "Menü");
+    sidebar.setAttribute("aria-hidden", "true");
+    sidebar.inert = true;
 
     sidebar.innerHTML = `
         <div class="sidebar-header">
@@ -156,7 +162,7 @@ export function setupSidebar() {
                 <h2>Menu</h2>
             </div>
 
-            <button id="sidebarClose" class="sidebar-close liquid-button" type="button">
+            <button id="sidebarClose" class="sidebar-close liquid-button" type="button" aria-label="Menü schließen">
                 ×
             </button>
         </div>
@@ -217,6 +223,8 @@ export function setupSidebar() {
     const aboutOverlay = document.createElement("div");
     aboutOverlay.id = "aboutOverlay";
     aboutOverlay.className = "about-overlay";
+    aboutOverlay.setAttribute("aria-hidden", "true");
+    aboutOverlay.inert = true;
 
     const featureSummary = CITY_CONFIG.supportsLiveVehicles
         ? "Haltestellen in der Nähe, aktuelle Abfahrten, Live-Fahrzeugpositionen, hervorgehobene Linien und ausgewählte Fahrzeugrouten"
@@ -234,14 +242,14 @@ export function setupSidebar() {
         : "";
 
     aboutOverlay.innerHTML = `
-        <section class="about-panel">
+        <section class="about-panel" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
             <div class="about-header">
                 <div>
                     <div class="about-kicker">Über</div>
-                    <h2>TransitRadar ${CITY_CONFIG.name}</h2>
+                    <h2 id="aboutTitle">TransitRadar ${CITY_CONFIG.name}</h2>
                 </div>
 
-                <button id="aboutClose" class="about-close" type="button">×</button>
+                <button id="aboutClose" class="about-close" type="button" aria-label="Info schließen">×</button>
             </div>
 
             <div class="about-content">
@@ -428,17 +436,28 @@ export function setupSidebar() {
     }
 
     function openSidebar() {
+        sidebar.inert = false;
+        sidebar.setAttribute("aria-hidden", "false");
         sidebar.classList.add("open");
         sidebarOverlay.classList.add("open");
         sidebarToggle.classList.add("hidden");
+        sidebarToggle.setAttribute("aria-expanded", "true");
+        sidebarClose.focus();
         requestAnimationFrame(updateFooterFade);
     }
 
-    function closeSidebar() {
+    function closeSidebar({ restoreFocus = true } = {}) {
         sidebar.classList.remove("open");
         sidebarOverlay.classList.remove("open");
         sidebarToggle.classList.remove("hidden");
+        sidebarToggle.setAttribute("aria-expanded", "false");
+        sidebar.setAttribute("aria-hidden", "true");
+        sidebar.inert = true;
         sidebar.classList.remove("has-footer-fade");
+
+        if (restoreFocus) {
+            sidebarToggle.focus();
+        }
     }
 
     function toggleNearby() {
@@ -485,16 +504,23 @@ export function setupSidebar() {
     }
 
     function openAbout() {
+        closeSidebar({ restoreFocus: false });
+        aboutOverlay.inert = false;
+        aboutOverlay.setAttribute("aria-hidden", "false");
         aboutOverlay.classList.add("open");
+        aboutClose.focus();
     }
 
     function closeAbout() {
         aboutOverlay.classList.remove("open");
+        aboutOverlay.setAttribute("aria-hidden", "true");
+        aboutOverlay.inert = true;
+        aboutButton.focus();
     }
 
     sidebarToggle.addEventListener("click", openSidebar);
-    sidebarClose.addEventListener("click", closeSidebar);
-    sidebarOverlay.addEventListener("click", closeSidebar);
+    sidebarClose.addEventListener("click", () => closeSidebar());
+    sidebarOverlay.addEventListener("click", () => closeSidebar());
 
     nearbyButton.addEventListener("click", toggleNearby);
     favoritesButton.addEventListener("click", toggleFavorites);
@@ -541,6 +567,9 @@ export function setupSidebar() {
 
     aboutButton.addEventListener("click", openAbout);
     aboutClose.addEventListener("click", closeAbout);
+    document.getElementById("settingsButton")?.addEventListener("click", () => {
+        closeSidebar({ restoreFocus: false });
+    });
 
     aboutOverlay.addEventListener("click", event => {
         if (event.target === aboutOverlay) {
@@ -550,8 +579,11 @@ export function setupSidebar() {
 
     document.addEventListener("keydown", event => {
         if (event.key === "Escape") {
-            closeSidebar();
-            closeAbout();
+            if (aboutOverlay.classList.contains("open")) {
+                closeAbout();
+            } else if (sidebar.classList.contains("open")) {
+                closeSidebar();
+            }
         }
     });
 }

@@ -647,7 +647,7 @@ body.route-planner-open #searchResults {
     z-index: 22500;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
     body.berlin-v2 .journey-route-control {
         top: auto;
         right: calc(0.85rem + 0.85rem);
@@ -667,17 +667,22 @@ body.route-planner-open #searchResults {
         top: 60px;
         right: 0;
         left: 0;
-        max-height: calc(100dvh - 72px);
+        max-height: calc(
+            100dvh - 8.6rem -
+            env(safe-area-inset-top, 0px) -
+            env(safe-area-inset-bottom, 0px)
+        );
         border-radius: 22px;
         transform: translateY(-8px) scaleY(0.97);
         transform-origin: top center;
     }
 
     .route-planner-panel.open {
-        width: 100%;
+        width: auto;
         height: auto;
         padding: 16px;
         overflow-y: auto;
+        overscroll-behavior: contain;
         scrollbar-width: none;
         transform: translateY(0) scaleY(1);
     }
@@ -712,6 +717,17 @@ body.route-planner-open #searchResults {
         margin-bottom: 15px;
     }
 
+}
+
+@media (max-width: 700px) and (max-height: 480px) {
+    .route-planner-panel {
+        top: 60px;
+        max-height: calc(
+            100dvh - 5.3rem -
+            env(safe-area-inset-top, 0px) -
+            env(safe-area-inset-bottom, 0px)
+        );
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

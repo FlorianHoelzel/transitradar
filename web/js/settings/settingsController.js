@@ -173,7 +173,12 @@ export function setupSettings() {
         overlay.classList.remove("open");
         overlay.inert = true;
         overlay.setAttribute("aria-hidden", "true");
-        settingsButton?.focus();
+
+        if (settingsButton?.closest("#sidebar")?.inert) {
+            document.getElementById("sidebarToggle")?.focus();
+        } else {
+            settingsButton?.focus();
+        }
     }
 
     applyVisualSettings(getSettings());

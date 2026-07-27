@@ -8,12 +8,12 @@ import {
 } from "./stations/stationMarkers.js";
 import { setupSearch } from "./stations/stationSearch.js";
 import { updateVehicles } from "./vehicles/vehicleController.js";
-import { setupFilters } from "./ui/filters.js";
-import { setupSidebar } from "./ui/sidebar.js";
+import { setupFilters } from "./ui/filters.js?v=mobile-1";
+import { setupSidebar } from "./ui/sidebar.js?v=mobile-1";
 import { createLocationButton } from "./ui/locationButton.js";
 import { vehicleState } from "./vehicles/vehicleState.js";
 import { CITY_CONFIG } from "./config.js";
-import { setupSettings } from "./settings/settingsController.js";
+import { setupSettings } from "./settings/settingsController.js?v=mobile-1";
 import { setupRoutePlanner } from "./ui/routePlanner.js";
 
 function applyCityMetadata() {

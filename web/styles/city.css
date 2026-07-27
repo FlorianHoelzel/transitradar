@@ -22,10 +22,16 @@
     --glass-bg-strong: rgba(18, 21, 28, 0.94);
     --glass-blur: blur(22px) saturate(1.25);
     --glass-blur-soft: blur(16px) saturate(1.16);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
 
     min-height: 100vh;
     min-height: 100dvh;
+    width: 100%;
     overflow: hidden;
+    overscroll-behavior: none;
     background:
         linear-gradient(120deg, rgba(92, 211, 255, 0.18), transparent 30rem),
         linear-gradient(240deg, rgba(247, 201, 72, 0.15), transparent 28rem),
@@ -44,6 +50,12 @@
 .berlin-v2 button,
 .berlin-v2 input {
     font-family: inherit;
+}
+
+.berlin-v2 button,
+.berlin-v2 a {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .berlin-v2 .city-summary {
@@ -616,9 +628,9 @@
     }
 
     .berlin-v2-topbar {
-        top: 0.7rem;
-        left: 0.85rem;
-        right: 0.85rem;
+        top: calc(0.7rem + var(--safe-top));
+        left: calc(0.85rem + var(--safe-left));
+        right: calc(0.85rem + var(--safe-right));
         height: 2.75rem;
     }
 
@@ -641,46 +653,57 @@
 
     .berlin-v2 .top-search-controls {
         --top-control-height: 2.75rem;
-        top: 4rem;
-        width: calc(100vw - 1.7rem);
+        top: calc(4rem + var(--safe-top));
+        width: calc(100vw - 1.7rem - var(--safe-left) - var(--safe-right));
     }
 
     .berlin-v2 .search-box {
         width: auto;
         flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .berlin-v2 #searchInput,
+    .berlin-v2 .route-planner-field input,
+    .berlin-v2 .route-planner-datetime input,
+    .berlin-v2 .settings-field select {
+        font-size: 16px;
     }
 
     .berlin-v2 #searchResults {
-        max-height: calc(100dvh - 11rem);
+        max-height: calc(100dvh - 11rem - var(--safe-top) - var(--safe-bottom));
         overflow-y: auto;
         overscroll-behavior: contain;
     }
 
     .berlin-v2-map-shell {
-        inset: 7.25rem 0.85rem 0.85rem;
+        top: calc(7.25rem + var(--safe-top));
+        right: calc(0.85rem + var(--safe-right));
+        bottom: calc(0.85rem + var(--safe-bottom));
+        left: calc(0.85rem + var(--safe-left));
     }
 
     .berlin-v2 .sidebar-toggle {
-        top: calc(7.25rem + 0.85rem);
+        top: calc(7.25rem + 0.85rem + var(--safe-top));
         bottom: auto;
-        left: calc(0.85rem + 0.85rem);
+        left: calc(0.85rem + 0.85rem + var(--safe-left));
     }
 
     .berlin-v2 .location-button {
-        top: calc(7.25rem + 0.85rem);
-        right: calc(0.85rem + 0.85rem);
+        top: calc(7.25rem + 0.85rem + var(--safe-top));
+        right: calc(0.85rem + 0.85rem + var(--safe-right));
         bottom: auto;
     }
 
     .berlin-v2 .filter-control {
-        right: calc(0.85rem + 0.85rem);
-        bottom: calc(0.85rem + 0.85rem);
+        right: calc(0.85rem + 0.85rem + var(--safe-right));
+        bottom: calc(0.85rem + 0.85rem + var(--safe-bottom));
     }
 
     .berlin-v2 .filter-panel {
         right: 0;
         width: min(17rem, calc(100vw - 1.7rem));
-        max-height: calc(100dvh - 7.25rem - 1.7rem - 3.35rem);
+        max-height: calc(100dvh - 7.25rem - 1.7rem - 3.35rem - var(--safe-top) - var(--safe-bottom));
         overflow-y: auto;
         overscroll-behavior: contain;
         scrollbar-width: thin;
@@ -697,12 +720,28 @@
     }
 
     .berlin-v2 .api-status-indicator {
-        left: calc(0.85rem + 0.85rem);
-        bottom: calc(0.85rem + 0.85rem);
+        left: calc(0.85rem + 0.85rem + var(--safe-left));
+        bottom: calc(0.85rem + 0.85rem + var(--safe-bottom));
     }
 
     .berlin-v2 .selected-line-control {
-        bottom: 5.2rem;
-        max-width: calc(100vw - 1.7rem);
+        bottom: calc(5.2rem + var(--safe-bottom));
+        max-width: calc(100vw - 1.7rem - var(--safe-left) - var(--safe-right));
+    }
+}
+
+@media (max-width: 700px) and (max-height: 480px) and (min-width: 520px) {
+    .berlin-v2 .top-search-controls {
+        top: calc(0.7rem + var(--safe-top));
+        width: min(21rem, calc(100vw - 18rem - var(--safe-left) - var(--safe-right)));
+    }
+
+    .berlin-v2-map-shell {
+        top: calc(4.15rem + var(--safe-top));
+    }
+
+    .berlin-v2 .sidebar-toggle,
+    .berlin-v2 .location-button {
+        top: calc(5rem + var(--safe-top));
     }
 }
