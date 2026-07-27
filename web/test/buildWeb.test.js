@@ -102,6 +102,14 @@ test("ships crawlable landing-page content without JavaScript rendering", async 
 
         const html = await readFile(resolve(outputRoot, "index.html"), "utf8");
         assert.match(html, /<h1>Wähle deine Stadt\.<\/h1>/);
+        assert.match(
+            html,
+            /<title>TransitRadar – Live-ÖPNV-Karten für Berlin, Hamburg, Frankfurt & Hannover<\/title>/
+        );
+        assert.match(
+            html,
+            /Interaktive Live-ÖPNV-Karten für Berlin, Hamburg, Frankfurt und Hannover/
+        );
         assert.match(html, /href="https:\/\/berlin\.transitradar\.de\/"/);
         assert.match(html, /href="https:\/\/hamburg\.transitradar\.de\/"/);
         assert.match(html, /href="https:\/\/frankfurt\.transitradar\.de\/"/);
@@ -116,6 +124,31 @@ test("ships crawlable landing-page content without JavaScript rendering", async 
         assert.match(html, /koeln-vrs-640\.webp/);
         assert.doesNotMatch(html, /js\/landing\/App\.js/);
         assert.doesNotMatch(html, /id="landing-root"/);
+    } finally {
+        await rm(outputRoot, { recursive: true, force: true });
+    }
+});
+
+test("generates city titles for demonstrated search demand", async () => {
+    const outputRoot = await mkdtemp(resolve(tmpdir(), "transitradar-build-"));
+
+    try {
+        const result = await runBuild(outputRoot);
+        assert.equal(result.code, 0, result.stderr);
+
+        const expectedTitles = {
+            "city-hamburg.html":
+                "HVV Live-Karte &amp; Routenplaner – Abfahrten in Hamburg | TransitRadar",
+            "city-frankfurt.html":
+                "RMV Live Map Frankfurt – Abfahrten &amp; Verspätungen | TransitRadar",
+            "city-hannover.html":
+                "GVH Fahrplan Hannover – Live-Abfahrten &amp; Karte | TransitRadar"
+        };
+
+        for (const [filename, title] of Object.entries(expectedTitles)) {
+            const html = await readFile(resolve(outputRoot, filename), "utf8");
+            assert.ok(html.includes(`<title>${title}</title>`));
+        }
     } finally {
         await rm(outputRoot, { recursive: true, force: true });
     }

@@ -27,7 +27,7 @@ const cities = [
         name: "Hamburg",
         network: "HVV",
         hostname: "hamburg.transitradar.de",
-        title: "HVV Live-Karte Hamburg – Abfahrten &amp; Fahrzeuge | TransitRadar",
+        title: "HVV Live-Karte &amp; Routenplaner – Abfahrten in Hamburg | TransitRadar",
         description:
             "Live-ÖPNV-Karte für Hamburg mit Fahrzeugpositionen, Haltestellen, aktuellen Abfahrten, Verspätungen und Linien im HVV-Netz.",
         image: "https://transitradar.de/assets/landing/hamburg-neu.png",
@@ -39,7 +39,7 @@ const cities = [
         name: "Frankfurt am Main",
         network: "RMV",
         hostname: "frankfurt.transitradar.de",
-        title: "RMV Karte Frankfurt – Live-Abfahrten &amp; Verspätungen | TransitRadar",
+        title: "RMV Live Map Frankfurt – Abfahrten &amp; Verspätungen | TransitRadar",
         description:
             "Interaktive ÖPNV-Karte für Frankfurt mit Haltestellen, aktuellen Abfahrten, Verspätungen und Linien im RMV-Netz.",
         image: "https://transitradar.de/assets/landing/frankfurt-rmv.png",
@@ -51,7 +51,7 @@ const cities = [
         name: "Hannover",
         network: "GVH",
         hostname: "hannover.transitradar.de",
-        title: "GVH Karte Hannover – Live-Abfahrten &amp; Verspätungen | TransitRadar",
+        title: "GVH Fahrplan Hannover – Live-Abfahrten &amp; Karte | TransitRadar",
         description:
             "Interaktive ÖPNV-Karte für Hannover mit Haltestellen, aktuellen Abfahrten, Verspätungen und Fahrtverläufen im GVH-Netz.",
         image: "https://transitradar.de/assets/landing/hannover-gvh.png",
