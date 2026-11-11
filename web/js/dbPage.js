@@ -1,5 +1,6 @@
 import { addBaseTiles } from "./map/baseTiles.js";
 import { bindDbStationPopup } from "./stations/dbStationPopup.js";
+import { initDbTrainLayer } from "./vehicles/dbTrainLayer.js";
 
 const status = document.getElementById("mapStatus");
 const resetButton = document.getElementById("resetMap");
@@ -152,10 +153,11 @@ async function loadMap() {
         showGermany();
         const openStation = renderStations(map, stations);
         initStationSearch(stations, openStation);
+        initDbTrainLayer(map, boundary, border.getBounds());
         map.attributionControl.addAttribution(
             'Bahnhöfe (gefiltert): <a href="https://www.gtfs.de/de/feeds/">GTFS.de / DELFI e.V.</a> ' +
             '(<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>) · Grenzen: Natural Earth · ' +
-            'Abfahrten: <a href="https://transitous.org/sources/">Transitous</a> · ' +
+            'Abfahrten und Züge: <a href="https://transitous.org/sources/">Transitous</a> · ' +
             '<a href="https://github.com/FlorianHoelzel/transitradar/issues">Kontakt</a>'
         );
         resetButton.addEventListener("click", showGermany);

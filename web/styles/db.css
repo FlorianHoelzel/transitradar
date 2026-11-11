@@ -62,7 +62,7 @@
 }
 
 .db-map-status:not([hidden]) + .db-legend,
-.berlin-v2-map-shell:has(.db-departure-popup) .db-legend {
+.berlin-v2-map-shell:has(:is(.db-departure-popup, .db-train-leaflet-popup)) .db-legend {
     visibility: hidden;
 }
 
@@ -113,6 +113,81 @@
     max-width: 100%;
 }
 
+.db-train-control {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 0.85rem;
+    z-index: 550;
+    display: grid;
+    justify-items: start;
+    gap: 0.4rem;
+    max-width: calc(100% - 1.7rem);
+}
+
+.db-page #dbTrainToggle {
+    min-height: 44px;
+    gap: 0.5rem;
+    background: var(--panel-strong);
+}
+
+.db-page #dbTrainToggle[aria-pressed="true"] {
+    border-color: var(--blue);
+    color: var(--ink);
+}
+
+.db-page #dbTrainToggle:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.db-train-status {
+    margin: 0;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel-strong);
+    color: var(--text-soft);
+    font-size: 0.78rem;
+}
+
+.db-train-marker .vehicle-badge {
+    display: grid;
+    place-items: center;
+    width: max-content;
+    min-width: 44px;
+    transform: translateX(-50%) scale(0.72);
+    margin-left: 50%;
+}
+
+.db-train-marker:has(.db-overview-train) .vehicle-badge {
+    height: 24px;
+}
+
+.db-overview-train {
+    width: 19px;
+    height: 11px;
+    border-bottom: 3px solid var(--red);
+    border-radius: 999px;
+    background: #f5f7fb;
+}
+
+.db-train-popup {
+    font-family: "TransitLanding", Arial, sans-serif;
+}
+
+.db-train-popup .vehicle-popup-title {
+    margin-bottom: 0.25rem;
+}
+
+.db-train-popup .vehicle-popup-direction {
+    margin-bottom: 0.75rem;
+}
+
+.db-train-source {
+    color: var(--muted);
+    font-size: 0.78rem;
+}
+
 @media (max-height: 650px) {
     .db-departure-popup .station-departures {
         max-height: max(90px, calc(100dvh - 18rem));
@@ -120,6 +195,10 @@
 }
 
 @media (max-width: 700px) {
+    .db-train-control {
+        bottom: 2.65rem;
+    }
+
     .db-station-marker::before {
         width: 5px;
         height: 5px;

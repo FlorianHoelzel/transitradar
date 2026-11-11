@@ -1,10 +1,7 @@
 import { fetchJson } from "./httpClient.js";
+import { DB_RAIL_MODES, getDbTrainName } from "./dbRailModes.js";
 
 const STOP_TIMES_URL = "https://api.transitous.org/api/v6/stoptimes";
-const REGIONAL_MODES = new Set(["REGIONAL_FAST_RAIL", "REGIONAL_RAIL"]);
-const BOARD_MODES = ["HIGHSPEED_RAIL", "LONG_DISTANCE", ...REGIONAL_MODES];
-const EXCLUDED_REGIONAL_LINE = /^(?:S(?:-?BAHN)?|RS)\s*\d|^S(?:-?BAHN)?$|^SEV/iu;
-const ICE_LABEL = /^ICE(?:\s*(\d+[A-Z]?))?$/iu;
 const CACHE_DURATION = 60_000;
 const MAX_LOOKAHEAD = 24 * 60 * 60_000;
 const boardCache = new WeakMap();
@@ -24,33 +21,13 @@ function stationKey(name) {
     return [...new Set(tokens)].sort().join(" ");
 }
 
-function getLineName(stopTime) {
-    const shortName = stopTime.routeShortName?.trim();
-    const displayName = stopTime.displayName?.trim();
-    const trainNumber = stopTime.tripShortName?.trim();
-
-    if (stopTime.mode === "HIGHSPEED_RAIL" || stopTime.mode === "LONG_DISTANCE") {
-        let isIce = false;
-        for (const label of [trainNumber, displayName, shortName]) {
-            const match = label?.match(ICE_LABEL);
-            if (match?.[1]) return `ICE ${match[1]}`;
-            if (match) isIce = true;
-        }
-        return isIce ? "ICE" : null;
-    }
-
-    if (!REGIONAL_MODES.has(stopTime.mode)) return null;
-    const name = shortName || displayName;
-    return name && !EXCLUDED_REGIONAL_LINE.test(name) ? name : null;
-}
-
 export function normalizeDbDepartures(station, stopTimes, now = Date.now()) {
     const stationName = stationKey(station.name);
     const departures = new Map();
 
     for (const stopTime of stopTimes) {
         if (stationKey(stopTime.place?.name) !== stationName) continue;
-        const lineName = getLineName(stopTime);
+        const lineName = getDbTrainName(stopTime.mode, stopTime);
         if (!lineName) continue;
 
         const plannedWhen = stopTime.place.scheduledDeparture;
@@ -89,7 +66,7 @@ export function loadDbDepartures(station) {
     const query = new URLSearchParams({
         center: `${station.lat},${station.lon}`,
         radius: "450",
-        mode: BOARD_MODES.join(","),
+        mode: DB_RAIL_MODES.join(","),
         n: "40",
         language: "de",
         withAlerts: "false"
