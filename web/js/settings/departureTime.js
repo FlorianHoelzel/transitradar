@@ -1,17 +1,18 @@
 import { getSettings } from "./settingsStore.js";
 
-export function formatClockTime(dateString) {
+export function formatClockTime(dateString, timeZone) {
     if (!dateString) {
         return "?";
     }
 
     return new Date(dateString).toLocaleTimeString("de-DE", {
         hour: "2-digit",
-        minute: "2-digit"
+        minute: "2-digit",
+        timeZone
     });
 }
 
-export function formatRelativeTime(dateString) {
+export function formatRelativeTime(dateString, showHours = false) {
     if (!dateString) {
         return "";
     }
@@ -28,13 +29,19 @@ export function formatRelativeTime(dateString) {
         return "in 1 Min.";
     }
 
+    if (showHours && minutes >= 60) {
+        const hours = Math.floor(minutes / 60);
+        const remainder = minutes % 60;
+        return remainder ? `in ${hours} Std. ${remainder} Min.` : `in ${hours} Std.`;
+    }
+
     return `in ${minutes} Min.`;
 }
 
-export function getDepartureTimeDisplay(dateString) {
+export function getDepartureTimeDisplay(dateString, { showHours = false } = {}) {
     const mode = getSettings().departureTimeDisplay;
     const clock = formatClockTime(dateString);
-    const relative = formatRelativeTime(dateString);
+    const relative = formatRelativeTime(dateString, showHours);
 
     return {
         mode,

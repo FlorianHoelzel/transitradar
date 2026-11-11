@@ -1,6 +1,7 @@
 import { createLineBadge } from "../lines/badges.js";
 import { CITY_CONFIG } from "../config.js";
 import { isFavoriteStation } from "../favorites/favoriteService.js";
+import { escapeHtml } from "../ui/escapeHtml.js";
 import { getDisplayStationName } from "./stationNames.js";
 import {
     formatClockTime,
@@ -113,13 +114,22 @@ export function getFallbackNoticeHtml(showNotice = false) {
     `;
 }
 
-function createTimeHtml(departure) {
-    const plannedTime = formatClockTime(departure.plannedWhen);
-    const realtime = formatClockTime(departure.when || departure.plannedWhen);
+function createTimeHtml(departure, timeZone) {
+    const plannedTime = formatClockTime(departure.plannedWhen, timeZone);
+    const realtime = formatClockTime(departure.when || departure.plannedWhen, timeZone);
     const { showClock } = getDepartureTimeDisplay(
         departure.when || departure.plannedWhen
     );
     const delay = departure.delay ?? 0;
+
+    if (departure.cancelled) {
+        return `
+            <div class="popup-departure-time-block">
+                <span class="popup-planned-time">${plannedTime}</span>
+                <span class="popup-delay delay-large">Ausfall</span>
+            </div>
+        `;
+    }
 
     if (delay <= 0 && !showClock) {
         return "";
@@ -152,8 +162,8 @@ function createTimeHtml(departure) {
     `;
 }
 
-export function createPopupContent(station, content = createSkeletonHtml()) {
-    const isFavorite = isFavoriteStation(station);
+export function createPopupContent(station, content = createSkeletonHtml(), { showFavorite = true } = {}) {
+    const isFavorite = showFavorite && isFavoriteStation(station);
     const favoriteIcon = isFavorite ? "★" : "☆";
     const favoriteClass = isFavorite ? "active" : "";
 
@@ -161,19 +171,19 @@ export function createPopupContent(station, content = createSkeletonHtml()) {
         <div class="station-popup station-popup-v2">
             <div class="station-popup-header">
                 <div class="station-popup-title-group">
-                    <div class="station-title">${getDisplayStationName(station)}</div>
+                    <div class="station-title" title="${escapeHtml(station.name)}">${escapeHtml(getDisplayStationName(station))}</div>
                     <div class="station-lines">
                         ${getStationLinesHtml(station)}
                     </div>
                 </div>
 
-                <button
+                ${showFavorite ? `<button
                     class="station-favorite-button ${favoriteClass}"
                     type="button"
                     title="Favoritenstatus ändern"
                 >
                     ${favoriteIcon}
-                </button>
+                </button>` : ""}
             </div>
 
             <div class="departures-wrapper station-departures-wrapper">
@@ -185,7 +195,7 @@ export function createPopupContent(station, content = createSkeletonHtml()) {
     `;
 }
 
-export function createDeparturesHtml(departures) {
+export function createDeparturesHtml(departures, { interactive = true, timeZone, showHours = false } = {}) {
     if (departures.length === 0) {
         return "<div class='empty-departures'>Keine Abfahrten gefunden.</div>";
     }
@@ -195,14 +205,16 @@ export function createDeparturesHtml(departures) {
         const tripId = departure.tripId || "";
         const direction = departure.direction || "Richtung unbekannt";
         const timeDisplay = getDepartureTimeDisplay(
-            departure.when || departure.plannedWhen
+            departure.when || departure.plannedWhen,
+            { showHours }
         );
+        const relative = timeDisplay.showRelative && !departure.cancelled ? timeDisplay.relative : "";
+        const timeNote = [relative, departure.realTime === false ? "Fahrplan" : ""].filter(Boolean).join(" · ");
 
         return `
             <div
-                class="popup-departure-card clickable-departure"
-                data-trip-id="${tripId}"
-                data-line-name="${lineName}"
+                class="popup-departure-card${interactive ? " clickable-departure" : ""}"
+                ${interactive ? `data-trip-id="${escapeHtml(tripId)}" data-line-name="${escapeHtml(lineName)}"` : ""}
             >
                 <div class="popup-departure-surface">
                     <div class="popup-departure-left">
@@ -210,19 +222,19 @@ export function createDeparturesHtml(departures) {
                     </div>
 
                     <div class="popup-departure-center">
-                        <div class="popup-departure-direction">
-                            ${direction}
+                        <div class="popup-departure-direction" title="${escapeHtml(direction)}">
+                            ${escapeHtml(direction)}
                         </div>
 
-                        ${timeDisplay.showRelative ? `
+                        ${timeNote ? `
                             <div class="popup-departure-relative">
-                                ${timeDisplay.relative}
+                                ${timeNote}
                             </div>
                         ` : ""}
                     </div>
 
                     <div class="popup-departure-right">
-                        ${createTimeHtml(departure)}
+                        ${createTimeHtml(departure, timeZone)}
                     </div>
                 </div>
             </div>

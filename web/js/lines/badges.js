@@ -1,4 +1,5 @@
 import { getBadgeStyle } from "./lineColors.js";
+import { escapeHtml } from "../ui/escapeHtml.js";
 
 const LONG_DISTANCE_BADGE_PATTERN = /^(ICE|ECE|IC|EC|EN|NJ|RJX|RJ|TGV)\s+.+$/i;
 
@@ -23,7 +24,7 @@ export function createLineBadge(lineName) {
                 border: ${style.border};
             "
         >
-            ${name}
+            ${escapeHtml(name)}
         </span>
     `;
 }

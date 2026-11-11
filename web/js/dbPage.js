@@ -1,26 +1,8 @@
 import { addBaseTiles } from "./map/baseTiles.js";
+import { bindDbStationPopup } from "./stations/dbStationPopup.js";
 
 const status = document.getElementById("mapStatus");
 const resetButton = document.getElementById("resetMap");
-
-function stationPopup(station) {
-    const popup = document.createElement("div");
-    const header = document.createElement("div");
-    const name = document.createElement("h2");
-    const services = document.createElement("span");
-
-    popup.className = "station-popup db-station-popup";
-    header.className = "station-popup-header";
-    name.className = "station-title";
-    name.textContent = station.name;
-    services.className = "db-popup-services";
-    services.textContent = station.ice
-        ? (station.regionalLines ? "ICE und Regionalverkehr" : "ICE")
-        : "Regionalverkehr";
-    header.append(name, services);
-    popup.append(header);
-    return popup;
-}
 
 function renderStations(map, stations) {
     const layer = L.layerGroup().addTo(map);
@@ -53,7 +35,8 @@ function renderStations(map, stations) {
                     icon: station.ice ? iceIcon : regionalIcon,
                     title: station.name,
                     zIndexOffset: station.ice ? 1000 : 0
-                }).bindPopup(() => stationPopup(station)).addTo(layer);
+                }).addTo(layer);
+                bindDbStationPopup(nextMarker, station);
                 nextMarker.getElement().setAttribute("aria-label", station.name);
                 markers.set(station, nextMarker);
             } else if (!visible && marker) {
@@ -162,6 +145,7 @@ async function loadMap() {
         }).addTo(map);
 
         function showGermany() {
+            map.closePopup();
             map.fitBounds(border.getBounds(), { padding: [20, 24], animate: false });
         }
 
@@ -170,7 +154,9 @@ async function loadMap() {
         initStationSearch(stations, openStation);
         map.attributionControl.addAttribution(
             'Bahnhöfe (gefiltert): <a href="https://www.gtfs.de/de/feeds/">GTFS.de / DELFI e.V.</a> ' +
-            '(<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>) · Grenzen: Natural Earth'
+            '(<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>) · Grenzen: Natural Earth · ' +
+            'Abfahrten: <a href="https://transitous.org/sources/">Transitous</a> · ' +
+            '<a href="https://github.com/FlorianHoelzel/transitradar/issues">Kontakt</a>'
         );
         resetButton.addEventListener("click", showGermany);
         resetButton.disabled = false;

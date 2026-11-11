@@ -6,6 +6,7 @@ import {
     getFallbackNoticeHtml,
     hasFallbackDepartures
 } from "./stationPopup.js";
+import { setupFade, setupStationLinesToggle } from "./popupPresentation.js";
 import { loadDeparturesForStation } from "./departureService.js";
 import { getStationServingLines } from "../api/transitApi.js";
 import { waitForPopupElement } from "./popupLifecycle.js";
@@ -20,50 +21,6 @@ let popupRefreshInterval = null;
 let favoriteChangeHandler = null;
 const pendingPopupRefreshes = new WeakSet();
 const servingLinesByStationId = new Map();
-
-function updateFade(departures) {
-    if (!departures) {
-        return;
-    }
-
-    const canScroll = departures.scrollHeight > departures.clientHeight;
-    const atBottom =
-        departures.scrollTop + departures.clientHeight >= departures.scrollHeight - 2;
-
-    departures.classList.toggle("has-fade", canScroll && !atBottom);
-}
-
-function setupFade(popupElement) {
-    const departures = popupElement?.querySelector(".departures");
-
-    if (!departures) {
-        return;
-    }
-
-    updateFade(departures);
-
-    departures.onscroll = () => {
-        updateFade(departures);
-    };
-}
-
-function setupStationLinesToggle(popupElement) {
-    const linesContainer = popupElement?.querySelector(".station-lines");
-    const toggleButton = popupElement?.querySelector(".station-lines-toggle");
-
-    if (!linesContainer || !toggleButton) {
-        return;
-    }
-
-    toggleButton.onclick = event => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        linesContainer.classList.add("expanded");
-
-        toggleButton.remove();
-    };
-}
 
 function setupDepartureRouteClicks(popupElement) {
     const departureRows = popupElement?.querySelectorAll(".clickable-departure");

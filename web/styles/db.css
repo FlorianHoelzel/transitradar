@@ -61,7 +61,8 @@
     pointer-events: none;
 }
 
-.db-map-status:not([hidden]) + .db-legend {
+.db-map-status:not([hidden]) + .db-legend,
+.berlin-v2-map-shell:has(.db-departure-popup) .db-legend {
     visibility: hidden;
 }
 
@@ -100,26 +101,22 @@
     box-shadow: 0 0 0 2px var(--ink);
 }
 
-.db-station-popup .station-popup-header {
-    display: block;
-    max-width: min(18rem, calc(100vw - 4rem));
-    padding: 0.85rem 1rem;
+.db-departure-popup .station-lines[hidden] {
+    display: none;
 }
 
-.db-station-popup .station-title {
-    font-size: 1rem;
-    white-space: normal;
-    overflow-wrap: anywhere;
-}
-
-.db-popup-services {
-    display: block;
-    margin-top: 0.3rem;
-    color: var(--muted);
+.db-departure-popup .popup-departure-card {
+    cursor: default;
 }
 
 .db-page .leaflet-control-attribution {
     max-width: 100%;
+}
+
+@media (max-height: 650px) {
+    .db-departure-popup .station-departures {
+        max-height: max(90px, calc(100dvh - 18rem));
+    }
 }
 
 @media (max-width: 700px) {
