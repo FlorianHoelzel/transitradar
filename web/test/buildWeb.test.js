@@ -34,6 +34,23 @@ function runBuild(outputRoot, environment = {}) {
     });
 }
 
+test("builds the DB page with the city interface and DB entry point", async () => {
+    const outputRoot = await mkdtemp(resolve(tmpdir(), "transitradar-build-"));
+    try {
+        const result = await runBuild(outputRoot);
+        assert.equal(result.code, 0, result.stderr);
+        const html = await readFile(resolve(outputRoot, "db.html"), "utf8");
+        assert.match(html, /rel="canonical" href="https:\/\/db\.transitradar\.de\//);
+        assert.match(html, /src="\/js\/dbPage\.js\?/);
+        assert.doesNotMatch(html, /src="\.\/js\/main\.js/);
+        for (const id of ["searchInput", "routePlannerToggle", "routePlannerPanel", "filterToggle", "map"]) {
+            assert.match(html, new RegExp(`id="${id}"`));
+        }
+    } finally {
+        await rm(outputRoot, { recursive: true, force: true });
+    }
+});
+
 test("injects the configured Umami tracker into every deployed page", async () => {
     const outputRoot = await mkdtemp(resolve(tmpdir(), "transitradar-build-"));
 

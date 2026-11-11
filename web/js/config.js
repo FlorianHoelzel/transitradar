@@ -97,6 +97,23 @@ const CITY_CONFIGS = {
         dataSourceText: "RMV-HAFAS-Daten für das Frankfurter Verkehrsnetz",
         affiliationText: "dem RMV, traffiQ oder den beteiligten Verkehrsunternehmen"
     },
+    db: {
+        id: "db",
+        name: "Deutschland",
+        network: "DB",
+        hostname: "db.transitradar.de",
+        apiBaseUrl: "https://api.transitous.org",
+        apiHealthCheckPath: "/api/v1/map/initial",
+        mapCenter: [51.16, 10.45],
+        mapZoom: 6,
+        bounds: { minLat: 47.2, maxLat: 55.1, minLng: 5.8, maxLng: 15.1 },
+        supportsLiveVehicles: true,
+        showVehiclesByDefault: false,
+        routePlannerRemoteSearch: false,
+        officialSources: [{ label: "bahn.de", url: "https://www.bahn.de/" }],
+        dataSourceText: "Bahnhofsdaten von GTFS.de und DELFI sowie Abfahrten, Zugfahrten und Verbindungen von Transitous",
+        affiliationText: "der Deutschen Bahn oder anderen beteiligten Verkehrsunternehmen"
+    },
     hannover: {
         id: "hannover",
         name: "Hannover",
@@ -140,6 +157,7 @@ const LOCAL_DEV_HOSTNAMES = new Set(["localhost", "127.0.0.1"]);
 
 function getCityIdFromHostname(hostname) {
     if (LOCAL_DEV_HOSTNAMES.has(hostname)) {
+        if (["/db", "/db.html"].includes(window.location.pathname)) return "db";
         const requestedCity = new URLSearchParams(window.location.search).get("city");
 
         if (CITY_CONFIGS[requestedCity]) {
@@ -158,7 +176,7 @@ export const CITY_CONFIG = CITY_CONFIGS[
     getCityIdFromHostname(window.location.hostname)
 ];
 
-export const API_BASE_URL = LOCAL_DEV_HOSTNAMES.has(window.location.hostname)
+export const API_BASE_URL = CITY_CONFIG.id !== "db" && LOCAL_DEV_HOSTNAMES.has(window.location.hostname)
     ? `/api/${CITY_CONFIG.id}`
     : CITY_CONFIG.apiBaseUrl;
 export const CITY_BOUNDS = CITY_CONFIG.bounds;

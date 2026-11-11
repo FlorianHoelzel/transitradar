@@ -4,7 +4,9 @@ export const activeFilters = {
     stations: {
         suburban: true,
         subway: true,
-        surface: true
+        surface: true,
+        regional: true,
+        longDistance: true
     },
 
     vehicles: {

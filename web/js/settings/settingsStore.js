@@ -1,8 +1,10 @@
-const STORAGE_KEY = "transitRadarSettings";
+import { CITY_CONFIG } from "../config.js";
+
+const STORAGE_KEY = CITY_CONFIG.id === "db" ? "transitRadarDbSettings" : "transitRadarSettings";
 
 export const DEFAULT_SETTINGS = Object.freeze({
     stationDensity: "balanced",
-    showVehicles: true,
+    showVehicles: CITY_CONFIG.showVehiclesByDefault ?? true,
     smoothVehicleMovement: true,
     mapBrightness: "balanced",
     departureTimeDisplay: "both"

@@ -1,4 +1,10 @@
+import { CITY_CONFIG } from "../config.js";
+
 export const stationMarkers = {};
+
+export function getStationMarkerKey(station) {
+    return CITY_CONFIG.id === "db" ? station.id : station.name;
+}
 
 export function clearStationMarkers(map) {
     Object.values(stationMarkers).forEach(marker => {

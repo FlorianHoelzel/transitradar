@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createDbPage } from "./db-page-template.mjs";
 
 const port = Number.parseInt(process.env.PORT || "4173", 10);
 const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -11,7 +12,7 @@ const PAGE_PATHS = {
     "/": "/city.html",
     "/landing": "/index.html",
     "/status": "/status.html",
-    "/db": "/db.html"
+    "/datenschutz": "/datenschutz.html"
 };
 
 const API_ORIGINS = {
@@ -80,6 +81,12 @@ function getStaticPath(url) {
 }
 
 async function serveStatic(response, url) {
+    if (["/db", "/db.html"].includes(url.pathname)) {
+        const template = await readFile(resolve(webRoot, "city.html"), "utf8");
+        send(response, 200, createDbPage(template), CONTENT_TYPES[".html"]);
+        return;
+    }
+
     const filePath = getStaticPath(url);
 
     if (!filePath) {

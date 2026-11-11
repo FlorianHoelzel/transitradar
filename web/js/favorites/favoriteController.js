@@ -1,5 +1,5 @@
 import { map } from "../map/map.js";
-import { markers, updateVisibleMarkers } from "../stations/stationMarkers.js";
+import { getStationMarkerKey, markers, updateVisibleMarkers } from "../stations/stationMarkers.js";
 import { getStations } from "../stations/stationStore.js";
 import { loadDeparturesForStation } from "../stations/departureService.js";
 import { DEPARTURE_CONFIG } from "../config.js";
@@ -41,7 +41,7 @@ function openStationOnMap(station) {
         updateVisibleMarkers(getStations());
 
         setTimeout(() => {
-            const marker = markers[station.name];
+            const marker = markers[getStationMarkerKey(station)];
 
             if (marker) {
                 marker.openPopup();

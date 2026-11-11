@@ -1,5 +1,6 @@
 import { createLineBadge } from "../lines/badges.js";
 import { formatClockTime } from "../settings/departureTime.js";
+import { escapeHtml } from "../ui/escapeHtml.js";
 
 function getStationKey(station) {
     return station.id || station.name;
@@ -24,7 +25,7 @@ function createFavoriteDepartureHtml(departure) {
             <div class="favorite-departure-main">
                 <div class="favorite-departure-line">
                     ${createLineBadge(lineName)}
-                    <span class="favorite-departure-direction">${direction}</span>
+                    <span class="favorite-departure-direction">${escapeHtml(direction)}</span>
                 </div>
 
                 <div class="favorite-departure-time-group">
@@ -44,11 +45,11 @@ export function createFavoriteStationHtml(station, departures = []) {
         : `<div class="favorite-empty">Keine Abfahrten gefunden.</div>`;
 
     return `
-        <article class="favorite-card" data-station-id="${stationKey}">
+        <article class="favorite-card" data-station-id="${escapeHtml(stationKey)}">
             <div class="favorite-card-header">
                 <button class="favorite-open" type="button" title="Haltestelle öffnen">
                     <span class="favorite-star">⭐</span>
-                    <span class="favorite-station-name">${station.name}</span>
+                    <span class="favorite-station-name">${escapeHtml(station.name)}</span>
                 </button>
 
                 <button class="favorite-remove" type="button" title="Favorit entfernen">

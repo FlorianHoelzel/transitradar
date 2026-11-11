@@ -1,6 +1,7 @@
 import { map } from "../map/map.js";
-import { SEARCH_CONFIG } from "../config.js";
-import { markers, updateVisibleMarkers } from "./stationMarkers.js";
+import { CITY_CONFIG, SEARCH_CONFIG } from "../config.js";
+import { getStationMarkerKey, markers, updateVisibleMarkers } from "./stationMarkers.js";
+import { rankStations } from "../ui/stationRanking.js";
 import {
     getDisplayStationName,
     getSearchStationName
@@ -90,6 +91,21 @@ function compareSearchResults(searchText) {
     };
 }
 
+function findSearchResults(stations, searchText) {
+    if (CITY_CONFIG.id === "db") {
+        return rankStations(stations, searchText, SEARCH_CONFIG.maxResults).map(({ station }) => station);
+    }
+
+    return stations.filter(station => {
+        const displayName = getDisplayStationName(station).toLowerCase();
+        const searchName = getSearchStationName(station).toLowerCase();
+
+        return station.name.toLowerCase().includes(searchText)
+            || displayName.includes(searchText)
+            || searchName.includes(searchText);
+    }).sort(compareSearchResults(searchText)).slice(0, SEARCH_CONFIG.maxResults);
+}
+
 export function setupSearch(stations) {
     const searchInput = document.getElementById("searchInput");
     const searchResults = document.getElementById("searchResults");
@@ -103,20 +119,7 @@ export function setupSearch(stations) {
             return;
         }
 
-        const matchingStations = stations.filter(station => {
-            const displayName = getDisplayStationName(station).toLowerCase();
-            const searchName = getSearchStationName(station).toLowerCase();
-
-            return (
-                station.name.toLowerCase().includes(searchText) ||
-                displayName.includes(searchText) ||
-                searchName.includes(searchText)
-            );
-        });
-
-        matchingStations
-            .sort(compareSearchResults(searchText))
-            .slice(0, SEARCH_CONFIG.maxResults)
+        findSearchResults(stations, searchText)
             .forEach(station => {
                 const resultItem = document.createElement("div");
                 resultItem.textContent = getDisplayStationName(station);
@@ -130,9 +133,7 @@ export function setupSearch(stations) {
                         updateVisibleMarkers(stations);
 
                         setTimeout(() => {
-                            if (markers[station.name]) {
-                                markers[station.name].openPopup();
-                            }
+                            markers[getStationMarkerKey(station)]?.openPopup();
                         }, 100);
                     });
 
@@ -143,4 +144,11 @@ export function setupSearch(stations) {
                 searchResults.appendChild(resultItem);
             });
     });
+
+    if (CITY_CONFIG.id === "db") {
+        searchInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") searchResults.firstElementChild?.click();
+            if (event.key === "Escape") searchResults.replaceChildren();
+        });
+    }
 }

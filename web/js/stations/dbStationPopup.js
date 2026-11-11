@@ -5,10 +5,11 @@ import {
     getStationLinesHtml
 } from "./stationPopup.js";
 import { setupFade, setupStationLinesToggle } from "./popupPresentation.js";
+import { isFavoriteStation, toggleFavorite } from "../favorites/favoriteService.js";
+import { showRouteForTrip } from "../map/routeLayer.js";
 
 const DISPLAY_LIMIT = 12;
-const TIME_OPTIONS = { interactive: false, timeZone: "Europe/Berlin", showHours: true };
-const POPUP_OPTIONS = { showFavorite: false };
+const TIME_OPTIONS = { timeZone: "Europe/Berlin", showHours: true };
 
 export function bindDbStationPopup(marker, station) {
     let countdown;
@@ -20,7 +21,7 @@ export function bindDbStationPopup(marker, station) {
 
     marker.on("popupopen", async ({ popup }) => {
         const template = document.createElement("template");
-        template.innerHTML = createPopupContent(station, undefined, POPUP_OPTIONS).trim();
+        template.innerHTML = createPopupContent(station).trim();
         const content = template.content.firstElementChild;
         const lines = content.querySelector(".station-lines");
         const departures = content.querySelector(".departures");
@@ -28,6 +29,17 @@ export function bindDbStationPopup(marker, station) {
         departures.setAttribute("aria-busy", "true");
         departures.setAttribute("aria-label", "Abfahrten");
         departures.tabIndex = 0;
+        departures.addEventListener("click", event => {
+            const row = event.target.closest(".clickable-departure");
+            if (row?.dataset.tripId) void showRouteForTrip(row.dataset.tripId, row.dataset.lineName, { showControl: true });
+        });
+        const favorite = content.querySelector(".station-favorite-button");
+        favorite.setAttribute("aria-pressed", String(isFavoriteStation(station)));
+        favorite.addEventListener("click", () => {
+            const active = toggleFavorite(station);
+            favorite.classList.toggle("active", active);
+            favorite.setAttribute("aria-pressed", String(active));
+        });
         popup.setContent(content);
 
         try {

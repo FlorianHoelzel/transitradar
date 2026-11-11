@@ -1,8 +1,9 @@
-import { getDbTrainPosition, loadDbTrainTrips } from "../api/dbTrainTrips.js";
+import { getDbTrainPosition, loadDbTrainTrips } from "../api/dbTrainTrips.js?v=db-ui-1";
 import { createLineBadge } from "../lines/badges.js";
-import { formatClockTime } from "../settings/departureTime.js";
-import { escapeHtml } from "../ui/escapeHtml.js";
-import { setupVehiclePopupLifecycle } from "./vehiclePopupLifecycle.js";
+import { bindDbTrainPopup } from "./dbTrainPopup.js";
+import { showRouteForTrip } from "../map/routeLayer.js";
+import { getSettings } from "../settings/settingsStore.js";
+import { activeFilters } from "../ui/filters.js";
 
 const REFRESH_MS = 120_000;
 const MIN_REQUEST_INTERVAL = 15_000;
@@ -33,23 +34,7 @@ function createTrainIcon(name, overview) {
     });
 }
 
-function createTrainPopup(name, { path, stopped }) {
-    const stopLabel = stopped ? "Aktueller Halt" : "Nächster Halt";
-    const arrival = stopped ? "" : ` · ${formatClockTime(path.arrival, "Europe/Berlin")}`;
-    const source = path.realTime ? "mit Echtzeitdaten" : "nach Fahrplan";
-    return `
-        <div class="vehicle-popup db-train-popup">
-            <div class="vehicle-popup-line">${createLineBadge(name)}</div>
-            <div class="vehicle-popup-title">${stopLabel}${arrival}</div>
-            <div class="vehicle-popup-direction">${escapeHtml(path.nextStop || "Unbekannt")}</div>
-            <div class="db-train-source">Position geschätzt · ${source}</div>
-        </div>
-    `;
-}
-
-export function initDbTrainLayer(map, boundary, countryBounds) {
-    const toggle = document.getElementById("dbTrainToggle");
-    const status = document.getElementById("dbTrainStatus");
+export function initDbTrainLayer(map, boundary, countryBounds, status) {
     const layer = L.layerGroup().addTo(map);
     const markers = new Map();
     const snapshots = new Map();
@@ -59,10 +44,13 @@ export function initDbTrainLayer(map, boundary, countryBounds) {
         holes,
         bounds: L.latLngBounds(outer.map(([lon, lat]) => [lat, lon]))
     }));
-    let enabled = false;
     let requestRunning = false;
     let refreshTimer;
     let movementTimer;
+
+    function enabled() {
+        return getSettings().showVehicles && (activeFilters.vehicles.longDistance || activeFilters.vehicles.regional);
+    }
 
     function setStatus(message) {
         if (status.textContent !== message) status.textContent = message;
@@ -76,6 +64,7 @@ export function initDbTrainLayer(map, boundary, countryBounds) {
         const overview = map.getZoom() < DETAIL_ZOOM ||
             padded.getNorth() - padded.getSouth() > 1.8 ||
             padded.getEast() - padded.getWest() > 3.5;
+        if (overview && !activeFilters.vehicles.longDistance) return null;
         const snapshot = snapshots.get(overview);
         const covered = overview || snapshot?.bounds.contains(viewport);
         const current = covered || snapshot?.bounds.intersects(viewport) ? snapshot : null;
@@ -83,7 +72,7 @@ export function initDbTrainLayer(map, boundary, countryBounds) {
     }
 
     function render() {
-        const view = enabled ? getView() : null;
+        const view = enabled() ? getView() : null;
         const visible = new Set();
         const bounds = map.getBounds();
         const now = Date.now();
@@ -91,6 +80,8 @@ export function initDbTrainLayer(map, boundary, countryBounds) {
         const snapshot = view?.snapshot;
         const trains = snapshot && now < snapshot.expiresAt + 30_000 ? snapshot.trains : null;
         for (const [id, train] of trains || []) {
+            const category = train.name.startsWith("ICE") ? "longDistance" : "regional";
+            if (!activeFilters.vehicles[category]) continue;
             const position = getDbTrainPosition(train, now);
             if (!position || !bounds.contains(position.coordinates)) continue;
             const inGermany = polygons.some(({ bounds: extent, outer, holes }) =>
@@ -111,7 +102,7 @@ export function initDbTrainLayer(map, boundary, countryBounds) {
                 const changed = marker.trainPosition.path !== position.path ||
                     marker.trainPosition.stopped !== position.stopped;
                 marker.trainPosition = position;
-                if (changed && marker.isPopupOpen()) marker.getPopup().update();
+                if (changed && marker.isPopupOpen()) void marker.refreshTrainPopup();
                 continue;
             }
 
@@ -123,12 +114,10 @@ export function initDbTrainLayer(map, boundary, countryBounds) {
             newMarker.trainPosition = position;
             newMarker.trainOverview = view.overview;
             newMarker.getElement().setAttribute("aria-label", train.name);
-            newMarker.bindPopup(() => createTrainPopup(train.name, newMarker.trainPosition), {
-                className: "db-train-leaflet-popup",
-                closeButton: false,
-                autoPanPadding: [16, 16]
+            newMarker.refreshTrainPopup = bindDbTrainPopup(newMarker, train.name);
+            newMarker.on("click", () => {
+                void showRouteForTrip(newMarker.trainPosition.path.tripId, train.name, { showControl: true });
             });
-            setupVehiclePopupLifecycle(newMarker);
             markers.set(id, newMarker);
         }
 
@@ -141,7 +130,7 @@ export function initDbTrainLayer(map, boundary, countryBounds) {
 
     async function refresh() {
         clearTimeout(refreshTimer);
-        if (!enabled || document.hidden) return;
+        if (!enabled() || document.hidden) return;
         const view = getView();
         if (!view) {
             setStatus("Keine Züge im Kartenausschnitt.");
@@ -175,30 +164,27 @@ export function initDbTrainLayer(map, boundary, countryBounds) {
             snapshots.set(view.overview, { bounds: view.bounds, error: true, expiresAt: now + REFRESH_MS });
         } finally {
             requestRunning = false;
-            if (enabled && !document.hidden) render();
+            if (enabled() && !document.hidden) render();
             void refresh();
         }
     }
 
     function syncLayer() {
         clearInterval(movementTimer);
+        status.hidden = !enabled();
         if (!document.hidden) render();
-        if (enabled && !document.hidden) movementTimer = setInterval(render, 1000);
+        if (enabled() && !document.hidden) {
+            movementTimer = setInterval(render, getSettings().smoothVehicleMovement ? 1000 : 15_000);
+        }
         void refresh();
     }
 
-    toggle.addEventListener("click", () => {
-        enabled = !enabled;
-        toggle.setAttribute("aria-pressed", String(enabled));
-        status.hidden = !enabled;
-        if (!enabled) setStatus("");
-        syncLayer();
-    });
     document.addEventListener("visibilitychange", syncLayer);
     map.on("moveend", () => {
-        if (!enabled || document.hidden) return;
+        if (!enabled() || document.hidden) return;
         render();
         void refresh();
     });
-    toggle.disabled = false;
+    syncLayer();
+    return syncLayer;
 }

@@ -7,9 +7,10 @@ import { map } from "../map/map.js";
 import { createLineBadge } from "../lines/badges.js";
 import { loadDeparturesForStation } from "../stations/departureService.js";
 import { getStations } from "../stations/stationStore.js";
-import { markers, updateVisibleMarkers } from "../stations/stationMarkers.js";
+import { getStationMarkerKey, markers, updateVisibleMarkers } from "../stations/stationMarkers.js";
 import { CITY_CONFIG } from "../config.js";
 import { formatCompactDepartureTime } from "../settings/departureTime.js";
+import { escapeHtml } from "./escapeHtml.js";
 
 const NEARBY_STATION_LIMIT = 8;
 const NEARBY_DEPARTURE_LIMIT = 5;
@@ -74,7 +75,7 @@ function openStationOnMap(station) {
         updateVisibleMarkers(getStations());
 
         setTimeout(() => {
-            const marker = markers[station.name];
+            const marker = markers[getStationMarkerKey(station)];
 
             if (marker) {
                 marker.openPopup();
@@ -94,7 +95,7 @@ function createNearbyDepartureHtml(departure) {
             <div class="favorite-departure-main">
                 <div class="favorite-departure-line">
                     ${createLineBadge(lineName)}
-                    <span class="favorite-departure-direction">${direction}</span>
+                    <span class="favorite-departure-direction">${escapeHtml(direction)}</span>
                 </div>
 
                 <div class="favorite-departure-time-group">
@@ -118,7 +119,7 @@ function createNearbyStationHtml(station, distance, departures = [], index) {
         <article class="favorite-card nearby-card" data-nearby-index="${index}">
             <div class="favorite-card-header nearby-card-header">
                 <button class="favorite-open nearby-open" type="button" title="Haltestelle öffnen">
-                    <span class="favorite-station-name">${station.name}</span>
+                    <span class="favorite-station-name">${escapeHtml(station.name)}</span>
                 </button>
 
                 <span class="nearby-distance">${formatDistance(distance)}</span>
@@ -280,7 +281,7 @@ export function setupSidebar() {
                     </p>
                     <p>
                         Für offizielle und aktuelle Reiseinformationen nutze bitte immer
-                        ${officialSourcesHtml} oder die offiziellen Angebote des ${CITY_CONFIG.network}.
+                        ${officialSourcesHtml}${CITY_CONFIG.id === "db" ? "." : ` oder die offiziellen Angebote des ${CITY_CONFIG.network}.`}
                     </p>
                 </div>
 

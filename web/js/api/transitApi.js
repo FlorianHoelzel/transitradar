@@ -8,6 +8,9 @@ import {
     VEHICLE_CONFIG
 } from "../config.js";
 import { fetchJson } from "./httpClient.js";
+import { loadDbDepartures } from "./dbDepartures.js";
+import { getDbJourneys } from "./dbJourneys.js";
+import { getDbTripDetails } from "./dbTrainTrips.js?v=db-ui-1";
 
 function createUrl(baseUrl, pathAndQuery) {
     const resolvedBaseUrl = baseUrl.startsWith("//") && window.location.protocol === "file:"
@@ -462,6 +465,11 @@ export async function loadStationsFromApi() {
 }
 
 export async function getDepartures(station) {
+    if (CITY_CONFIG.id === "db") {
+        const cutoff = Date.now() - 30_000;
+        const board = await loadDbDepartures(station);
+        return board.filter(departure => departure.timestamp >= cutoff).slice(0, DEPARTURE_CONFIG.displayLimit);
+    }
     const departures = await fetchDeparturesForStation(
         station,
         DEPARTURE_CONFIG.requestResults,
@@ -495,6 +503,7 @@ export async function getStationServingLines(station) {
 }
 
 export async function getJourneys({ from, to, departure, arrival }) {
+    if (CITY_CONFIG.id === "db") return getDbJourneys({ from, to, departure, arrival });
     const getJourneyStopScore = stop => {
         const products = stop?.products || {};
         const weights = {
@@ -638,6 +647,7 @@ export async function getCityVehicleMovementsGrid(zoom) {
 }
 
 export async function getTripDetails(tripId, lineName) {
+    if (CITY_CONFIG.id === "db") return getDbTripDetails(tripId);
     const pathAndQuery =
         `/trips/${encodeURIComponent(tripId)}` +
         `?lineName=${encodeURIComponent(lineName)}` +

@@ -3,7 +3,7 @@ FROM node:22-alpine AS web-build
 WORKDIR /app
 
 COPY web/ ./web/
-COPY scripts/build-web.mjs ./scripts/build-web.mjs
+COPY scripts/build-web.mjs scripts/db-page-template.mjs ./scripts/
 
 ARG UMAMI_SCRIPT_URL
 ARG UMAMI_WEBSITE_ID

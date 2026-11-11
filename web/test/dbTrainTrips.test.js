@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 globalThis.window = { location: { hostname: "db.transitradar.de" } };
-const { getDbTrainPosition, normalizeDbTrainTrips } = await import("../js/api/dbTrainTrips.js");
+const { getDbTrainPosition, getDbUpcomingStops, normalizeDbTrainTrips } = await import("../js/api/dbTrainTrips.js");
 
 const departure = "2026-11-11T11:00:00Z";
 const arrival = "2026-11-11T11:10:00Z";
@@ -58,4 +58,22 @@ test("prefers the real-time path when two feeds report the same ICE", () => {
     const { path } = getDbTrainPosition(train, Date.parse("2026-11-11T11:03:00Z"));
     assert.equal(path.nextStop, "Berlin Südkreuz");
     assert.equal(path.realTime, true);
+    assert.equal(path.tripId, "ice-612");
+});
+
+test("starts the route at the matching upcoming stop and keeps the final destination", () => {
+    const stopovers = [
+        { name: "Berlin Hbf", parentId: "hbf", departure: "2026-11-11T10:00:00Z" },
+        { name: "Berlin Südkreuz", stopId: "suedkreuz", arrival: "2026-11-11T10:10:00Z" },
+        { name: "Berlin Hbf", parentId: "hbf", arrival },
+        { name: "Berlin-Spandau", stopId: "spandau", arrival: "2026-11-11T11:20:00Z" },
+        { name: "Hamburg Hbf", stopId: "hamburg", arrival: "2026-11-11T13:00:00Z" }
+    ];
+    const path = { toStopId: "hbf", arrival: Date.parse(arrival) };
+    assert.deepEqual(getDbUpcomingStops(stopovers, path).map(stop => stop.name), [
+        "Berlin Hbf", "Berlin-Spandau", "Hamburg Hbf"
+    ]);
+    assert.deepEqual(getDbUpcomingStops(stopovers, { ...path, toStopId: "hamburg" }), [
+        { name: "Hamburg Hbf" }
+    ]);
 });

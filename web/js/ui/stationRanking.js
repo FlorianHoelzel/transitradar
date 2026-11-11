@@ -5,13 +5,14 @@ import {
 } from "../stations/stationNames.js";
 
 function normalizeText(value) {
-    return String(value || "")
+    const normalized = String(value || "")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/gu, "")
         .replace(/ß/gu, "ss")
         .toLocaleLowerCase("de-DE")
         .replace(/[^a-z0-9]+/gu, " ")
         .trim();
+    return CITY_CONFIG.id === "db" ? normalized.replace(/\bhbf\b/gu, "hauptbahnhof") : normalized;
 }
 
 function lineName(line) {

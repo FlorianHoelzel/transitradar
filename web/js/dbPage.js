@@ -1,172 +1,130 @@
-import { addBaseTiles } from "./map/baseTiles.js";
-import { bindDbStationPopup } from "./stations/dbStationPopup.js";
-import { initDbTrainLayer } from "./vehicles/dbTrainLayer.js";
+import { map } from "./map/map.js";
+import { clearRouteLayer } from "./map/routeLayer.js";
+import { getSettings, updateSetting } from "./settings/settingsStore.js";
+import { setupSettings } from "./settings/settingsController.js";
+import { updateVisibleMarkers } from "./stations/stationMarkers.js";
+import { setupSearch } from "./stations/stationSearch.js";
+import { getStations, setStations } from "./stations/stationStore.js";
+import { createApiStatusIndicator } from "./ui/apiStatusIndicator.js";
+import { setupFilters } from "./ui/filters.js";
+import { createLocationButton } from "./ui/locationButton.js";
+import { setupRoutePlanner } from "./ui/routePlanner.js";
+import { setupSidebar } from "./ui/sidebar.js";
+import { initDbTrainLayer } from "./vehicles/dbTrainLayer.js?v=db-ui-1";
 
-const status = document.getElementById("mapStatus");
-const resetButton = document.getElementById("resetMap");
+const mapStatus = document.getElementById("mapStatus");
+let syncTrains = () => {};
+let countryBounds;
 
-function renderStations(map, stations) {
-    const layer = L.layerGroup().addTo(map);
-    const markers = new Map();
-    const regionalIcon = L.divIcon({
-        className: "station-marker db-station-marker",
-        iconSize: [20, 20],
-        popupAnchor: [0, -8]
-    });
-    const iceIcon = L.divIcon({
-        className: "station-marker db-station-marker db-station-marker--ice",
-        iconSize: [20, 20],
-        popupAnchor: [0, -8]
-    });
-
-    function updateStations() {
-        const bounds = map.getBounds().pad(0.1);
-        const zoom = map.getZoom();
-        // Start with ICE stops and regional hubs, then reveal smaller stations.
-        const minimumLines = zoom >= 10 ? 1 : zoom >= 8 ? 2 : zoom >= 7 ? 4 : 6;
-
-        for (const station of stations) {
-            const position = [station.lat, station.lon];
-            const visible = (station.ice || station.regionalLines >= minimumLines)
-                && bounds.contains(position);
-            const marker = markers.get(station);
-
-            if (visible && !marker) {
-                const nextMarker = L.marker(position, {
-                    icon: station.ice ? iceIcon : regionalIcon,
-                    title: station.name,
-                    zIndexOffset: station.ice ? 1000 : 0
-                }).addTo(layer);
-                bindDbStationPopup(nextMarker, station);
-                nextMarker.getElement().setAttribute("aria-label", station.name);
-                markers.set(station, nextMarker);
-            } else if (!visible && marker) {
-                layer.removeLayer(marker);
-                markers.delete(station);
-            }
-        }
-    }
-
-    map.on("moveend", updateStations);
-    updateStations();
-
-    return station => {
-        map.setView([station.lat, station.lon], Math.max(12, map.getZoom()), { animate: false });
-        markers.get(station)?.openPopup();
-    };
+function refreshStations() {
+    updateVisibleMarkers(getStations());
 }
 
-function normalizeStationName(name) {
-    return name.trim().toLocaleLowerCase("de")
-        .normalize("NFD")
-        .replace(/\p{M}/gu, "")
-        .replaceAll("ß", "ss")
-        .replace(/\bhbf\b/g, "hauptbahnhof");
-}
+function setupDbFilters() {
+    const panel = document.getElementById("filterPanel");
+    const stationOptions = panel.querySelectorAll('[data-filter-group="stations"]');
+    stationOptions[0].dataset.filter = "longDistance";
+    stationOptions[0].textContent = "ICE-Bahnhöfe";
+    stationOptions[1].dataset.filter = "regional";
+    stationOptions[1].textContent = "Regionalbahnhöfe";
+    stationOptions[2].remove();
 
-function initStationSearch(stations, openStation) {
-    const form = document.getElementById("stationSearch");
-    const input = document.getElementById("searchInput");
-    const results = document.getElementById("searchResults");
-    const index = stations.map(station => ({ station, name: normalizeStationName(station.name) }));
+    panel.querySelectorAll('[data-filter-group="vehicles"]').forEach(option => {
+        if (option.dataset.filter === "longDistance") option.textContent = "ICE";
+        else if (option.dataset.filter === "regional") option.textContent = "Regionalzüge";
+        else option.remove();
+    });
+    const vehicleSection = panel.querySelector('[data-filter-section="vehicles"]');
+    const toggle = document.createElement("button");
+    toggle.id = "dbTrainToggle";
+    toggle.className = "filter-option";
+    toggle.type = "button";
+    toggle.textContent = "Züge anzeigen";
+    vehicleSection.querySelector(".filter-panel-title").after(toggle);
+    const trainStatus = document.createElement("p");
+    trainStatus.id = "dbTrainStatus";
+    trainStatus.className = "db-filter-status";
+    trainStatus.setAttribute("role", "status");
+    trainStatus.hidden = true;
+    vehicleSection.append(trainStatus);
 
-    function selectStation(station) {
-        input.value = station.name;
-        input.blur();
-        results.replaceChildren();
-        openStation(station);
+    const reset = document.createElement("button");
+    reset.id = "resetMap";
+    reset.className = "filter-option";
+    reset.type = "button";
+    reset.textContent = "Ganz Deutschland anzeigen";
+    reset.disabled = true;
+    reset.addEventListener("click", () => {
+        clearRouteLayer();
+        map.closePopup();
+        map.fitBounds(countryBounds, { padding: [20, 24], animate: false });
+        document.getElementById("filterToggle").click();
+    });
+    panel.append(reset);
+
+    function syncToggle() {
+        const shown = getSettings().showVehicles;
+        toggle.classList.toggle("active", shown);
+        toggle.setAttribute("aria-pressed", String(shown));
     }
 
-    function updateResults() {
-        results.replaceChildren();
-        const query = normalizeStationName(input.value);
-        if (query.length < 2) return;
-
-        const matches = index
-            .filter(entry => entry.name.includes(query))
-            .sort((a, b) =>
-                Number(b.name.startsWith(query)) - Number(a.name.startsWith(query)) ||
-                Number(b.station.ice) - Number(a.station.ice) ||
-                b.station.regionalLines - a.station.regionalLines
-            )
-            .slice(0, 8);
-
-        for (const { station } of matches) {
-            const option = document.createElement("button");
-            option.type = "button";
-            option.textContent = station.name;
-            option.addEventListener("click", () => selectStation(station));
-            results.append(option);
-        }
-        if (!matches.length) {
-            const empty = document.createElement("div");
-            empty.setAttribute("role", "status");
-            empty.textContent = "Kein Bahnhof gefunden.";
-            results.append(empty);
-        }
-    }
-
-    input.addEventListener("input", updateResults);
-    input.addEventListener("focus", updateResults);
-    form.addEventListener("submit", event => {
-        event.preventDefault();
-        results.querySelector("button")?.click();
+    toggle.addEventListener("click", () => updateSetting("showVehicles", !getSettings().showVehicles));
+    syncToggle();
+    window.addEventListener("transitRadarSettingsChanged", ({ detail }) => {
+        syncToggle();
+        if (detail.changedKey === "stationDensity" || detail.changedKey === "reset") refreshStations();
+        if (["showVehicles", "smoothVehicleMovement", "reset"].includes(detail.changedKey)) syncTrains();
     });
-    form.addEventListener("focusout", event => {
-        if (!form.contains(event.relatedTarget)) results.replaceChildren();
+    setupFilters(() => {
+        map.closePopup();
+        refreshStations();
+        syncTrains();
     });
-    form.addEventListener("keydown", event => {
-        if (event.key === "Escape") {
-            event.preventDefault();
-            input.focus();
-            results.replaceChildren();
-        }
-    });
-    input.disabled = false;
+
+    return trainStatus;
 }
 
-async function loadMap() {
-    status.textContent = "Bahnhöfe werden geladen …";
-
+async function loadStations(trainStatus) {
     try {
-        if (!window.L) {
-            throw new Error("Leaflet failed to load");
-        }
-
         const response = await fetch("/data/db-stations.json");
-        if (!response.ok) {
-            throw new Error(`Station data: HTTP ${response.status}`);
-        }
+        if (!response.ok) throw new Error("Station data: HTTP " + response.status);
         const { boundary, stations } = await response.json();
-        const map = L.map("map", { zoomSnap: 0.25, minZoom: 4, zoomControl: false });
-        addBaseTiles(map);
         const border = L.geoJSON(boundary, {
             interactive: false,
             style: { color: "#8b96ab", weight: 1, opacity: 0.65, fill: false }
         }).addTo(map);
+        countryBounds = border.getBounds();
+        map.fitBounds(countryBounds, { padding: [20, 24], animate: false });
 
-        function showGermany() {
-            map.closePopup();
-            map.fitBounds(border.getBounds(), { padding: [20, 24], animate: false });
-        }
-
-        showGermany();
-        const openStation = renderStations(map, stations);
-        initStationSearch(stations, openStation);
-        initDbTrainLayer(map, boundary, border.getBounds());
+        const stationData = stations.map(station => ({
+            ...station,
+            id: station.lat + "," + station.lon + ":" + station.name,
+            coordinates: [station.lat, station.lon],
+            products: { express: station.ice, regional: station.regionalLines > 0 }
+        }));
+        setStations(stationData);
+        setupSearch(stationData);
+        refreshStations();
+        syncTrains = initDbTrainLayer(map, boundary, countryBounds, trainStatus);
         map.attributionControl.addAttribution(
             'Bahnhöfe (gefiltert): <a href="https://www.gtfs.de/de/feeds/">GTFS.de / DELFI e.V.</a> ' +
             '(<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>) · Grenzen: Natural Earth · ' +
             'Abfahrten und Züge: <a href="https://transitous.org/sources/">Transitous</a> · ' +
             '<a href="https://github.com/FlorianHoelzel/transitradar/issues">Kontakt</a>'
         );
-        resetButton.addEventListener("click", showGermany);
-        resetButton.disabled = false;
-        status.hidden = true;
+        document.getElementById("resetMap").disabled = false;
+        mapStatus.hidden = true;
     } catch (error) {
         console.error(error);
-        status.textContent = "Die Bahnhofskarte konnte nicht geladen werden. Lade die Seite erneut.";
+        mapStatus.textContent = "Die Bahnhöfe konnten nicht geladen werden. Lade die Seite erneut.";
     }
 }
 
-loadMap();
+document.body.dataset.city = "db";
+setupSidebar();
+setupRoutePlanner();
+setupSettings();
+createLocationButton();
+createApiStatusIndicator();
+map.on("moveend", refreshStations);
+void loadStations(setupDbFilters());

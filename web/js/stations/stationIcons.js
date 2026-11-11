@@ -28,6 +28,12 @@ const busIcon = L.divIcon({
     popupAnchor: [0, -6]
 });
 
+const dbIcons = [false, true].map(ice => L.divIcon({
+    className: `station-marker db-station-marker${ice ? " db-station-marker--ice" : ""}`,
+    iconSize: [20, 20],
+    popupAnchor: [0, -8]
+}));
+
 function getStationLines(station) {
     const stopLines = station.stops?.flatMap(stop => stop.lines || []) || [];
 
@@ -42,6 +48,7 @@ function hasLineType(station, predicate) {
 }
 
 export function getStationIcon(station) {
+    if (CITY_CONFIG.id === "db") return dbIcons[Number(Boolean(station.ice))];
     const name = station.name.toLowerCase();
 
     if (

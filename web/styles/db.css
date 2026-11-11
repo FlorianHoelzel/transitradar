@@ -1,78 +1,25 @@
-.db-page .db-reset {
-    flex: 0 0 var(--top-control-height);
-    min-height: var(--top-control-height);
-    padding: 0;
-}
-
-.db-page .db-reset:disabled {
-    opacity: 0.55;
-    cursor: default;
-}
-
-.db-page #searchResults {
-    max-height: min(23rem, calc(100dvh - 11rem));
-    overflow-y: auto;
-}
-
-.db-page #searchResults button {
-    display: block;
-    width: 100%;
-    padding: 0.8rem 1rem;
-    border: 0;
-    background: transparent;
-    color: var(--text-soft);
-    font: inherit;
-    font-size: 0.86rem;
-    font-weight: 650;
-    text-align: start;
-    cursor: pointer;
-}
-
-.db-page #searchResults button:is(:hover, :focus-visible) {
-    background: var(--panel);
-}
-
-.db-map-status,
-.db-legend {
+.db-map-status {
     position: absolute;
     z-index: 1000;
+    top: 0.85rem;
+    left: 50%;
+    width: max-content;
+    max-width: calc(100% - 1.7rem);
     margin: 0;
     padding: 0.55rem 0.75rem;
+    transform: translateX(-50%);
     border: 1px solid var(--line);
     border-radius: 8px;
     background: var(--panel-strong);
     font-size: 0.8rem;
 }
 
-.db-map-status {
-    top: 0.85rem;
-    left: 50%;
-    width: max-content;
-    max-width: calc(100% - 1.7rem);
-    transform: translateX(-50%);
+.db-filter-status {
+    margin: 0.5rem 0 0;
+    color: var(--muted);
+    font-size: 0.75rem;
 }
 
-.db-legend {
-    top: 0.85rem;
-    right: 0.85rem;
-    display: grid;
-    gap: 0.25rem;
-    list-style: none;
-    pointer-events: none;
-}
-
-.db-map-status:not([hidden]) + .db-legend,
-.berlin-v2-map-shell:has(:is(.db-departure-popup, .db-train-leaflet-popup)) .db-legend {
-    visibility: hidden;
-}
-
-.db-legend li {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
-}
-
-.db-legend li::before,
 .db-station-marker::before {
     content: "";
     display: block;
@@ -80,20 +27,13 @@
     height: 7px;
     border-radius: 50%;
     background: var(--blue);
-}
-
-.db-legend .db-legend-ice::before,
-.db-station-marker--ice::before {
-    background: var(--red);
-}
-
-.db-station-marker::before {
     box-shadow: 0 0 0 1px var(--page);
 }
 
 .db-station-marker--ice::before {
     width: 9px;
     height: 9px;
+    background: var(--red);
 }
 
 .db-station-marker:hover::before,
@@ -105,49 +45,8 @@
     display: none;
 }
 
-.db-departure-popup .popup-departure-card {
-    cursor: default;
-}
-
 .db-page .leaflet-control-attribution {
     max-width: 100%;
-}
-
-.db-train-control {
-    position: absolute;
-    bottom: 1.5rem;
-    left: 0.85rem;
-    z-index: 550;
-    display: grid;
-    justify-items: start;
-    gap: 0.4rem;
-    max-width: calc(100% - 1.7rem);
-}
-
-.db-page #dbTrainToggle {
-    min-height: 44px;
-    gap: 0.5rem;
-    background: var(--panel-strong);
-}
-
-.db-page #dbTrainToggle[aria-pressed="true"] {
-    border-color: var(--blue);
-    color: var(--ink);
-}
-
-.db-page #dbTrainToggle:disabled {
-    opacity: 0.55;
-    cursor: default;
-}
-
-.db-train-status {
-    margin: 0;
-    padding: 0.45rem 0.65rem;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--panel-strong);
-    color: var(--text-soft);
-    font-size: 0.78rem;
 }
 
 .db-train-marker .vehicle-badge {
@@ -171,19 +70,12 @@
     background: #f5f7fb;
 }
 
-.db-train-popup {
-    font-family: "TransitLanding", Arial, sans-serif;
+.db-train-leaflet-popup .vehicle-timeline:has(.vehicle-destination-stop:only-child)::before {
+    display: none;
 }
 
-.db-train-popup .vehicle-popup-title {
-    margin-bottom: 0.25rem;
-}
-
-.db-train-popup .vehicle-popup-direction {
-    margin-bottom: 0.75rem;
-}
-
-.db-train-source {
+.db-train-details {
+    margin-top: 0.85rem;
     color: var(--muted);
     font-size: 0.78rem;
 }
@@ -195,10 +87,6 @@
 }
 
 @media (max-width: 700px) {
-    .db-train-control {
-        bottom: 2.65rem;
-    }
-
     .db-station-marker::before {
         width: 5px;
         height: 5px;

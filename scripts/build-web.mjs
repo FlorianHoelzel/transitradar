@@ -232,6 +232,8 @@ await mkdir(outputRoot, { recursive: true });
 await cp(sourceRoot, outputRoot, { recursive: true });
 
 const cityTemplate = await readFile(resolve(sourceRoot, "city.html"), "utf8");
+const { createDbPage } = await import("./db-page-template.mjs");
+await writeFile(resolve(outputRoot, "db.html"), createDbPage(cityTemplate));
 const umamiTracker = createUmamiTracker();
 
 for (const city of cities) {

@@ -45,6 +45,7 @@ export function normalizeDbDepartures(station, stopTimes, now = Date.now()) {
         if (previous && (previous.realTime || !realTime) && (!cancelled || previous.cancelled)) continue;
 
         departures.set(key, {
+            tripId: cancelled ? "" : stopTime.tripId,
             line: { name: lineName },
             direction,
             when,
@@ -63,8 +64,9 @@ export function loadDbDepartures(station) {
     const cached = boardCache.get(station);
     if (cached && Date.now() < cached.expiresAt) return cached.request;
 
+    const coordinates = station.coordinates || [station.lat, station.lon];
     const query = new URLSearchParams({
-        center: `${station.lat},${station.lon}`,
+        center: coordinates.join(","),
         radius: "450",
         mode: DB_RAIL_MODES.join(","),
         n: "40",
