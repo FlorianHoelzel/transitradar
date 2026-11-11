@@ -278,3 +278,12 @@ await writeFile(
     resolve(outputRoot, "robots-status.txt"),
     "User-agent: *\nAllow: /\n"
 );
+
+await writeFile(
+    resolve(outputRoot, "sitemap-db.xml"),
+    createSitemap("https://db.transitradar.de/")
+);
+await writeFile(
+    resolve(outputRoot, "robots-db.txt"),
+    createRobots("https://db.transitradar.de/sitemap.xml")
+);

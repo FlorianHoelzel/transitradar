@@ -61,6 +61,21 @@ TransitRadar currently serves Berlin, Hamburg, Frankfurt, and Hannover, with sup
 | 🚌 Bremen (VBN) | 📅 Planned |
 | 🚇 Munich (MVV) | ⏳ Planned, pending data availability |
 
+## Deutschland map
+
+Run `node scripts/dev-server.mjs` and open `http://localhost:4173/db`.
+The production Nginx configuration serves the map at `db.transitradar.de`.
+
+The map uses a bundled snapshot of scheduled ICE and regional rail stops
+in Germany. It shows ICE stops and regional hubs at country zoom and adds
+smaller regional stations when zooming in. S-Bahn and replacement bus
+routes are excluded from the station selection.
+
+To refresh the snapshot, download the [long-distance GTFS ZIP](https://download.gtfs.de/germany/fv_free/latest.zip),
+the [regional GTFS ZIP](https://download.gtfs.de/germany/rv_free/latest.zip)
+and the [Natural Earth countries GeoJSON](https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_0_countries.geojson).
+Then run `python tools/generate_db_stations.py <long-distance.zip> <regional.zip> <countries.geojson>`.
+
 ## 🔭 Planned
 
 - Favorite lines

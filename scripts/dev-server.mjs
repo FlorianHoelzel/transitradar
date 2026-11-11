@@ -7,6 +7,13 @@ const port = Number.parseInt(process.env.PORT || "4173", 10);
 const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const webRoot = resolve(projectRoot, "web");
 
+const PAGE_PATHS = {
+    "/": "/city.html",
+    "/landing": "/index.html",
+    "/status": "/status.html",
+    "/db": "/db.html"
+};
+
 const API_ORIGINS = {
     berlin: "https://api.transitradar.de",
     hamburg: "https://api-hamburg.transitradar.de",
@@ -61,13 +68,7 @@ async function proxyApi(request, response, url) {
 }
 
 function getStaticPath(url) {
-    const requestedPath = url.pathname === "/"
-        ? "/city.html"
-        : url.pathname === "/landing"
-            ? "/index.html"
-            : url.pathname === "/status"
-                ? "/status.html"
-                : decodeURIComponent(url.pathname);
+    const requestedPath = PAGE_PATHS[url.pathname] || decodeURIComponent(url.pathname);
     const filePath = resolve(webRoot, `.${requestedPath}`);
     const normalizedRoot = `${webRoot}${sep}`.toLowerCase();
 
@@ -118,4 +119,5 @@ createServer(async (request, response) => {
     console.log(`Hannover:  http://localhost:${port}/?city=hannover`);
     console.log(`Hamburg: http://localhost:${port}/?city=hamburg`);
     console.log(`Berlin:  http://localhost:${port}/?city=berlin`);
+    console.log(`Deutschland: http://localhost:${port}/db`);
 });

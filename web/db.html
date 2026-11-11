@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Bahnhofskarte Deutschland | TransitRadar</title>
+    <meta name="description" content="Interaktive Karte der ICE- und Regionalbahnhöfe in Deutschland.">
+    <meta name="theme-color" content="#08090d">
+    <link rel="canonical" href="https://db.transitradar.de/">
+    <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles/fonts.css">
+    <link rel="stylesheet" href="/styles/base.css">
+    <link rel="stylesheet" href="/styles/search.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="/styles/stations.css">
+    <link rel="stylesheet" href="/styles/city.css?v=city-3">
+    <link rel="stylesheet" href="/styles/db.css">
+</head>
+<body class="city-app berlin-v2 db-page">
+    <h1 class="city-summary">Bahnhofskarte Deutschland</h1>
+    <div class="route-field" aria-hidden="true"></div>
+
+    <header class="berlin-v2-topbar" aria-label="TransitRadar">
+        <a class="brand" href="https://transitradar.de/">TransitRadar</a>
+        <nav class="berlin-v2-links" aria-label="Seitennavigation">
+            <a class="nav-link" href="https://status.transitradar.de/">API-Status</a>
+        </nav>
+    </header>
+
+    <div class="top-search-controls">
+        <form class="search-box" id="stationSearch" role="search">
+            <input
+                id="searchInput"
+                type="search"
+                aria-label="Bahnhof suchen"
+                placeholder="Bahnhof suchen …"
+                autocomplete="off"
+                spellcheck="false"
+                disabled
+            >
+            <div id="searchResults"></div>
+        </form>
+        <button
+            class="nav-link db-reset"
+            id="resetMap"
+            type="button"
+            aria-label="Ganz Deutschland anzeigen"
+            title="Ganz Deutschland anzeigen"
+            disabled
+        >
+            <svg class="lucide-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/>
+            </svg>
+        </button>
+    </div>
+
+    <main class="berlin-v2-map-shell" aria-label="Bahnhofskarte">
+        <div id="map" aria-label="Karte der ICE- und Regionalbahnhöfe"></div>
+        <p class="db-map-status" id="mapStatus" role="status">Aktiviere JavaScript, um die Bahnhofskarte zu öffnen.</p>
+        <ul class="db-legend" aria-label="Kartenlegende">
+            <li class="db-legend-ice">ICE-Halt</li>
+            <li>Regionalbahnhof</li>
+        </ul>
+    </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module" src="/js/dbPage.js"></script>
+</body>
+</html>

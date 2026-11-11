@@ -193,6 +193,13 @@ h1 {
     padding-bottom: clamp(2rem, 5vw, 4rem);
 }
 
+.city-section-title {
+    margin: 0 0 clamp(1.1rem, 2.6vw, 1.9rem);
+    font-size: clamp(1.45rem, 3vw, 2.4rem);
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
 .city-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -210,6 +217,14 @@ h1 {
     box-shadow: var(--shadow);
     animation: cardIn 560ms var(--delay) ease both;
     transition: transform 220ms ease, border-color 220ms ease;
+}
+
+.city-card--nationwide {
+    max-width: 32rem;
+}
+
+.city-card--nationwide .city-image-wrap img {
+    object-position: center top;
 }
 
 .city-card--ready:hover,
